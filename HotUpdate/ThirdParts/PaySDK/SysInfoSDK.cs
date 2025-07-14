@@ -1,8 +1,5 @@
-﻿// THAY THẾ NỘI DUNG TOÀN BỘ FILE SysInfoSDK.cs
+﻿#if UNITY_IOS || UNITY_ANDROID
 
-#if UNITY_IOS || UNITY_ANDROID
-
-// ===== MOBILE IMPLEMENTATION - CODE GỐC KHÔNG THAY ĐỔI =====
 
 using System;
 using UnityEngine;
@@ -135,10 +132,10 @@ public class SysInfoSDK : BasePlatformSDK {
 	const float checkInterval = 2f;
 	float lastTimestamp = 0;
 	public void Update(float delta){
-        //if (Time.realtimeSinceStartup - lastTimestamp > checkInterval) {
-        //    lastTimestamp = Time.realtimeSinceStartup;
-        //    UpdateBatteryAndWFStrength();
-        //}
+        if (Time.realtimeSinceStartup - lastTimestamp > checkInterval) {
+            lastTimestamp = Time.realtimeSinceStartup;
+            UpdateBatteryAndWFStrength();
+        }
 	}
 
 	System.Action<string,System.Object> mCallback;
