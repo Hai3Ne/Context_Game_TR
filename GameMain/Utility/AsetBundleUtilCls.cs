@@ -57,7 +57,8 @@ public class KApplication
 #elif UNITY_IPHONE || UNITY_IOS
     public const string PlatformName = "IOS";
 #else
-    public const string PlatformName = "STANDALONE";
+    // public const string PlatformName = "STANDALONE";
+    public const string PlatformName = "ANDROID";
 #endif
     public static string GetPlatfomrName()
 	{

@@ -1,10 +1,4 @@
-﻿// THAY THẾ NỘI DUNG TOÀN BỘ FILE UniWebViewHelper.cs
-
-#if UNITY_IOS || UNITY_ANDROID
-
-// ===== MOBILE IMPLEMENTATION - CODE GỐC KHÔNG THAY ĐỔI =====
-
-using UnityEngine;
+﻿using UnityEngine;
 
 /// <summary>
 /// Supply some helper utility method for UniWebView
@@ -95,66 +89,3 @@ public class UniWebViewHelper{
 #endif
     }
 }
-
-#else
-
-// ===== PC IMPLEMENTATION - STUB VERSION =====
-
-using UnityEngine;
-
-/// <summary>
-/// PC Stub version of UniWebViewHelper
-/// </summary>
-public class UniWebViewHelper
-{
-    /// <summary>
-    /// Get the height of the screen for PC
-    /// </summary>
-    public static int screenHeight 
-    {
-        get 
-        {
-            return Screen.height;
-        }
-    }
-
-    /// <summary>
-    /// Get the width of the screen for PC
-    /// </summary>
-    public static int screenWidth 
-    {
-        get 
-        {
-            return Screen.width;
-        }
-    }
-
-    /// <summary>
-    /// Get the screen scale for PC (always 1)
-    /// </summary>
-    public static int screenScale 
-    {
-        get 
-        {
-            return 1; // PC doesn't have retina scaling like mobile
-        }
-    }
-
-    /// <summary>
-    /// Get streaming asset URL for PC
-    /// </summary>
-    public static string streamingAssetURLForPath(string path)
-    {
-        if (string.IsNullOrEmpty(path))
-        {
-            return string.Empty;
-        }
-        
-        // PC uses standard file path
-        string fullPath = Application.streamingAssetsPath + "/" + path;
-        Debug.Log($"[PC UniWebViewHelper] Streaming asset path: {fullPath}");
-        return fullPath;
-    }
-}
-
-#endif
