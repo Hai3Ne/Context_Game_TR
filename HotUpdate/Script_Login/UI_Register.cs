@@ -118,21 +118,22 @@ public class UI_Register : UILayer
                 }
                 break;
             case NetCmdType.SUB_GP_PHONE_VERIFY_CODE:
+            {
+                CMD_GP_PhoneVerifyCodeRet cmd = pack.ToObj<CMD_GP_PhoneVerifyCodeRet>();
+        
+                MainEntrace.Instance.HideLoad();
+                SetVerifyPhone(cmd.RetCode);
+                if (cmd.RetCode != 0)
                 {
-                    CMD_GP_PhoneVerifyCodeRet cmd = pack.ToObj<CMD_GP_PhoneVerifyCodeRet>();
-                    SetVerifyPhone(cmd.RetCode);
-
-                    if (cmd.RetCode !=0)
-                    {
-                        SystemMessageMgr.Instance.ShowMessageBox("验证码不正确");
-                        return;
-                    }
-
-                    if (mVerifyIDCard == 0 && mVerifyPhone == 0)
-                    {
-                        RegisterAccount();
-                    }
+                    SystemMessageMgr.Instance.DialogShow("验证码不正确，请稍后再试。", null);
+                    return;
                 }
+
+                if (mVerifyPhone == 0)
+                {
+                    RegisterAccount();
+                }
+            }
                 break;
         }
     }
@@ -241,7 +242,6 @@ public class UI_Register : UILayer
     private void SetVerifyPhone(int code)
     {
         mVerifyPhone = code;
-
         if (code == -1)
         {
             mTipPhone.SetActive(false);
@@ -662,19 +662,12 @@ public class UI_Register : UILayer
         }
         RegisterTime = Time.time;
 
-        if (mVerifyIDCard !=0)
-        {
-            //校验身份证和真实姓名
-            StartCoroutine(CheckPassPortId(mRealNameInput.value, mPassportInput.value));
-        }
-
         if (mVerifyPhone != 0)
         {
-            //校验短信和验证码
+            MainEntrace.Instance.ShowLoad("验证中...", 10);
             HallHandle.SendVerifyPhoneCode(mPhoneInput.value, mVerifyCodeInput.value);
         }
-
-        if (mVerifyIDCard == 0 && mVerifyPhone == 0)
+        else if (mVerifyPhone == 0)
         {
             RegisterAccount();
         }

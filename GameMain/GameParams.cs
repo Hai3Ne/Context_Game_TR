@@ -23,7 +23,7 @@ public class GameParams : ScriptableObject
 		}
 	}
 
-	public string downloadAppUrl = "https://www.789278.com/3Ddownload.html";
+	public string downloadAppUrl = "http://www.1378.com";
 	public bool IsPromptAssetVer;
 	public string LoginIP;
 	public int LoginPort;
