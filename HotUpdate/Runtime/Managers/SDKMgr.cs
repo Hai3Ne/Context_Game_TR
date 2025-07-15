@@ -13,17 +13,17 @@ public class SDKMgr : SingleTon<SDKMgr> , IRunUpdate
 	    private static extern void _exitGame();
 #endif
 
-    public PlatformPaySDK mPaySDK = null;
-	public SysInfoSDK mSysSDK;
-	public void GlobalInit(){
-		PlatformPaySDK.LogFun = LogMgr.Log;
-//#if !UNITY_EDITOR
-/*		mSysSDK = new SysInfoSDK ();
-		mSysSDK.Init (HandleUnityCallback);
-		mPaySDK = new PlatformPaySDK ();
-		mPaySDK.Init (HandleUnityCallback);*/
-//#endif
-    }
+//     public PlatformPaySDK mPaySDK = null;
+// 	public SysInfoSDK mSysSDK;
+// 	public void GlobalInit(){
+// 		PlatformPaySDK.LogFun = LogMgr.Log;
+// //#if !UNITY_EDITOR
+// /*		mSysSDK = new SysInfoSDK ();
+// 		mSysSDK.Init (HandleUnityCallback);
+// 		mPaySDK = new PlatformPaySDK ();
+// 		mPaySDK.Init (HandleUnityCallback);*/
+// //#endif
+//     }
 
 	int batteryLevel = -1, wifiLevel = -1;
 
@@ -32,14 +32,14 @@ public class SDKMgr : SingleTon<SDKMgr> , IRunUpdate
         LogMgr.Log("Pay_WX..productID=" + info.szProductID + " accounts=" + accounts);
    
 
-        if (payType == PlatormEnum.IOS_AliPay || payType == PlatormEnum.IOS_WX)
-        {
-            PayManager.StartPayOrder(info, accounts, payType);
-        }
-        else
-        {
-            PlatformPaySDK.ApplePay(info.szProductID);
-        }
+        // if (payType == PlatormEnum.IOS_AliPay || payType == PlatormEnum.IOS_WX)
+        // {
+        //     PayManager.StartPayOrder(info, accounts, payType);
+        // }
+        // else
+        // {
+        //     PlatformPaySDK.ApplePay(info.szProductID);
+        // }
     }
 
 
@@ -50,8 +50,8 @@ public class SDKMgr : SingleTon<SDKMgr> , IRunUpdate
         t.text = content;
         t.OnFocus();
         t.Copy();  
-#else
-		mSysSDK.copyTextToClipBoard(content);
+// #else
+		// mSysSDK.copyTextToClipBoard(content);
 #endif
 	}
     public static void ExitGame() {
@@ -72,7 +72,7 @@ public class SDKMgr : SingleTon<SDKMgr> , IRunUpdate
 
         LogMgr.Log("LoginWeixin..");
 #if !UNITY_EDITOR
-		mPaySDK.LoginWx ();	
+		// mPaySDK.LoginWx ();	
 #else
         string openid = GameUtils.GetUnID();
         string unionId = GameUtils.GetUnID();
@@ -96,7 +96,7 @@ public class SDKMgr : SingleTon<SDKMgr> , IRunUpdate
         this.HandleUnityCallback("WX_SHARE_SUCC", 0);
         return;
 #endif
-        this.mSysSDK.WXWebShare(url, title, info, is_timeline);
+        // this.mSysSDK.WXWebShare(url, title, info, is_timeline);
     }
 	public void PrintLog(string fn, string content){
 		#if UNITY_EDITOR
@@ -107,8 +107,8 @@ public class SDKMgr : SingleTon<SDKMgr> , IRunUpdate
 	}
 
 	public void Update (float delta){
-		if (mSysSDK != null)
-			mSysSDK.Update (delta);
+		// if (mSysSDK != null)
+		// 	mSysSDK.Update (delta);
 	}
     public void WxLoginSucc(string open_id,string unionid,string nickname,string token,string sex) {
         HallHandle.WXUnionID = unionid;
@@ -163,7 +163,7 @@ public class SDKMgr : SingleTon<SDKMgr> , IRunUpdate
     
                 break;
             case "GetTokenURL"://登录成功根据url获取token
-                this.mPaySDK.WXAutoSucc(paramData.ToString());
+                // this.mPaySDK.WXAutoSucc(paramData.ToString());
                 break;
 		case "LoginMessageFailure":
                 //ExecuteLuaCBFun<string>(mWeiChatLoginFail, paramData.ToString());

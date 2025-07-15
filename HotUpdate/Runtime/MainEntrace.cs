@@ -166,8 +166,8 @@ public class MainEntrace : MonoBehaviour {
   
         GlobalUpdate.GlobalInit();
         GameModels.Init();
-        PayManager.VerifyGetTimeUrl = GameParams.Instance.VerifyGetTimeUrl;
-        PayManager.ApiResponseURL = GameParams.Instance.VerifyValidateUrl;
+        // PayManager.VerifyGetTimeUrl = GameParams.Instance.VerifyGetTimeUrl;
+        // PayManager.ApiResponseURL = GameParams.Instance.VerifyValidateUrl;
         if (GameParams.Instance.gameVersion != "")
             GameConfig.SetGameVersion(GameParams.Instance.gameVersion);
         //不同游戏版本号设置
@@ -190,7 +190,7 @@ public class MainEntrace : MonoBehaviour {
        
 
         LogMgr.Init(KApplication.persistentDataPath);
-        SDKMgr.Instance.GlobalInit();
+        // SDKMgr.Instance.GlobalInit();
         LoadingStart();
         return;
 /*#if UNITY_EDITOR
@@ -706,7 +706,7 @@ public class MainEntrace : MonoBehaviour {
             this.RefershCameras();
         }
         NetClient.Update();//
-        PayManager.Update();
+        // PayManager.Update();
         ApplePayManager.Update();
         GameManager.Update();
 	}

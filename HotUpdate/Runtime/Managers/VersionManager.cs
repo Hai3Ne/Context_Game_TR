@@ -419,9 +419,9 @@ public class VersionManager : MonoSingleTon<VersionManager>
                 GameObject obj = GameObject.Instantiate<GameObject>(Resources.Load<GameObject>("UI_download"), UI.UIRoot.transform);
                 UI._init_ui<UI_download>(obj).InitData(local_path, ConstValue.ApkDownURL, () => {
                     //启动APK
-                    if (SDKMgr.Instance.mSysSDK.InstallApk(local_path) == false) {
+                    // if (SDKMgr.Instance.mSysSDK.InstallApk(local_path) == false) {
                         Application.OpenURL(GameParams.Instance.downloadAppUrl);
-                    }
+                    // }
                     SDKMgr.ExitGame();
                 });
                 UI.mUIList.Clear();

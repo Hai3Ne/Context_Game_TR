@@ -121,7 +121,7 @@ public class HallHandle {
                 if (HallHandle.IsWXLogin == false) {
                     HallHandle.WXUnionID = string.Empty;
                 }
-                PayManager.ClearOrder();//重新登录时，清除之前的订单记录
+                // PayManager.ClearOrder();//重新登录时，清除之前的订单记录
                 dic_server_list.Clear();
  
                 EventManager.Notifiy(GameEvent.Hall_UserInfoChange,null);

@@ -44,7 +44,43 @@ public class HotMain : MonoBehaviour
         Application.runInBackground = true;
         StartCoroutine(CheckFirst());
     }
-
+    
+    private bool IsPCPlatform()
+    {
+        return Application.platform == RuntimePlatform.WindowsPlayer || 
+               Application.platform == RuntimePlatform.WindowsEditor ||
+               Application.platform == RuntimePlatform.OSXPlayer ||
+               Application.platform == RuntimePlatform.LinuxPlayer;
+    }
+        
+    // private IEnumerator CheckFirst()
+    // {
+    //     if (!CheckDiskSpace())
+    //     {
+    //         mLoadingInfo = "存储空间不足!";
+    //         yield break;
+    //     }
+    //     
+    //     var versionPath = Application.persistentDataPath + "/resversion.ver";
+    //     if (File.Exists(versionPath))
+    //     {
+    //         var str = File.ReadAllText(versionPath);
+    //         if (str != Application.version)
+    //         {
+    //             yield return StartCoroutine(CopyStreamingAssetsFile());
+    //             yield return StartCoroutine(CheckUpdate());
+    //         }
+    //         else
+    //         {
+    //             yield return StartCoroutine(CheckUpdate());
+    //         }
+    //     }
+    //     else
+    //     {
+    //         yield return StartCoroutine(CopyStreamingAssetsFile());
+    //         yield return StartCoroutine(CheckUpdate());
+    //     }
+    // }
     private IEnumerator CheckFirst()
     {
         if (!CheckDiskSpace())
@@ -52,7 +88,12 @@ public class HotMain : MonoBehaviour
             mLoadingInfo = "存储空间不足!";
             yield break;
         }
-        
+        if (IsPCPlatform())
+        {
+            mLoadingInfo = "PC平台直接启动...";
+            yield return StartCoroutine(LoadDll());
+            yield break;
+        }
         var versionPath = Application.persistentDataPath + "/resversion.ver";
         if (File.Exists(versionPath))
         {
@@ -73,6 +114,7 @@ public class HotMain : MonoBehaviour
             yield return StartCoroutine(CheckUpdate());
         }
     }
+
     
     private bool CheckDiskSpace()
     {
@@ -788,16 +830,16 @@ public class HotMain : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
         yield return StartCoroutine(LoadDll());
     }
-
     private IEnumerator LoadDll()
+{
+    // Skip HybridCLR cho PC platform
+    if (!IsPCPlatform())
     {
-        mLoadingInfo = "加载游戏模块...";
-        
 #if !UNITY_EDITOR
         List<string> aotMetaAssemblyFiles = new List<string>()
         {
             "mscorlib.dll",
-            "System.dll", 
+            "System.dll",
             "System.Core.dll"
         };
         
@@ -811,17 +853,21 @@ public class HotMain : MonoBehaviour
             {
                 using (UnityWebRequest request = UnityWebRequest.Get("file://" + fullPath))
                 {
+                    request.timeout = 30;
                     yield return request.SendWebRequest();
                     
                     if (request.result == UnityWebRequest.Result.Success)
                     {
-                        RuntimeApi.LoadMetadataForAOTAssembly(request.downloadHandler.data, mode);
+                        LoadImageErrorCode err = RuntimeApi.LoadMetadataForAOTAssembly(request.downloadHandler.data, mode);
                     }
                 }
             }
         }
 
-        var hotMetaAssemblyFiles = new List<string>() { "HotUpdate.dll.bytes" };
+        List<string> hotMetaAssemblyFiles = new List<string>()
+        {
+            "HotUpdate.dll.bytes"
+        };
         
         foreach (var item in hotMetaAssemblyFiles)
         {
@@ -831,6 +877,7 @@ public class HotMain : MonoBehaviour
             {
                 using (UnityWebRequest request = UnityWebRequest.Get("file://" + fullPath))
                 {
+                    request.timeout = 30;
                     yield return request.SendWebRequest();
                     
                     if (request.result == UnityWebRequest.Result.Success)
@@ -843,28 +890,29 @@ public class HotMain : MonoBehaviour
         
         yield return new WaitForSecondsRealtime(0.1f);
 #endif
-        
-        mLoadingInfo = "启动游戏...";
-        
+    }
+    
+    // Load GameEntrance - logic cũ giữ nguyên
 #if UNITY_EDITOR
-        var pre = UnityEditor.AssetDatabase.LoadAssetAtPath("Assets/Arts_ALL/GameRes/Prefabs/UI/GameEntrance.prefab", typeof(GameObject)) as GameObject;
+    var pre = UnityEditor.AssetDatabase.LoadAssetAtPath("Assets/Arts_ALL/GameRes/Prefabs/UI/GameEntrance.prefab", typeof(GameObject)) as GameObject;
+    var go = Instantiate(pre);
+    go.SetActive(true);
+    DontDestroyOnLoad(go);
+    Destroy(gameObject);
+#else
+    var bundlePath = Application.persistentDataPath + "/AssetBundle_ALL/assets^arts_all^gameres^prefabs^ui^gameentrance.kb";
+    AssetBundle loadingbundle = AssetBundle.LoadFromFile(bundlePath);
+    if (loadingbundle != null)
+    {
+        var pre = loadingbundle.LoadAsset("gameentrance", typeof(GameObject)) as GameObject;
         var go = Instantiate(pre);
         go.SetActive(true);
         DontDestroyOnLoad(go);
-        Destroy(gameObject);
-#else
-        AssetBundle loadingbundle = AssetBundle.LoadFromFile(Application.persistentDataPath + "/AssetBundle_ALL/assets^arts_all^gameres^prefabs^ui^gameentrance.kb");
-        if (loadingbundle != null)
-        {
-            var pre = loadingbundle.LoadAsset("gameentrance", typeof(GameObject)) as GameObject;
-            var go = Instantiate(pre);
-            go.SetActive(true);
-            DontDestroyOnLoad(go);
-        }
-        Destroy(gameObject);
-#endif
-        yield break;
     }
+    Destroy(gameObject);
+#endif
+    yield break;
+}
 
     private IEnumerator SaveAssetBundleOptimized(string path, string savePath, AssetBundleInfo asset, Action<long, bool> callback)
     {

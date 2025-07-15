@@ -104,7 +104,7 @@ public class UI_Shop : UILayer
         if (code == 0)
         {
             MainEntrace.Instance.ShowLoad("支付确认中...", 5);
-            PayManager.AddFinishOrder(PayManager.mPreOrder);
+            // PayManager.AddFinishOrder(PayManager.mPreOrder);
         }
         else if (code == -1)
         {
