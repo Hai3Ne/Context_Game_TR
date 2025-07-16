@@ -217,7 +217,140 @@ public class EditMenu
     {
         StartPack(GameEnum.WZQ, BuildTarget.iOS);
     }
+    
+    
+    [MenuItem("Tools/PC/DLL", false, 4)]
+    private static void HandleDllBoundle_PC()
+    {
+        BuildTarget target = BuildTarget.StandaloneWindows64;
 
+        CompileDllCommand.CompileDll(target);
+        var dir = Application.dataPath + "/../DLL";
+        DirectoryInfo dirOutDir = new DirectoryInfo(dir);
+        if (!dirOutDir.Exists)
+        {
+            Directory.CreateDirectory(dir);
+        }
+        CopyAOTAssembliesToStreamingAssets_PC();
+        CopyHotUpdateAssembliesToStreamingAssets_PC();
+
+        var list = new List<AssetBundleInfo>();
+        DirectoryInfo dirOutDir1 = new DirectoryInfo(dir);
+        var files = dirOutDir1.GetFiles();
+        for (int i = 0; i < files.Length; i++)
+        {
+            var file = files[i];
+            var ab = new AssetBundleInfo();
+            ab.ABname = file.Name;
+            ab.MD5 = Tools.GetMD5HashFromFile(file.FullName);
+            ab.Size = file.Length;
+            list.Add(ab);
+        }
+        byte[] versionNO = System.Text.Encoding.UTF8.GetBytes(DateTime.Now.ToString("yyyyMMddHHmm"));
+
+        //生成版本号文件
+        File.WriteAllBytes(dir + "/" + ABLoadConfig.VersionNO, versionNO);
+
+        File.WriteAllLines(dir + "/" + ABLoadConfig.VersionPath, new string[]{
+            LitJson.JsonMapper.ToJson(list),});
+        
+        Debug.Log("PC DLL打包完成");
+    }
+
+    public static void CopyAOTAssembliesToStreamingAssets_PC()
+    {
+        var target = BuildTarget.StandaloneWindows64;
+        string aotAssembliesSrcDir = SettingsUtil.GetAssembliesPostIl2CppStripDir(target);
+        string aotAssembliesDstDir = Application.dataPath + "/../DLL";
+
+        foreach (var dll in SettingsUtil.AOTAssemblyNames)
+        {
+            string srcDllPath = $"{aotAssembliesSrcDir}/{dll}.dll";
+            if (!File.Exists(srcDllPath))
+            {
+                Debug.LogError($"ab中添加AOT补充元数据dll:{srcDllPath} 时发生错误,文件不存在。裁剪后的AOT dll在BuildPlayer时才能生成，因此需要你先构建一次游戏App后再打包。");
+                continue;
+            }
+
+            string dllBytesPath = $"{aotAssembliesDstDir}/{dll}.dll.bytes";
+            File.Copy(srcDllPath, dllBytesPath, true);
+            Debug.Log($"[CopyAOTAssembliesToStreamingAssets_PC] copy AOT dll {srcDllPath} -> {dllBytesPath}");
+        }
+    }
+
+    public static void CopyHotUpdateAssembliesToStreamingAssets_PC()
+    {
+        var target = BuildTarget.StandaloneWindows64;
+
+        string hotfixDllSrcDir = SettingsUtil.GetHotUpdateDllsOutputDirByTarget(target);
+        string hotfixAssembliesDstDir = Application.dataPath + "/../DLL";
+
+        foreach (var dll in SettingsUtil.HotUpdateAssemblyFilesExcludePreserved)
+        {
+            string dllPath = $"{hotfixDllSrcDir}/{dll}";
+            string dllBytesPath = $"{hotfixAssembliesDstDir}/{dll}.bytes";
+            File.Copy(dllPath, dllBytesPath, true);
+            Debug.Log($"[CopyHotUpdateAssembliesToStreamingAssets_PC] copy hotfix dll {dllPath} -> {dllBytesPath}");
+        }
+    }
+
+    [MenuItem("Tools/PC/大厅资源(All)", false, 5)]
+    private static void MainHallAssetBundleExport_PC()
+    {
+        StartPack(GameEnum.All, BuildTarget.StandaloneWindows64);
+    }
+
+    [MenuItem("Tools/PC/3D捕鱼资源 (Fish3D)", false, 5)]
+    private static void Fish3DAssetBundleExport_PC()
+    {
+        StartPack(GameEnum.Fish_3D, BuildTarget.StandaloneWindows64);
+    }
+
+    [MenuItem("Tools/PC/李逵劈鱼资源(LK)", false, 5)]
+    private static void LKAssetBundleExport_PC()
+    {
+        StartPack(GameEnum.Fish_LK, BuildTarget.StandaloneWindows64);
+    }
+
+    [MenuItem("Tools/PC/飞禽走兽资源(FQZS)", false, 5)]
+    private static void FQAssetBundleExport_PC()
+    {
+        StartPack(GameEnum.FQZS, BuildTarget.StandaloneWindows64);
+    }
+
+    [MenuItem("Tools/PC/神话资源(SH)", false, 5)]
+    private static void SHAssetBundleExport_PC()
+    {
+        StartPack(GameEnum.SH, BuildTarget.StandaloneWindows64);
+    }
+
+    [MenuItem("Tools/PC/五子棋资源(WZQ)", false, 5)]
+    private static void WZQAssetBundleExport_PC()
+    {
+        StartPack(GameEnum.WZQ, BuildTarget.StandaloneWindows64);
+    }
+
+    [MenuItem("Tools/MoveStreaming", false, 4)]
+    private static void CopyFileToBoundle_PC()
+    {
+        if (Directory.Exists(Application.streamingAssetsPath))
+        {
+            Directory.Delete(Application.streamingAssetsPath, true);
+        }
+        else
+        {
+            Directory.CreateDirectory(Application.streamingAssetsPath);
+        }
+        HandleDllBoundle_PC();
+        Debug.Log("PC DLL打包");
+        MainHallAssetBundleExport_PC();
+        Debug.Log("PC 大厅资源打包");
+        CopyFolder(Application.dataPath + "/../DLL", Application.streamingAssetsPath + "/DLL");
+        Debug.Log("PC DLL复制完成");
+        CopyFolder(Application.dataPath + "/../AssetBundle_ALL", Application.streamingAssetsPath + "/AssetBundle_ALL");
+        Debug.Log("PC 大厅资源复制完成");
+        HandlefolderBoundle();
+    }
     private static void StartPack(GameEnum type, BuildTarget target) {
         AssetBundleExport.StartPack(target, GameManager.GetResPath(type), GameManager.GetAbPath(type));
     }

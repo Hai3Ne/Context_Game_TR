@@ -44,6 +44,7 @@ public class HotMain : MonoBehaviour
         Application.runInBackground = true;
         StartCoroutine(CheckFirst());
     }
+    
     private string GetPlatformPath()
     {
         string platform = "";
@@ -53,16 +54,14 @@ public class HotMain : MonoBehaviour
 #elif UNITY_IOS  
     platform = "IOS";
 #elif UNITY_STANDALONE_WIN
-        platform = "ANDROID"; // hoặc "PC" tùy theo setup CDN của bạn
+        platform = "PC";
 #elif UNITY_STANDALONE_OSX
     platform = "MAC";
 #elif UNITY_WEBGL
     platform = "WEBGL";
 #else
-    platform = "ANDROID"; // fallback
+    platform = "ANDROID";
 #endif
-
-        Debug.Log($"Detected platform: {platform}");
         return platform;
     }
     private IEnumerator CheckFirst()
@@ -202,30 +201,32 @@ public class HotMain : MonoBehaviour
     private IEnumerator CheckResourceUpdate(Dictionary<string, AssetBundleInfo> updateArr, Action<long> onSizeAdd)
     {
         var path = Application.persistentDataPath + "/AssetBundle_ALL/version.bytes";
-        var outfile = GameParams.Instance.AbDownLoadSite + "/ANDROID/AssetBundle_ALL/version.bytes";
+        string platformPath = GetPlatformPath();
+        var outfile = GameParams.Instance.AbDownLoadSite + "/" + platformPath + "/AssetBundle_ALL/version.bytes";
+    
         var localVersion = "";
         var newVersion = "";
-        
+    
         if (File.Exists(path))
         {
             localVersion = File.ReadAllText(path);
         }
-        
+    
         yield return StartCoroutine(DownloadVersionFile(outfile, (text) => newVersion = text));
-        
+    
         if (newVersion != localVersion && !string.IsNullOrEmpty(newVersion))
         {
             resVersion = newVersion;
             path = Application.persistentDataPath + "/AssetBundle_ALL/assets.bytes";
-            outfile = GameParams.Instance.AbDownLoadSite + "/ANDROID/AssetBundle_ALL/assets.bytes";
-            
+            outfile = GameParams.Instance.AbDownLoadSite + "/" + platformPath + "/AssetBundle_ALL/assets.bytes";
+        
             var list = new List<AssetBundleInfo>();
             if (File.Exists(path))
             {
                 var text = File.ReadAllText(path);
                 list = LitJson.JsonMapper.ToObject<List<AssetBundleInfo>>(text);
             }
-            
+        
             var newList = new List<AssetBundleInfo>();
             yield return StartCoroutine(DownloadVersionFile(outfile, (text) => {
                 if (!string.IsNullOrEmpty(text))
@@ -234,8 +235,8 @@ public class HotMain : MonoBehaviour
                     newList = LitJson.JsonMapper.ToObject<List<AssetBundleInfo>>(text);
                 }
             }));
-            
-            ProcessUpdateList(list, newList, "/AssetBundle_ALL/", "/ANDROID/AssetBundle_ALL/", updateArr, onSizeAdd);
+        
+            ProcessUpdateList(list, newList, "/AssetBundle_ALL/", "/" + platformPath + "/AssetBundle_ALL/", updateArr, onSizeAdd);
         }
     }
     
