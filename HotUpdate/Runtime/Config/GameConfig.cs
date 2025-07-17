@@ -99,6 +99,7 @@ public partial class GameConfig {
     public static bool OP_AutoHero;//英雄自动释放
     public static bool OP_AutoLauncher;//炮台技能自动释放
     public static bool OP_Eff;//游戏特效开关
+    public static bool OP_Fullscreen;//震屏开关
 
     public static string InsurePassword;//保险箱密码
     public static bool OP_AutoLoginBank;// {//自动登录保险箱
@@ -110,6 +111,7 @@ public partial class GameConfig {
         OP_AutoSkill = LocalSaver.GetData("op_auto_skill", "0") == "1";
         OP_AutoHero = LocalSaver.GetData("op_auto_hero", "0") == "1";
         OP_AutoLauncher = LocalSaver.GetData("op_auto_launcher", "0") == "1";
+        OP_Fullscreen = LocalSaver.GetData("op_fullscreen", "1") == "1";
     }
 
     public static void SaveData() {
@@ -119,6 +121,7 @@ public partial class GameConfig {
         LocalSaver.SetData("op_auto_skill", OP_AutoSkill ? "1" : "0");
         LocalSaver.SetData("op_auto_hero", OP_AutoHero ? "1" : "0");
         LocalSaver.SetData("op_auto_launcher", OP_AutoLauncher ? "1" : "0");
+        LocalSaver.SetData("op_fullscreen", OP_Fullscreen ? "1" : "0");
         LocalSaver.Save();
     }
 

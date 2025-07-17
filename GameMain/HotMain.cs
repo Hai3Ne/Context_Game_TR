@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -54,7 +55,7 @@ public class HotMain : MonoBehaviour
 #elif UNITY_IOS  
     platform = "IOS";
 #elif UNITY_STANDALONE_WIN
-        platform = "PC";
+        platform = "WINDOWS";
 #elif UNITY_STANDALONE_OSX
     platform = "MAC";
 #elif UNITY_WEBGL
@@ -66,12 +67,24 @@ public class HotMain : MonoBehaviour
     }
     private IEnumerator CheckFirst()
     {
+#if BUILD_PC_DEV_TEST
+
         if (!CheckDiskSpace())
         {
             mLoadingInfo = "存储空间不足!";
             yield break;
         }
-        
+        yield return StartCoroutine(CopyFromTestFolder());
+        yield break;
+#endif
+
+
+        if (!CheckDiskSpace())
+        {
+            mLoadingInfo = "存储空间不足!";
+            yield break;
+        }
+    
         var versionPath = Application.persistentDataPath + "/resversion.ver";
         if (File.Exists(versionPath))
         {
@@ -110,27 +123,33 @@ public class HotMain : MonoBehaviour
 
     private IEnumerator CheckUpdate()
     {
+#if BUILD_PC_DEV_TEST
+        Debug.Log("TEST MODE: Loading assets from local test folder instead of CDN");
+        yield return StartCoroutine(CopyFromTestFolder());
+        yield break;
+#endif
+
         mLoadingInfo = "检查版本更新...";
         mProgress = 0.02f;
-        
+    
         var updateArr = new Dictionary<string, AssetBundleInfo>();
         long totalSize = 0;
-        
+    
         yield return StartCoroutine(CheckDllUpdate(updateArr, (size) => totalSize += size));
         mProgress = 0.05f;
-        
+    
         yield return StartCoroutine(CheckResourceUpdate(updateArr, (size) => totalSize += size));
         mProgress = 0.08f;
-        
+    
         if (updateArr.Count > 0)
         {
             mTotalSize = totalSize;
             mCurSize = 0;
             mlastSize = 0;
             downloadStartTime = DateTime.Now;
-            
+        
             string tick = string.Format("资源大小：[ff0000]{0}[-]", GetDownSpdStr(mTotalSize));
-            
+        
             if (Application.internetReachability != NetworkReachability.ReachableViaLocalAreaNetwork)
             {
                 UI_VersionTickDialog.Show().InitData(tick, "(当前处于非wifi网络环境,是否继续下载?)", () =>
@@ -1047,4 +1066,440 @@ public class HotMain : MonoBehaviour
             mlastSize = mCurSize;
         }
     }
+    
+    
+    #if BUILD_PC_DEV_TEST
+    private string GetTestAssetsPath()
+    {
+        return "C:/Users/pc/AppData/LocalLow/Tamron/1378捕鱼/Assets_for_test";
+    }
+    private readonly string[] ALL_ASSET_BUNDLES = {
+        "DLL",
+        "AssetBundle_ALL",
+        "AssetBundle_KB",    // Fish3D
+        "AssetBundle_LK",    // 李逵劈鱼
+        "AssetBundle_SH",    // 神话
+        "AssetBundle_WZQ",   // 五子棋
+        "AssetBundle_FQZS"   // 飞禽走兽
+    };
+
+    private IEnumerator CopyFromTestFolder()
+    {
+        string testPath = GetTestAssetsPath();
+        
+        if (!Directory.Exists(testPath))
+        {
+            mLoadingInfo = "Test assets folder not found: " + testPath;
+            Debug.LogError("Test assets folder not found at: " + testPath);
+            yield return new WaitForSeconds(2f);
+            yield return StartCoroutine(LoadDll());
+            yield break;
+        }
+        
+        mLoadingInfo = "Loading test assets...";
+        mProgress = 0.1f;
+        Debug.Log("Starting to copy test assets from: " + testPath);
+        
+        // Clean old folders
+        yield return StartCoroutine(CleanOldTestFolders());
+        
+        // Scan for available assets
+        var availableAssets = ScanAvailableAssets(testPath);
+        
+        if (availableAssets.Count == 0)
+        {
+            mLoadingInfo = "No test assets found!";
+            Debug.LogError("No test assets found in: " + testPath);
+            yield return new WaitForSeconds(2f);
+            yield return StartCoroutine(LoadDll());
+            yield break;
+        }
+        
+        // Create copy tasks with dynamic progress distribution
+        var copyTasks = CreateCopyTasks(availableAssets);
+        
+        // Execute copy tasks
+        foreach (var task in copyTasks)
+        {
+            string sourcePath = Path.Combine(testPath, task.SourceFolder);
+            string destPath = Path.Combine(Application.persistentDataPath, task.DestFolder);
+            
+            Debug.Log($"Copying {task.SourceFolder} ({task.FileCount} files) from: {sourcePath} to: {destPath}");
+            yield return StartCoroutine(CopyFolderContentsWithProgress(sourcePath, destPath, task.StartProgress, task.EndProgress));
+        }
+        
+        mProgress = 1.0f;
+        mLoadingInfo = "All test assets loaded successfully!";
+        Debug.Log("All test assets copied successfully!");
+        
+        // Verify copied files
+        VerifyAllTestAssets();
+        
+        yield return new WaitForSeconds(0.5f);
+        yield return StartCoroutine(LoadDll());
+    }
+    private IEnumerator CleanOldTestFolders()
+    {
+        mLoadingInfo = "Cleaning old assets...";
+        
+        if (Directory.Exists(Application.persistentDataPath))
+        {
+            try
+            {
+                foreach (var assetBundle in ALL_ASSET_BUNDLES)
+                {
+                    var oldPath = Path.Combine(Application.persistentDataPath, assetBundle);
+                    if (Directory.Exists(oldPath))
+                    {
+                        Directory.Delete(oldPath, true);
+                        Debug.Log($"Cleaned old {assetBundle} folder");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning("Could not delete old folders: " + e.Message);
+            }
+        }
+        
+        yield return new WaitForEndOfFrame();
+    }
+
+    private List<AssetFolderInfo> ScanAvailableAssets(string testPath)
+    {
+        var available = new List<AssetFolderInfo>();
+        
+        foreach (var assetBundle in ALL_ASSET_BUNDLES)
+        {
+            string folderPath = Path.Combine(testPath, assetBundle);
+            if (Directory.Exists(folderPath))
+            {
+                var fileCount = Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories).Length;
+                available.Add(new AssetFolderInfo
+                {
+                    FolderName = assetBundle,
+                    FileCount = fileCount,
+                    Priority = GetAssetPriority(assetBundle)
+                });
+                Debug.Log($"Found {assetBundle} with {fileCount} files");
+            }
+            else
+            {
+                Debug.LogWarning($"{assetBundle} folder not found - skipping");
+            }
+        }
+        
+        // Sort by priority (DLL first, then AssetBundle_ALL, then games)
+        available.Sort((a, b) => a.Priority.CompareTo(b.Priority));
+        
+        Debug.Log($"Found {available.Count} available asset folders");
+        return available;
+    }
+
+    private int GetAssetPriority(string assetBundle)
+    {
+        switch (assetBundle)
+        {
+            case "DLL": return 1;
+            case "AssetBundle_ALL": return 2;
+            case "AssetBundle_KB": return 3;  // Fish3D - popular
+            case "AssetBundle_LK": return 4;  // 李逵劈鱼 - popular
+            case "AssetBundle_SH": return 5;
+            case "AssetBundle_WZQ": return 6;
+            case "AssetBundle_FQZS": return 7;
+            default: return 99;
+        }
+    }
+
+    private List<CopyTask> CreateCopyTasks(List<AssetFolderInfo> availableAssets)
+    {
+        var tasks = new List<CopyTask>();
+        
+        float startProgress = 0.1f;
+        float endProgress = 0.9f;
+        float progressRange = endProgress - startProgress;
+        
+        // Calculate total files for progress weighting
+        int totalFiles = availableAssets.Sum(a => a.FileCount);
+        
+        float currentProgress = startProgress;
+        
+        foreach (var asset in availableAssets)
+        {
+            float taskProgressRange = progressRange * (asset.FileCount / (float)totalFiles);
+            float taskEndProgress = currentProgress + taskProgressRange;
+            
+            tasks.Add(new CopyTask
+            {
+                SourceFolder = asset.FolderName,
+                DestFolder = asset.FolderName,
+                StartProgress = currentProgress,
+                EndProgress = taskEndProgress,
+                FileCount = asset.FileCount
+            });
+            
+            currentProgress = taskEndProgress;
+        }
+        
+        return tasks;
+    }
+
+    private class AssetFolderInfo
+    {
+        public string FolderName { get; set; }
+        public int FileCount { get; set; }
+        public int Priority { get; set; }
+    }
+    private class CopyTask
+    {
+        public string SourceFolder { get; set; }
+        public string DestFolder { get; set; }
+        public float StartProgress { get; set; }
+        public float EndProgress { get; set; }
+        public int FileCount { get; set; }
+    }
+    
+    private void VerifyAllTestAssets()
+    {
+        Debug.Log("=== Verification Results ===");
+        
+        var foundFolders = new List<string>();
+        
+        foreach (var assetBundle in ALL_ASSET_BUNDLES)
+        {
+            string folderPath = Path.Combine(Application.persistentDataPath, assetBundle);
+            
+            if (Directory.Exists(folderPath))
+            {
+                var files = Directory.GetFiles(folderPath);
+                foundFolders.Add(assetBundle);
+                
+                Debug.Log($"✓ {assetBundle} folder: {files.Length} files");
+                
+                // Check for important files
+                var importantFiles = new string[] { "version.bytes", "assets.bytes" };
+                foreach (var important in importantFiles)
+                {
+                    var found = files.FirstOrDefault(f => Path.GetFileName(f) == important);
+                    if (found != null)
+                    {
+                        Debug.Log($"  ✓ {important}");
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"  ✗ {important} - MISSING!");
+                    }
+                }
+                
+                // Show sample files
+                var sampleFiles = files.Where(f => !importantFiles.Contains(Path.GetFileName(f))).Take(3);
+                foreach (var file in sampleFiles)
+                {
+                    Debug.Log($"  - {Path.GetFileName(file)}");
+                }
+                
+                if (files.Length > 5)
+                {
+                    Debug.Log($"  ... and {files.Length - 5} more files");
+                }
+            }
+            else
+            {
+                Debug.Log($"✗ {assetBundle} folder not found");
+            }
+        }
+        
+        Debug.Log($"\n=== Summary ===");
+        Debug.Log($"Successfully copied {foundFolders.Count}/{ALL_ASSET_BUNDLES.Length} asset folders:");
+        foreach (var folder in foundFolders)
+        {
+            Debug.Log($"  ✓ {folder}");
+        }
+        
+        Debug.Log("=== End Verification ===");
+    }
+
+
+    private IEnumerator CopyFolderContentsWithProgress(string srcPath, string tarPath, float startProgress, float endProgress)
+    {
+        if (!Directory.Exists(srcPath))
+        {
+            Debug.LogWarning("Source path does not exist: " + srcPath);
+            yield break;
+        }
+
+        // Create destination directory
+        if (!Directory.Exists(tarPath))
+        {
+            Directory.CreateDirectory(tarPath);
+            Debug.Log("Created destination directory: " + tarPath);
+        }
+
+        // Get all files
+        var allFiles = new List<string>();
+        GetAllFilesRecursive(srcPath, allFiles);
+        
+        var totalFiles = allFiles.Count;
+        var currentFile = 0;
+        var processedInBatch = 0;
+        const int batchSize = 30; // Larger batch for faster copying
+        
+        string folderDisplayName = Path.GetFileName(srcPath);
+        Debug.Log($"Copying {folderDisplayName}: {totalFiles} files");
+
+        foreach (var sourceFile in allFiles)
+        {
+            // Calculate relative path
+            var relativePath = sourceFile.Substring(srcPath.Length + 1);
+            var destFile = Path.Combine(tarPath, relativePath);
+            var destDir = Path.GetDirectoryName(destFile);
+            
+            // Create subdirectory if needed
+            if (!Directory.Exists(destDir))
+            {
+                Directory.CreateDirectory(destDir);
+            }
+
+            // Copy file
+            try
+            {
+                File.Copy(sourceFile, destFile, true);
+                
+                // Log progress for important files or every 50th file
+                if (currentFile % 50 == 0 || relativePath.Contains("version.bytes") || relativePath.Contains("assets.bytes"))
+                {
+                    Debug.Log($"  Copied: {relativePath}");
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Failed to copy {sourceFile} to {destFile}: {e.Message}");
+            }
+
+            currentFile++;
+            processedInBatch++;
+            
+            // Update progress
+            var currentProgress = startProgress + (endProgress - startProgress) * currentFile / totalFiles;
+            mProgress = currentProgress;
+            mLoadingInfo = $"Copying {folderDisplayName}: {currentFile}/{totalFiles} files";
+            
+            if (processedInBatch >= batchSize)
+            {
+                processedInBatch = 0;
+                yield return new WaitForEndOfFrame();
+            }
+        }
+        
+        Debug.Log($"✓ Finished copying {folderDisplayName}: {totalFiles} files");
+    }
+
+    private void GetAllFilesRecursive(string path, List<string> fileList)
+    {
+        try
+        {
+            // Lấy tất cả files trong thư mục hiện tại
+            fileList.AddRange(Directory.GetFiles(path));
+            
+            // Lấy recursively từ subfolder
+            foreach (var directory in Directory.GetDirectories(path))
+            {
+                GetAllFilesRecursive(directory, fileList);
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Error getting files from {path}: {e.Message}");
+        }
+    }
+
+    private void VerifyTestAssets()
+    {
+        string dllPath = Path.Combine(Application.persistentDataPath, "DLL");
+        string abPath = Path.Combine(Application.persistentDataPath, "AssetBundle_ALL");
+        
+        Debug.Log("=== Verification Results ===");
+        
+        if (Directory.Exists(dllPath))
+        {
+            var dllFiles = Directory.GetFiles(dllPath);
+            Debug.Log($"DLL folder exists with {dllFiles.Length} files:");
+            foreach (var file in dllFiles)
+            {
+                Debug.Log($"  - {Path.GetFileName(file)}");
+            }
+        }
+        else
+        {
+            Debug.LogError("DLL folder not found after copy!");
+        }
+        
+        if (Directory.Exists(abPath))
+        {
+            var abFiles = Directory.GetFiles(abPath);
+            Debug.Log($"AssetBundle_ALL folder exists with {abFiles.Length} files:");
+            foreach (var file in abFiles.Take(10)) // Show first 10 files only
+            {
+                Debug.Log($"  - {Path.GetFileName(file)}");
+            }
+            if (abFiles.Length > 10)
+            {
+                Debug.Log($"  ... and {abFiles.Length - 10} more files");
+            }
+        }
+        else
+        {
+            Debug.LogError("AssetBundle_ALL folder not found after copy!");
+        }
+        
+        Debug.Log("=== End Verification ===");
+    }
+
+    private IEnumerator CopyLocalFolderOptimized(string srcPath, string tarPath)
+    {
+        if (!Directory.Exists(srcPath))
+        {
+            Debug.LogWarning("Source path does not exist: " + srcPath);
+            yield break;
+        }
+
+        if (!Directory.Exists(tarPath))
+        {
+            Directory.CreateDirectory(tarPath);
+        }
+
+        // Get all files recursively
+        var allFiles = GetAllFiles(srcPath);
+        var totalFiles = allFiles.Count;
+        var currentFile = 0;
+        var processedInBatch = 0;
+        const int batchSize = 10;
+
+        foreach (var file in allFiles)
+        {
+            var relativePath = file.Substring(srcPath.Length + 1);
+            var destFile = Path.Combine(tarPath, relativePath);
+            var destDir = Path.GetDirectoryName(destFile);
+            
+            if (!Directory.Exists(destDir))
+            {
+                Directory.CreateDirectory(destDir);
+            }
+
+            File.Copy(file, destFile, true);
+
+            currentFile++;
+            processedInBatch++;
+            
+            mLoadingInfo = $"Copying test assets: {currentFile}/{totalFiles}";
+            
+            if (processedInBatch >= batchSize)
+            {
+                processedInBatch = 0;
+                yield return new WaitForEndOfFrame();
+            }
+        }
+    }
+#endif
+    
 }

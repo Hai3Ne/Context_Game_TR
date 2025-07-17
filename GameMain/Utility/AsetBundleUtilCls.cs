@@ -57,18 +57,18 @@ public class KApplication
 #elif UNITY_IPHONE || UNITY_IOS
     public const string PlatformName = "IOS";
 #else
-    // public const string PlatformName = "STANDALONE";
-    public const string PlatformName = "ANDROID";
+    public const string PlatformName = "WINDOWS";
+    // public const string PlatformName = "ANDROID";
 #endif
     public static string GetPlatfomrName()
 	{
-		string platformName = "StandAlone";
+		string platformName = "WINDOWS";
 		if (KApplication.isAndroid) {
 			platformName = "Android";
 		} else if (KApplication.isIOS) {
 			platformName = "iOS";
 		} else {
-			platformName = "StandAlone";
+			platformName = "Windows";
 		}
 		return platformName.ToUpper();
 	}

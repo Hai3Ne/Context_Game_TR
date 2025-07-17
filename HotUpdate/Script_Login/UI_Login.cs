@@ -67,7 +67,9 @@ public class UI_Login : UILayer
     public GameObject mNoticeWindow;
     public GameObject mBtnNotice;
     public UILabel mNoticeText;
-
+#if FISH_3D_ENTRY_PC
+    private bool mAutoLoginAttempted = false;
+#endif
     public void Update() {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
@@ -187,7 +189,7 @@ public class UI_Login : UILayer
                 OnLogOn(mUserAccountInput.value, mPassWordInput.value);
                 break;
             case "btn_zhuce":
-                //UI.EnterUI<UI_Register>(ui=> { ui.InitData(SetRegisterInfo); });
+                //UI.EnterUI<UI_Register>(ui=> { ui.InitD ata(SetRegisterInfo); });
                 UI.EnterUI<UI_Register>(GameEnum.All).InitData(SetRegisterInfo);
                 break;
             case "login_quit":
@@ -272,6 +274,7 @@ public class UI_Login : UILayer
         //    ResManager.UnloadAB(data);
         //});
 
+
         string content = string.Empty;
 
         ResManager.LoadText(GameEnum.All, "Config/CYWLIP", out content);
@@ -288,7 +291,17 @@ public class UI_Login : UILayer
         mPerfsAccounts = HallHandle.ReadPerfsAccounts();
         UpdateInput();
         AudioManager.StopMusic();
-
+#if FISH_3D_ENTRY_PC
+        if (!mAutoLoginAttempted)
+        {
+            mAutoLoginAttempted = true;
+            if (AutoLoginHandler.TryAutoLogin())
+            {
+                MainEntrace.Instance.ShowLoad("登陆中....", 5);
+                return;
+            }
+        }
+#endif
         if (!string.IsNullOrEmpty(GameParams.Instance.FindAccountNotice))
         {
             mNoticeWindow.SetActive(true);
@@ -302,6 +315,7 @@ public class UI_Login : UILayer
             mBtnNotice.SetActive(false);
             mNoticeText.text = string.Empty;
         }
+        
     }
 
     private void NetEventHandle(NetCmdType type, NetCmdPack pack)
