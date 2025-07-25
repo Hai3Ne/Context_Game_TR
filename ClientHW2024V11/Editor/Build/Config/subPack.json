@@ -1,0 +1,80 @@
+{
+  "subPack": [
+    
+	
+
+
+	  
+	  { "name":"Game700Pack", "id": 5, "paths":[
+	    "Assets/ResData/UI/GameTexture/Game700/1.png",
+		"Assets/ResData/UI/GameTexture/Game700/bbbg.png",
+		"Assets/ResData/UI/GameTexture/Game700/tututu.png",
+	    "Assets/ResData/UI/Dragon/Game700",
+		"Assets/ResData/UI/Spine/Game700",
+		"Assets/ResData/UI/Atlas/English/Game700.prefab",
+		"Assets/ResData/UI/Atlas/English/Boom.prefab",
+		"Assets/ResData/UI/Prefabs/Game700/FirstRes",
+		"Assets/ResData/UI/Sound/Game700"
+	  ] },
+
+
+	  
+	 { "name":"Game1600Pack", "id": 21, "paths":[
+	
+		"Assets/ResData/UI/GameTexture/Game1600/ib_mw_vfx_c_normal/bw_vfx_d_screen_01.png",
+		"Assets/ResData/UI/GameTexture/Game1600/ib_mw_vfx_c_normal/bw_vfx_d_screen_02.png",
+		"Assets/ResData/UI/GameTexture/Game1600/ib_mw_vfx_c_normal/bw_vfx_d_screen_03.png",
+		"Assets/ResData/UI/GameTexture/Game1600/ib_mw_vfx_c_normal/bw_vfx_d_screen_04.png",
+		"Assets/ResData/UI/GameTexture/Game1600/ib_mw_vfx_c_normal/bw_vfx_d_screen_05.png",
+		"Assets/ResData/UI/GameTexture/Game1600/ib_mw_vfx_c_normal/bw_vfx_d_screen_06.png",
+		"Assets/ResData/UI/GameTexture/Game1600/bw.png",
+		"Assets/ResData/UI/GameTexture/Game1600/bw_a.png",
+		"Assets/ResData/UI/GameTexture/Game1600/bw_coin.png",
+		"Assets/ResData/UI/GameTexture/Game1400/img_pcbmsjb_c03.png",
+		"Assets/ResData/UI/GameTexture/Game1600/bw_frame_01.png",
+		"Assets/ResData/UI/GameTexture/Game1600/bw_frame_02.png",
+		"Assets/ResData/UI/GameTexture/Game1600/bw_rabbit.png",
+		"Assets/ResData/UI/GameTexture/Game1600/dd.png",
+		"Assets/ResData/UI/GameTexture/Game1600/fs_bg.png",
+		"Assets/ResData/UI/GameTexture/Game1600/ib_bar_a.png",
+		"Assets/ResData/UI/GameTexture/Game1600/ib_bar_b.png",
+		"Assets/ResData/UI/GameTexture/Game1600/ib_bar_c.png",
+		"Assets/ResData/UI/GameTexture/Game1600/lfs.png",
+		"Assets/ResData/UI/GameTexture/Game1600/mw.png",
+		"Assets/ResData/UI/GameTexture/Game1600/mw_a.png",
+		"Assets/ResData/UI/GameTexture/Game1600/mw_coin.png",
+		"Assets/ResData/UI/GameTexture/Game1600/mw_frame_01.png",
+		"Assets/ResData/UI/GameTexture/Game1600/mw_frame_02.png",
+		"Assets/ResData/UI/GameTexture/Game1600/mw_rabbit.png",
+		"Assets/ResData/UI/GameTexture/Game1600/rfs.png",
+		"Assets/ResData/UI/GameTexture/Game1600/s_blank.png",
+		"Assets/ResData/UI/GameTexture/Game1600/smw.png",
+		"Assets/ResData/UI/GameTexture/Game1600/smw_a.png",
+		"Assets/ResData/UI/GameTexture/Game1600/smw_coin.png",
+		"Assets/ResData/UI/GameTexture/Game1600/smw_frame_01.png",
+		"Assets/ResData/UI/GameTexture/Game1600/smw_frame_02.png",
+		"Assets/ResData/UI/GameTexture/Game1600/smw_rabbit.png",
+		"Assets/ResData/UI/GameTexture/Game1600/tz1.png",
+		"Assets/ResData/UI/GameTexture/Game1600/tz2.png",
+		"Assets/ResData/UI/GameTexture/Game1600/tz3.png",
+		"Assets/ResData/UI/GameTexture/Game1600/tz4.png",
+		"Assets/ResData/UI/GameTexture/Game1600/ua_vfx_a_01_add.png",
+		"Assets/ResData/UI/GameTexture/Game1600/ua_vfx_a_02_add.png",
+		"Assets/ResData/UI/GameTexture/Game1600/ua_vfx_a_03_add.png",
+		"Assets/ResData/UI/GameTexture/Game1600/ui_bg.png",
+		"Assets/ResData/UI/GameTexture/Game1600/ui_chac.png",
+		"Assets/ResData/UI/GameTexture/Game1600/ui_footer.png",
+		"Assets/ResData/UI/GameTexture/Game1600/ui_gate.png",
+		"Assets/ResData/UI/GameTexture/Game1600/ui_reel_bg.png",
+	    "Assets/ResData/UI/Spine/Game1600",
+		"Assets/ResData/UI/Dragon/Game1600",
+		"Assets/ResData/UI/Atlas/English/Game1600.prefab",
+		"Assets/ResData/UI/Atlas/English/Game1600_2.prefab",
+		"Assets/ResData/UI/Atlas/English/Game1600_3.prefab",
+		"Assets/ResData/UI/Prefabs/Game1600/FirstRes",
+	    "Assets/ResData/UI/Sound/Game1600"
+	  ] },
+       
+	  
+  ]
+}
