@@ -1,25 +1,38 @@
 using HotUpdate;
 using SEZSJ;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class SevenDayItem : MonoBehaviour
 {
     [SerializeField] private GameObject mask;
     [SerializeField] private Text iconNum;
-    [SerializeField] private Text dayLabl;
+    [SerializeField] private Text dayLablOn;
+    [SerializeField] private Text dayLablOff;
     [SerializeField] private GameObject lightBg;
     [SerializeField] private GameObject check;
     [SerializeField] private GameObject bg;
     [SerializeField] private Button clickBtn;
     [SerializeField] private GameObject selectObj;
     [SerializeField] private GameObject dayLable;
-    public int signInId = -1;
+    
+    [Header("Day On/Off Objects")]
+    [SerializeField] private GameObject _objDayOn;
+    [SerializeField] private GameObject _objDayOff;
+    [SerializeField] private GameObject _objCheckAlreadyCollect;
+    
+    [Header("Background Image")]
+    [SerializeField] private Image bgImage;
+    [SerializeField] private Sprite _spriteDayOn;
+    [SerializeField] private Sprite _spriteDayOff;
+    
+    [Header("Color Text")]
+    [SerializeField] private OutlineEx colorText;
 
+    public int signInId = -1;
+    
     public void SetUpItem(string _dayTxt, string _coinNumTxt, int index)
     {
         bool isSign;
@@ -31,8 +44,15 @@ public class SevenDayItem : MonoBehaviour
         {
             isSign = XxlCtrl.Instance.signInDay && XxlCtrl.Instance.sign > index;
             mask.SetActive(isSign);
+            //show UI for sign in day
+            _objDayOn.SetActive(!isSign);
+            _objDayOff.SetActive(isSign);
+            bgImage.sprite = !isSign ? _spriteDayOn : _spriteDayOff;
+            _objCheckAlreadyCollect.SetActive(isSign);
+            colorText.outlineColor = isSign ? new Color32(82, 82, 82, 255): new Color32(195, 101, 9, 255);
             //check.SetActive(isSign);
-            dayLabl.text = _dayTxt;
+            dayLablOn.text = _dayTxt;
+            dayLablOff.text = _dayTxt;
 
             var img = bg.GetComponent<Image>();
             var str = "SevenDay:k";
@@ -49,7 +69,15 @@ public class SevenDayItem : MonoBehaviour
            
             mask.SetActive(isSign);
             check.SetActive(isSign);
-            dayLabl.text = _dayTxt;
+            dayLablOn.text = _dayTxt;
+            dayLablOff.text = _dayTxt;
+            _objDayOn.SetActive(!isSign);
+            _objDayOff.SetActive(isSign);
+            bgImage.sprite = !isSign ? _spriteDayOn : _spriteDayOff;
+            _objCheckAlreadyCollect.SetActive(isSign);
+            colorText.outlineColor = isSign ? new Color32(82, 82, 82, 255): new Color32(195, 101, 9, 255);
+            
+            
             //dayLable.GetComponent<Text>().text = _dayTxt;
             //dayLabl.gameObject.SetActive(signInId== XxlCtrl.Instance.sign);
             //dayLable.gameObject.SetActive(signInId != XxlCtrl.Instance.sign);
@@ -105,7 +133,7 @@ public class SevenDayItem : MonoBehaviour
                     MainUIModel.Instance.palyerState.TryGetValue(EHumanRewardBits.E_FirstRechargeEd, out bool isState);
                     if (!isState)
                     {
-                        ToolUtil.FloattingText("³äÖµ¼´¿ÉÁìÈ¡", MainPanelMgr.Instance.GetPanel("SevenDayPanel").transform);
+                        ToolUtil.FloattingText("ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¡", MainPanelMgr.Instance.GetPanel("SevenDayPanel").transform);
                         return;
                     }
                 }

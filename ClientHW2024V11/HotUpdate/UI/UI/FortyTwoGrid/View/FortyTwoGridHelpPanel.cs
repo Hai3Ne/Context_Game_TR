@@ -31,11 +31,11 @@ namespace HotUpdate
             if (isOn)
             {
                 SelectPanelType(0);
-                m_Txt_label1.color = new Color32(194, 120, 44, 255);
+                m_Txt_label1.color = new Color32(255, 255, 255, 255); //new Color32(0, 138, 239, 255);
             }
             else
             {
-                m_Txt_label1.color = new Color32(249, 241, 208, 255);
+                m_Txt_label1.color = new Color32(0, 138, 239, 255);
             }
 
         }
@@ -45,11 +45,11 @@ namespace HotUpdate
             if (isOn)
             {
                 SelectPanelType(1);
-                m_Txt_label2.color = new Color32(194, 120, 44, 255);
+                m_Txt_label2.color =  new Color32(255, 255, 255, 255);
             }
             else
             {
-                m_Txt_label2.color = new Color32(249, 241, 208, 255);
+                m_Txt_label2.color = new Color32(0, 138, 239, 255);
             }
         }
         private void ClickTog_2(bool isOn)
@@ -57,11 +57,11 @@ namespace HotUpdate
             if (isOn)
             {
                 SelectPanelType(2);
-                m_Txt_label3.color = new Color32(194, 120, 44, 255);
+                m_Txt_label3.color =  new Color32(255, 255, 255, 255);
             }
             else
             {
-                m_Txt_label3.color = new Color32(249, 241, 208, 255);
+                m_Txt_label3.color = new Color32(0, 138, 239, 255);
             }
         }
 

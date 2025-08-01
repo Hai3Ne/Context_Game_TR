@@ -144,8 +144,8 @@ namespace HotUpdate
         {
             for (int i = 0; i < ConfigCtrl.Instance.Tables.TbSevenDay_Login_Config.DataList.Count; i++)
             {
-                var num = $"金币x{ToolUtil.ShowF2Num(ConfigCtrl.Instance.Tables.TbSevenDay_Login_Config.DataList[i].Val1)}";
-                var day = $"第{i + 1}天";
+                var num = $"x{ToolUtil.ShowF2Num(ConfigCtrl.Instance.Tables.TbSevenDay_Login_Config.DataList[i].Val1)}";
+                var day = $"第{ConvertNumberToChinese(i+1)}天";
                 sevenDayItems[i].SetUpItem(day, num,i+1);
             }
            // Debug.LogError($"下次可领取天数：{MainUIModel.Instance.signInData.signInDay}");
@@ -155,5 +155,18 @@ namespace HotUpdate
         {
             SetUpPanel();
         }
+
+        private string ConvertNumberToChinese(int number)
+        {
+            string[] chineseNumbers = { "零", "一", "二", "三", "四", "五", "六", "七", "八", "九" };
+            string result = "";
+            if (number < 0 || number > 9)
+            {
+                return "错误的数字";
+            }
+            result = chineseNumbers[number];
+            return result;
+        }
+
     }
 }

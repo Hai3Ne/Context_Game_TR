@@ -293,13 +293,13 @@ namespace SEZSJ
 
         const string TP_CMD = @"TexturePacker/bin/TexturePacker.exe";
         //const string TP_ARG = @"""{0}"" --format cocos2d --disable-rotation --no-trim --algorithm MaxRects --max-size 1024 --dither-type PngQuantLow --png-opt-level 1 --texture-format png8 --size-constraints POT --data ""{1}.xml"" --sheet ""{1}.png""";
-        const string TP_ARG = @"""{0}"" --format cocos2d --disable-rotation --no-trim --algorithm MaxRects --max-size 1024 --size-constraints POT --data  ""{1}.xml"" --sheet ""{1}.png""";
-
+        const string TP_ARG = @"""{0}"" --format cocos2d --disable-rotation --no-trim --algorithm MaxRects --max-size 2048 --size-constraints POT --data  ""{1}.xml"" --sheet ""{1}.png""";
+        // const string TP_ARG = @"""{0}"" --format cocos2d --disable-rotation --no-trim --algorithm MaxRects --max-size 2048 --scale 1.0 --scale-mode Smooth --data ""{1}.xml"" --sheet ""{1}.png""";
         protected string tpArg
         {
             get
             {
-                return bLocalize ? TP_ARG.Replace("--max-size 1024", "--max-size 1024") + " --multipack" : TP_ARG;
+                return bLocalize ? TP_ARG.Replace("--max-size 2024", "--max-size 2024") + " --multipack" : TP_ARG;
             }
         }
 

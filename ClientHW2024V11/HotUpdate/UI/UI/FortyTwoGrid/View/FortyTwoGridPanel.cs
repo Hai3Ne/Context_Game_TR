@@ -59,28 +59,28 @@ namespace HotUpdate
                 playRoleAni(false);
             }
 
-            if (m_Btn_Rank)
-            {
-                m_Btn_Rank.GetComponent<RectTransform>().localScale = new Vector3(newScaleValue, newScaleValue, newScaleValue);
-                m_Btn_Rank.GetComponent<RectTransform>().localPosition = new Vector3(-293, 434 - (scaleValue > 1 ? 0 : 43), 0);
-            }
+            // if (m_Btn_Rank)
+            // {
+            //     m_Btn_Rank.GetComponent<RectTransform>().localScale = new Vector3(newScaleValue, newScaleValue, newScaleValue);
+            //     m_Btn_Rank.GetComponent<RectTransform>().localPosition = new Vector3(-293, 434 - (scaleValue > 1 ? 0 : 43), 0);
+            // }
+            //
+            // if (m_Btn_Task)
+            // {
+            //     m_Btn_Task.GetComponent<RectTransform>().localScale = new Vector3(newScaleValue, newScaleValue, newScaleValue);
+            //     m_Btn_Task.GetComponent<RectTransform>().localPosition = new Vector3(-293, 602 - (scaleValue > 1 ? 0 : 100), 0);
+            // }
+            //
+            // if (m_Btn_Tour)
+            // {
+            //     m_Btn_Tour.GetComponent<RectTransform>().localScale = new Vector3(newScaleValue, newScaleValue, newScaleValue);
+            //     m_Btn_Tour.GetComponent<RectTransform>().localPosition = new Vector3(293, 434 - (scaleValue > 1 ? 0 : 43), 0);
+            // }
 
-            if (m_Btn_Task)
-            {
-                m_Btn_Task.GetComponent<RectTransform>().localScale = new Vector3(newScaleValue, newScaleValue, newScaleValue);
-                m_Btn_Task.GetComponent<RectTransform>().localPosition = new Vector3(-293, 602 - (scaleValue > 1 ? 0 : 100), 0);
-            }
-
-            if (m_Btn_Tour)
-            {
-                m_Btn_Tour.GetComponent<RectTransform>().localScale = new Vector3(newScaleValue, newScaleValue, newScaleValue);
-                m_Btn_Tour.GetComponent<RectTransform>().localPosition = new Vector3(293, 434 - (scaleValue > 1 ? 0 : 43), 0);
-            }
-
-            if (m_Btn_Tips)
-            {
-                m_Btn_Tips.GetComponent<RectTransform>().localPosition = new Vector3(293, 555 - (scaleValue > 1 ? 0 : 43), 0);
-            }
+            // if (m_Btn_Tips)
+            // {
+            //     m_Btn_Tips.GetComponent<RectTransform>().localPosition = new Vector3(293, 555 - (scaleValue > 1 ? 0 : 43), 0);
+            // }
 
             var obj = CoreEntry.gResLoader.ClonePre("UI/UITemplate/Gold_EffectNew", m_Rect_Effect.transform, false, false);
             var rect = obj.GetComponent<RectTransform>();
