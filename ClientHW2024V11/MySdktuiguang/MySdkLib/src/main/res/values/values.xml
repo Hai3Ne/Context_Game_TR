@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="tm">#01000000</color>
+    <string name="app_name">opendeviceidlibrary</string>
+    <string name="identifier_hiad_str_2">245d64e65dc9fe70d4d62aa6b941221fa92a3fb07db7a4858e43bf1dbf2972e9</string>
+    <string name="identifier_hiad_str_3">9b38b1ce5d9b5bba1a6539ad75eae153555c74f5b95e6cdfe5019a6a0e56f466</string>
+</resources>

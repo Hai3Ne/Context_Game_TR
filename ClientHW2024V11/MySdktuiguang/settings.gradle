@@ -1,0 +1,3 @@
+include ':MySdkLib'
+include ':app'
+rootProject.name = "MySdk"
