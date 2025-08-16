@@ -56,7 +56,7 @@ public class BundleLoader : Loader
 	public void Init (string path, string abName, LoadedCallback refCallback, bool async = true, BundleLoader parent = null, bool manifest = false)
 	{
 		base.Init (path, null, async);  //null不使用父类回调
-		Util.Log (string.Format("Init BundleLoader path:{0}, name:{1}", path, abName));
+		Util.Log ($"Init BundleLoader path:{path}, name:{abName}");
 
         m_abName = abName;
         AddHandleCallBack(refCallback);
@@ -71,25 +71,37 @@ public class BundleLoader : Loader
         else
         {
             string[] dependencies = LoadModule.Instance.GetDependencies(abName);
+            if (dependencies == null || dependencies.Length == 0)
+            {
+	            StartLoad();
+	            return;
+            }
+            allChildsPassed = false;
             for (int i = 0; i < dependencies.Length; ++i)
             {
                 m_childs.Add(dependencies[i]);
-
+            
                 if (i == dependencies.Length - 1)
                 {
                     allChildsPassed = true;
                 }
-
+            
                 BundleState state = LoadModule.Instance.LoadAssetBundle(dependencies[i], null, async, this);
                 if (state == BundleState.NotExist || state == BundleState.Loaded)
                 {
                     m_childs.Remove(dependencies[i]);
                 }
             }
-
             if (m_childs.Count == 0 && m_state != LoaderState.FINISHED) //无依赖直接加载自己
             {
                 StartLoad();
+            }
+            else
+            {
+	            foreach (var child in m_childs)
+	            {
+		            UnityEngine.Debug.LogError($"Cai gi ne : {child}");
+	            }
             }
         }
     }
@@ -156,6 +168,7 @@ public class BundleLoader : Loader
 		base.Load ();
         if(string.IsNullOrEmpty(m_path) || m_path.Equals(""))
         {
+            Debug.Log("[DEBUG] OnLoaded called: Path is empty - " + m_abName);
             OnLoaded(null);
             Util.LogError("路径不能为空--------");
         }
@@ -243,6 +256,7 @@ public class BundleLoader : Loader
 			if (m_abRequest != null) {
 				if (m_abRequest.isDone) {
 					++m_stateCurrent;
+					Debug.Log("[DEBUG] OnLoaded called: Async AssetBundle load completed - " + m_abName + ", ab: " + (m_abRequest.assetBundle != null ? "not null" : "null"));
 					OnLoaded (m_abRequest.assetBundle);
 				} else {
 					DoProgress (m_abRequest.progress);

@@ -66,7 +66,7 @@ public class LoadedBundleCtrl
         {
             cache.Persistent = true;
         }
-
+        
         return cache;
     }
 

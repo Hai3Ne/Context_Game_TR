@@ -191,7 +191,7 @@ namespace HotUpdate
                     MainPanelMgr.Instance.GetPanel("MainUIPanel").Canvas.worldCamera = MainPanelMgr.Instance.uiCamera;
 #else
 if (PlayerPrefs.HasKey("WxLoginToken")){
-               HotStart.ins.CloseView();
+                    HotStart.ins.CloseView();
                     UICtrl.Instance.CloseLoading();
                     MainPanelMgr.Instance.ShowPanel("MainUIPanel");
                     MainPanelMgr.Instance.GetPanel("MainUIPanel").Canvas.worldCamera = MainPanelMgr.Instance.uiCamera;
@@ -202,7 +202,7 @@ UICtrl.Instance.OpenView("LoginPanel");
 #endif
                     return;
                 }
-                UICtrl.Instance.ShowLoading(isConnet);
+                UICtrl.Instance.ShowLoading(isConnet);  
                 if ( !GameConst.isEditor)
                 {
                     var list = HotStart.ins.m_port.Split('|');
@@ -262,7 +262,8 @@ UICtrl.Instance.OpenView("LoginPanel");
                         UICtrl.Instance.OpenView("LoginPanel");
                     }
 #else
-
+                    UICtrl.Instance.OpenView("LoginPanel");
+                    return;
                     var code = ToolUtil.GetRandomCode(12);
                     var hash = ToolUtil.HMACSHA1(code, pwdKey);
                     SendReqcLogin("", "", "", 101, 0, 0, code, hash, "", "3.0.1", channelId + "", "", "", "", SystemInfo.deviceUniqueIdentifier);

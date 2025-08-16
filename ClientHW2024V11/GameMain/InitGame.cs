@@ -28,7 +28,7 @@ public class InitGame : MonoBehaviour
 
     private void Awake()
     {
-        
+        UnityEngine.Debug.Log($"con me may load metadata for AOT assemblies");
         CoreEntry.gEventMgr.AddListener(SEZSJ.GameEvent.GE_THIRDPARTY_INIT, OnThirdPartyInit);
         GameObject partyUi = CoreEntry.gResLoader.ClonePre("UI/Prefabs/Start/FirstRes/ThirdPartyPanel", null, false);  // 2023 暂时注释
         //this.enabled = false;
@@ -214,6 +214,7 @@ public class InitGame : MonoBehaviour
 
         if (!GameConst.isEditor)
         {
+            
             StartCoroutine(LoadMetadataForAOTAssemblies());
         }
         else

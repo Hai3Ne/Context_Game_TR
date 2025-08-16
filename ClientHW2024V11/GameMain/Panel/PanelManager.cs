@@ -303,6 +303,10 @@ public class PanelManager :MonoBehaviour
         {
             if (mPrefabMap.ContainsKey(panelName))
             {
+                // if (panelName.Equals("CommonLoading"))
+                // {
+                //     return null;
+                // }
                 LoadPanel(mPrefabMap[panelName], panelName);
                // panelDic[panelName].gameObject.SetActive(true);
                 return panelDic[panelName];

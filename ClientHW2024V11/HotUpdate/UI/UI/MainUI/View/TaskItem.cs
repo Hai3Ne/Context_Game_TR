@@ -41,7 +41,7 @@ namespace HotUpdate
             //{
             //    targetNum = (float.Parse(targetNum)).ToString("f0");
             //}
-            taskTitle.text = string.Format("教学赛车{0}", $"{ToolUtil.AbbreviateNumberf0(data.taskTarget, true)}");
+            taskTitle.text = $"海底爬虫消耗 {ToolUtil.AbbreviateNumberf0(data.taskTarget, true)} ";
             iconNumTxt.text = $"x{(double)data.award / 100f}";
             progress.fillAmount = (float)data.total / data.taskTarget;
             calimedTxt.gameObject.SetActive(data.IsCollect);
@@ -85,7 +85,16 @@ namespace HotUpdate
         private void EnterGameID()
         {
             CoreEntry.gAudioMgr.PlayUISound(46);
-            taskPanel.Close();
+            if (!taskPanel)
+            {
+                var panel = MainPanelMgr.Instance.GetPanel("GuildPanel");
+                panel?.Close();
+            }
+            else
+            {
+                taskPanel.Close();
+            }
+           
             if(MainUIModel.Instance.RoomData != null)
             {
                 if (MainUIModel.Instance.RoomData.nGameType != 15)

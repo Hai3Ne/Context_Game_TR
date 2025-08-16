@@ -6,11 +6,15 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
+
 namespace HotUpdate
 {
     public partial class SevenDayPanel : PanelBase
     {
         [SerializeField] private List<SevenDayItem> sevenDayItems = new List<SevenDayItem>();
+        [SerializeField] private Text countdownText;
+        private bool isCountdownActive = false;
       
         protected override void Awake()
         {
@@ -46,6 +50,7 @@ namespace HotUpdate
             SetUpPanel();
             m_Btn_Get.onClick.AddListener(onBtnGet);
             Message.AddListener(MessageName.REFRESH_SEVENDAY_PANEL, RefreshPanel);
+            StartCountdown();
         }
 
         private void onBtnGet()
@@ -99,6 +104,7 @@ namespace HotUpdate
             m_Btn_Get.onClick.RemoveListener(onBtnGet);
             m_Btn_Close.onClick.RemoveListener(OnCloseBtn);
             Message.RemoveListener(MessageName.REFRESH_SEVENDAY_PANEL,RefreshPanel);
+            StopCountdown();
         }
         #endregion
         public void OnCloseBtn() 
@@ -129,7 +135,7 @@ namespace HotUpdate
                         return;
                     }
                 }
-                 MainUICtrl.Instance.SendSignIn(MainUIModel.Instance.signInData.signInDay);
+                MainUICtrl.Instance.SendSignIn(MainUIModel.Instance.signInData.signInDay);
                
           
             }
@@ -154,6 +160,10 @@ namespace HotUpdate
         public void RefreshPanel() 
         {
             SetUpPanel();
+            if (countdownText != null)
+            {
+                countdownText.text = MainUIModel.Instance.signInData.GetCountdownText();
+            }
         }
 
         private string ConvertNumberToChinese(int number)
@@ -167,6 +177,30 @@ namespace HotUpdate
             result = chineseNumbers[number];
             return result;
         }
+        private void StartCountdown()
+        {
+            isCountdownActive = true;
+            InvokeRepeating("UpdateCountdown", 0f, 1f);
+        }
 
+        private void StopCountdown()
+        {
+            isCountdownActive = false;
+            CancelInvoke("UpdateCountdown");
+        }
+
+        private void UpdateCountdown()
+        {
+            if (!isCountdownActive || countdownText == null) return;
+    
+            if (!HotStart.ins.m_isShow) return;
+    
+            string countdownStr = MainUIModel.Instance.signInData.GetCountdownText();
+            countdownText.text = countdownStr;
+            if (MainUIModel.Instance.signInData.IsSignToday == 0)
+            {
+                RefreshPanel();
+            }
+        }
     }
 }

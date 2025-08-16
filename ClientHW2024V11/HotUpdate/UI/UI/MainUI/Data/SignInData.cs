@@ -36,8 +36,12 @@ public class SignInData
         IsSignToday = data.m_iSignDay;
         SignTime = data.m_i8SignInTime;
         Message.Broadcast(MessageName.REFRESH_ROLLBANNER_PANEL);
+        foreach(var item in signInDayDatas)
+        {
+            UnityEngine.Debug.Log($"[SignInData] Day {item.Key}: signed={item.Value}");
+        }
     }
-
+    
     /// <summary>
     /// 设置今日是否签到
     /// </summary>
@@ -74,6 +78,34 @@ public class SignInData
     public void SetSignTime(long time) 
     {
         SignTime = time;
+    }
+    
+    public long GetTimeUntilNextSignIn()
+    {
+        if (IsSignToday == 0)
+        {
+            return 0;
+        }
+        long currentTime = ToolUtil.getServerTime();
+        DateTime currentDate = TimeUtil.TimestampToDataTime(currentTime);
+        DateTime nextDay = currentDate.Date.AddDays(1);
+        long nextDayTimestamp = TimeUtil.DataTimeToTimestamp(nextDay);
+    
+        return Math.Max(0, nextDayTimestamp - currentTime);
+    }
+
+    public string GetCountdownText()
+    {
+        if (IsSignToday == 0)
+        {
+            return "您现在就可以得到它!";
+        }
+    
+        long timeLeft = GetTimeUntilNextSignIn();
+        TimeSpan time = TimeSpan.FromSeconds(timeLeft);
+        var timeText = $"当日奖励乘余时间: {time.Hours:D2}:{time.Minutes:D2}:{time.Seconds:D2}";
+        UnityEngine.Debug.Log($"cai gin e {timeText}");
+        return timeText;
     }
 }
 

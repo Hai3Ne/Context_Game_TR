@@ -28,14 +28,17 @@ public class GameConst
     public static bool isEditor = true;
 
     public static string PackKey = "234asdqs";
-    public static int version = 10000;
+    public static int version = 1000;
     public static string zipName = "GameAsset.unity3d";
     public static string ZipKey = "1000";
-    public static string VesionUrl = "https://a.lywl2025.com/xcfb/";
+
+    public static string VesionUrl = "https://a.lywl2025.com/tga1/";
+    // public static string VesionUrl = "http://192.168.0.5:8080/Game_V11/"; // for test
     public static List<string> VesionUrlArr = new List<string>() {
-        "https://a.lywl2025.com/xcfb/",
+        "https://a.lywl2025.com/tga1/",
         "https://lywl123.oss-cn-hangzhou.aliyuncs.com/xcfb/",
-        "http://121.43.163.16:80/xcfb/"
+        // "http://121.43.163.16:80/tga1/",
+        // "http://192.168.0.5:8080/Game_V11/", // for test
     };
     public static string CdnUrl = "";//"https://game.zhongheboy.cn/mltxj/";//"https://game.hnyilin.top/xxl/";"https://game.hnyilin.top/hlxxx/";//
     #region 路径

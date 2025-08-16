@@ -21,6 +21,8 @@ namespace HotUpdate
         {
             m_Btn_Close.onClick.AddListener(OnCloseBtn);
             m_Tog_0.SetIsOnWithoutNotify(true);
+            m_Tog_1.SetIsOnWithoutNotify(false);
+            m_Tog_2.SetIsOnWithoutNotify(false);
             m_Tog_0.onValueChanged.AddListener(ClickTog_0);
             m_Tog_1.onValueChanged.AddListener(ClickTog_1);
             m_Tog_2.onValueChanged.AddListener(ClickTog_2);

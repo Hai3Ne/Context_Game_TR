@@ -19,6 +19,7 @@ public class GameBegin : MonoBehaviour
     private void Awake()
     {
         ins = this;
+        Debug.Log($"start GameBegin Awake");
 #if !NETFX_CORE
         System.Threading.Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.CreateSpecificCulture("en-us");
 #endif

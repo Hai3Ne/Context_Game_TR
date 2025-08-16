@@ -65,7 +65,7 @@ public class LoadModule : MonoBehaviour
            // LoadManifest(ManifestType.Lua_Bundles);
             LoadManifest(ManifestType.UI_Bundles);
             LoadManifest(ManifestType.World_Bundles);
-           // LoadSubPack();
+            // LoadSubPack();
             Util.Log("LoadManifest manifest over---------");
         }
 
@@ -99,8 +99,6 @@ public class LoadModule : MonoBehaviour
                     {
                         continue;
                     }
-                    
-                   // 
                 }
 
                 BundleLoader bLoader = LoaderPool.Instance.GetLoader<BundleLoader>();
@@ -657,7 +655,6 @@ public class LoadModule : MonoBehaviour
         }
 
         string fullpath = FileHelper.SearchFilePath(bundName, abName);   //包最终加载路径
-
         BundleLoader bLoader = LoaderPool.Instance.GetLoader<BundleLoader>();
         bLoader.Init(fullpath, abName, onLoaded, async, parent);
 

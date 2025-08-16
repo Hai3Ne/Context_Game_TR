@@ -13,7 +13,7 @@ public class HotStart : MonoBehaviour
 {
     public static HotStart ins;
     private List<string[]> updateFileArr = new List<string[]>();
-    public int resVersion = 1000;
+    public int resVersion = 1001;
 
 
     public List<string> SubPackNameArr = new List<string>();
@@ -28,7 +28,7 @@ public class HotStart : MonoBehaviour
     public int gameType = 0;
     public Transform _login;
 
-    public int m_urlResVersion = 1000;
+    public int m_urlResVersion = 1001;
     public string m_ip = "";
     public string m_port = "";
     public string m_backstage = "";
@@ -40,6 +40,7 @@ public class HotStart : MonoBehaviour
     private void Awake()
     {
         ins = this;
+        Debug.Log($"start HotStart Awake");
         DontDestroyOnLoad(gameObject);
     }
     public void Start()
@@ -104,7 +105,7 @@ public class HotStart : MonoBehaviour
         }
         else
         {
-            m_isShow = false;
+            m_isShow = true;
             StartCoroutine(loadGame());
         }
     }

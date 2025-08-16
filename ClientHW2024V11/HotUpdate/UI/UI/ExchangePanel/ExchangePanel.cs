@@ -134,7 +134,7 @@ namespace HotUpdate
                 m_Img_gold.sprite = AtlasSpriteManager.Instance.GetSprite($"Common:ddfl_icon_{item.Itemid}");
                 m_Txt_lab1.text = ToolUtil.AbbreviateNumberf0(item.Target);
                 m_Txt_ExchangeNum.text = ToolUtil.AbbreviateNumberf0(item.Target);
-                m_Txt_Tips.text = "星点兑换金币没有库存限制\n当前兑换金币数量：" + ToolUtil.AbbreviateNumberf0(item.Target)+ "";
+                m_Txt_Tips.text = "水母兑换金币没有库存限制\n当前兑换金币数量：" + ToolUtil.AbbreviateNumberf0(item.Target)+ "";
             }
             else
             {
@@ -144,7 +144,7 @@ namespace HotUpdate
                 m_Img_gold.sprite = AtlasSpriteManager.Instance.GetSprite($"Common:zfb");
                 m_Txt_lab1.text = (double)item.Target/100f + "";
                 m_Txt_ExchangeNum.text = (double)item.Target / 100f + "";
-                m_Txt_Tips.text = "星点兑换权益卡没有库存限制\n当前兑换权益卡数量：" + (double)item.Target / 100f + ""+ ""; ;
+                m_Txt_Tips.text = "水母兑换权益卡没有库存限制\n当前兑换权益卡数量：" + (double)item.Target / 100f + ""+ ""; ;
             }
             m_Img_Icon.SetNativeSize();
             m_Img_gold.SetNativeSize();

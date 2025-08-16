@@ -81,7 +81,8 @@ public class SevenDayItem : MonoBehaviour
             //dayLable.GetComponent<Text>().text = _dayTxt;
             //dayLabl.gameObject.SetActive(signInId== XxlCtrl.Instance.sign);
             //dayLable.gameObject.SetActive(signInId != XxlCtrl.Instance.sign);
-            selectObj.gameObject.SetActive(signInId == XxlCtrl.Instance.sign && !isSign);
+            // selectObj.gameObject.SetActive(signInId == XxlCtrl.Instance.sign && !isSign);
+            selectObj.gameObject.SetActive(signInId == MainUIModel.Instance.signInData.signInDay && !isSign);
             var img = bg.GetComponent<Image>();
             var str = "SevenDay:k";
             if (MainUIModel.Instance.signInData.IsSignToday == 0 && MainUIModel.Instance.signInData.signInDay == index)

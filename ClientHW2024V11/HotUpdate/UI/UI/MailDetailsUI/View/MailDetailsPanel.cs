@@ -135,7 +135,7 @@ namespace HotUpdate
             }
             else if ((int)EPlayerAttrType.eDiamond == data.mailItemVo[0].m_i4itemid)
             {
-                m_Txt_account.text = $"{((double)data.mailItemVo[0].m_i8itemcount)/100f}星点";
+                m_Txt_account.text = $"{((double)data.mailItemVo[0].m_i8itemcount)/100f}水母";
                 m_Img_Icon.sprite = AtlasSpriteManager.Instance.GetSprite("Common:" + "ziyuan_icon_2");
                 m_Img_Icon.transform.localScale = Vector3.one;
             }
@@ -143,14 +143,14 @@ namespace HotUpdate
             {
                 m_Txt_account.text = $"{(double)data.mailItemVo[0].m_i8itemcount/100f}元权益卡";
                 m_Img_Icon.sprite = AtlasSpriteManager.Instance.GetSprite("Common:" + "zfb");
-                m_Img_Icon.transform.localScale = new Vector3(0.55f, 0.55f, 0.55f);
+                // m_Img_Icon.transform.localScale = new Vector3(0.55f, 0.55f, 0.55f);
             }
 
             if (data.txtId == 3)
             {
                 data.contantParam[1] = (long.Parse(data.contantParam[1]) * 10000).ToString();
             }
-            m_Img_Icon.SetNativeSize();
+            // m_Img_Icon.SetNativeSize();
             m_Rect_Panel.gameObject.SetActive(false);
             m_Txt_Details.text = string.Format(data.Contant, data.contantParam);
             m_Btn_delete.gameObject.SetActive(data.item == 2 || data.item == 0);

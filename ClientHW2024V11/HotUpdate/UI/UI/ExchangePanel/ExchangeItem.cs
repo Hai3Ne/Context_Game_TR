@@ -2,6 +2,7 @@ using DG.Tweening;
 using SEZSJ;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
@@ -51,11 +52,15 @@ namespace HotUpdate
                 title.text = "可兑换";
             btnTxt.text = ((double)data.Original / 100f) + "";
             canNotBuyTxt.text = ((double)data.Original / 100f) + "";
-       
-            goldTxt.text = data.Type == 9 ? $"{ToolUtil.AbbreviateNumberf0(data.Target)}金币" : ((double)data.Target/100f) + "元";
+
+            goldTxt.text = data.Type == 9
+                ? $"{ToolUtil.AbbreviateNumberf0(data.Target)}金币"
+                : ((double)data.Target / 100f).ToString(CultureInfo.InvariantCulture);//+ "元";
             goldTxt.gameObject.SetActive(data.Type == 9);
             goldTxt2.gameObject.SetActive(data.Type != 9);
-            goldTxt2.text = data.Type == 9 ? $"{ToolUtil.AbbreviateNumberf0(data.Target)}金币" : ((double)data.Target / 100f)+"元";
+            goldTxt2.text = data.Type == 9
+                ? $"{ToolUtil.AbbreviateNumberf0(data.Target)}金币"
+                : ((double)data.Target / 100f).ToString(CultureInfo.InvariantCulture); //+"元";
             if (data.Type == 9)
             {
                 icon.sprite = AtlasSpriteManager.Instance.GetSprite($"Common:ddfl_icon_{data.Itemid}");
