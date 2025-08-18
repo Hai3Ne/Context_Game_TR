@@ -91,7 +91,7 @@ namespace HotUpdate
                 }
                 else
                 {
-                    ToolUtil.FloattingText("星点不足", MainPanelMgr.Instance.GetDialog("ExchangePanel").transform);
+                    ToolUtil.FloattingText("水母不足", MainPanelMgr.Instance.GetDialog("ExchangePanel").transform);
                 }
          
             }
@@ -115,7 +115,7 @@ namespace HotUpdate
                     }
                     else
                     {
-                        ToolUtil.FloattingText("星点不足", MainPanelMgr.Instance.GetDialog("ExchangePanel").transform);
+                        ToolUtil.FloattingText("水母不足", MainPanelMgr.Instance.GetDialog("ExchangePanel").transform);
                     }
 
                 }

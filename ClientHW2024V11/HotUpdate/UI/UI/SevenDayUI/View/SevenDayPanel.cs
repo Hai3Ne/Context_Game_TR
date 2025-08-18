@@ -58,7 +58,14 @@ namespace HotUpdate
             if (!HotStart.ins.m_isShow)
             {
                 CoreEntry.gAudioMgr.PlayUISound(46);
-                if (XxlCtrl.Instance.signInDay) return;
+                if (XxlCtrl.Instance.signInDay)
+                {
+                    if (XxlCtrl.Instance.sign >= 3)
+                    {
+                        ToolUtil.FloattingText("今天的福利已领取完，明天再来领取哈", this.transform);
+                    }
+                    return;
+                }
                 XxlCtrl.Instance.sign += 1;
                 XxlCtrl.Instance.signInDay = true;
                 XxlCtrl.Instance.signDay = new DateTime().Day;
@@ -78,7 +85,16 @@ namespace HotUpdate
             }
             else
             {
-                if (MainUIModel.Instance.signInData.IsSignToday == 1) return;
+                if (MainUIModel.Instance.signInData.IsSignToday == 1 && MainUIModel.Instance.signInData.signInDay >= 2) 
+                {
+                    ToolUtil.FloattingText("今天的福利已领取完，明天再来领取哈", this.transform);
+                    return;
+                }
+                if (MainUIModel.Instance.signInData.IsSignToday == 1)
+                {
+                    return;
+                }
+
                 CoreEntry.gAudioMgr.PlayUISound(46);
                 if (MainUIModel.Instance.signInData.IsSignToday == 0)
                 {

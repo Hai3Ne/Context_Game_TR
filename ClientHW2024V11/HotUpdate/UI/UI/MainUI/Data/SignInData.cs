@@ -104,7 +104,6 @@ public class SignInData
         long timeLeft = GetTimeUntilNextSignIn();
         TimeSpan time = TimeSpan.FromSeconds(timeLeft);
         var timeText = $"当日奖励乘余时间: {time.Hours:D2}:{time.Minutes:D2}:{time.Seconds:D2}";
-        UnityEngine.Debug.Log($"cai gin e {timeText}");
         return timeText;
     }
 }

@@ -58,16 +58,6 @@ public class MainActivity extends UnityPlayerActivity implements com.game.gold.D
         }
         if (wxapi==null){
             wxapi = WXAPIFactory.createWXAPI(this,Constants.APP_ID,false);
-            try {
-                wxApi = WXAPIFactory.createWXAPI(this, APP_ID, false);
-                wxApi.registerApp(APP_ID);
-                Log.d("WeChat", "WeChat SDK initialized successfully");
-            } catch (Exception e) {
-                Log.e("WeChat", "WeChat SDK initialization failed: " + e.getMessage());
-                // Continue without WeChat
-            }
-            } else {
-                Log.d("WeChat", "WeChat SDK already initialized");
         }
         wxapi.registerApp(Constants.APP_ID);
 

@@ -49,8 +49,8 @@ public class AppConst
     public const string ResDataDir = "ResData/";                   //资源目录
     public const string ExtName = ".unity3d";                   //扩展名
     public const string AssetDir = "StreamingAssets";           //素材目录
-    // public const string CdnUrl = "http://192.168.0.5:8080/Game_V11/";// "https://a.lywl2025.com/xcfb/"; //CDN地址
-    public const string CdnUrl = "https://a.lywl2025.com/tga1/"; //CDN地址
+    public const string CdnUrl = "http://192.168.0.7:8080/Game_V11/";// "https://a.lywl2025.com/xcfb/"; //CDN地址
+    // public const string CdnUrl = "https://a.lywl2025.com/tga1/"; //CDN地址
     public const string customer = "t8.lywl2025.com"; //版本地址
     public const string backstage = "https://rechargev8.lywl2025.com";
 }
