@@ -1,5 +1,6 @@
 package com.game.gold;
 
 public class Constants {
-    public static final String APP_ID ="wx8ccb7eda10d4ebd1";
+    public static final String APP_ID ="wx4f16c34621be4aff";
 }
+
