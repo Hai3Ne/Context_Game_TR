@@ -542,7 +542,7 @@ namespace HotUpdate
         
             CoreEntry.gAudioMgr.PlayUISound(46);
             CommonPanel panel = MainPanelMgr.Instance.ShowDialog("CommonPanel") as CommonPanel;
-            panel.SetContent("规则说明", "1.所有游戏房间的伤害值均参与排行统计\n2.活动期间，每周一0点进行奖励结算\n3.每个档位上榜都有名额限制，先到先得\n4.根据达成的伤害目标的时间进行排名，奖励层层叠加，越早完成，奖励越高\n5.奖励通过邮件发送");
+            panel.SetContent("规则说明", "1.所有游戏房间的伤害值均参与排行统计\n2.活动期间，每周进行奖励结算\n3.每个档位上榜都有名额限制，先到先得\n4.根据达成的伤害目标的时间进行排名\n5.奖励层层叠加，越早完成，奖励越高\n6.奖励通过邮件发送");
 
         }
 

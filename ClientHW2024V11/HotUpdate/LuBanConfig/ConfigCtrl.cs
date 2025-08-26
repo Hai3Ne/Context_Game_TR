@@ -73,6 +73,7 @@ namespace HotUpdate
             {
                 //编辑器模式
                 filePath = $"{Application.dataPath}/../LubanTools/GenerateDatas/LubanConfig/{file}.bytes";
+                // filePath = $"{Application.dataPath}/../Assets/StreamingAssets/LubanConfig/{file}.bytes";
                 if (!File.Exists(filePath))
                 {
                     Debug.LogError("filepath:" + filePath + " not exists");
@@ -101,7 +102,7 @@ namespace HotUpdate
                     }
 
 
-                    //filePath = GameConst.DataPath + "LubanConfig/" + file + ".bytes" Path.Combine(GameConst.DataPath, $"LubanConfig/{file}.bytes");
+                    // filePath = GameConst.DataPath + "LubanConfig/" + file + ".bytes" +  Path.Combine(GameConst.DataPath, $"LubanConfig/{file}.bytes");
                 }
                 else
                 {

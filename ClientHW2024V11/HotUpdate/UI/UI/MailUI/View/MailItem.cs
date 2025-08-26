@@ -20,6 +20,9 @@ namespace HotUpdate
         [SerializeField] private Transform Trans_Du;
         [SerializeField] private GameObject gift1;
         [SerializeField] private GameObject gift2;
+        
+        [SerializeField] private Sprite _imgUnread;
+        [SerializeField] private Sprite _imgRead;
         private Text TxtM_Title;
         private Text TxtM_Time;
         private Transform Trans_HasRead;
@@ -67,7 +70,7 @@ namespace HotUpdate
 
             m_Btn_Look.gameObject.SetActive(itemData.Read==0);
             Trans_HasRead.gameObject.SetActive(itemData.Read == 1);
-
+            // m_mailIcon_Img.sprite = itemData.Read == 0 ? _imgRead : _imgUnread;
             Trans_WeiDu.gameObject.SetActive(itemData.Read == 0 || itemData.Item == 1);
             Trans_Du.gameObject.SetActive(itemData.Read == 1 && itemData.Item != 1);
             //gift1.gameObject.SetActive(itemData.Item==1);

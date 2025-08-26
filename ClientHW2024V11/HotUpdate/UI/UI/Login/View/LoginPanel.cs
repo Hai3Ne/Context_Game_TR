@@ -45,12 +45,14 @@ namespace HotUpdate
             {
                 SdkCtrl.Instance.perMission();
             }
+
+          
             //else
             //{
             //    MainPanelMgr.Instance.ShowDialog("PrivacyTipPanel");
             //}
 
-           
+
         }
         public void changeAccount(int value)
         {
@@ -190,6 +192,7 @@ namespace HotUpdate
                 var code = ToolUtil.GetRandomCode(12);
                 var hash = ToolUtil.HMACSHA1(code, LoginCtrl.pwdKey);
                 LoginCtrl.Instance.SendReqcLogin("", "", "", 101, 0, 0, code, hash, "", "3.0.1", LoginCtrl.Instance.channelId + "", "", "", "", "HWCNDY37_" + SystemInfo.deviceUniqueIdentifier);
+                // LoginCtrl.Instance.SendReqcLogin("", "", "", 101, 0, 0, code, hash, "", "3.0.1", LoginCtrl.Instance.channelId + "", "", "", "", "HWCNDY34_4490105bca9a7f4f8696a6a6d17dc26a1e9997f6f");
 
             }
 
@@ -213,16 +216,15 @@ namespace HotUpdate
                 SdkCtrl.Instance.perMission();
                 return;
             }
-             SdkCtrl.Instance.WxLogin();
-         /*   var code = ToolUtil.GetRandomCode(12);
-            var hash = ToolUtil.HMACSHA1(code, LoginCtrl.pwdKey);
-            LoginCtrl.Instance. SendReqcLogin("", "", "", 101, 0, 0, code, hash, "", "3.0.1", LoginCtrl.Instance.channelId + "", "", "", "", SystemInfo.deviceUniqueIdentifier);*/
+            SdkCtrl.Instance.WxLogin();
+            // var code = ToolUtil.GetRandomCode(12);
+            // var hash = ToolUtil.HMACSHA1(code, LoginCtrl.pwdKey);
+            // LoginCtrl.Instance. SendReqcLogin("", "", "", 101, 0, 0, code, hash, "", "3.0.1", LoginCtrl.Instance.channelId + "", "", "", "", SystemInfo.deviceUniqueIdentifier);
 
         }
         public void onValueChange(bool isOn)
         {
             CoreEntry.gAudioMgr.PlayUISound(46);
-
             if (isOn)
             {
                 SdkCtrl.Instance.perMission();

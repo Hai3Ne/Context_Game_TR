@@ -129,7 +129,7 @@ namespace HotUpdate
             if(item.Type == 9)
             {
                 m_Img_Icon.transform.localScale = new Vector3(1,1,1);
-                m_Img_gold.transform.localScale = new Vector3(0.5f,0.5f,0.5f);
+                // m_Img_gold.transform.localScale = new Vector3(0.5f,0.5f,0.5f);
                 m_Img_Icon.sprite = AtlasSpriteManager.Instance.GetSprite($"Common:ddfl_icon_{item.Itemid}");
                 m_Img_gold.sprite = AtlasSpriteManager.Instance.GetSprite($"Common:ddfl_icon_{item.Itemid}");
                 m_Txt_lab1.text = ToolUtil.AbbreviateNumberf0(item.Target);
@@ -138,19 +138,20 @@ namespace HotUpdate
             }
             else
             {
-                m_Img_Icon.transform.localScale = new Vector3(0.6f, 0.6f, 0.6f);
-                m_Img_gold.transform.localScale = new Vector3(0.35f, 0.35f, 0.35f);
+                // m_Img_Icon.transform.localScale = new Vector3(0.6f, 0.6f, 0.6f);
+                // m_Img_gold.transform.localScale = new Vector3(0.35f, 0.35f, 0.35f);
                 m_Img_Icon.sprite = AtlasSpriteManager.Instance.GetSprite($"Common:zfb");
                 m_Img_gold.sprite = AtlasSpriteManager.Instance.GetSprite($"Common:zfb");
                 m_Txt_lab1.text = (double)item.Target/100f + "";
                 m_Txt_ExchangeNum.text = (double)item.Target / 100f + "";
                 m_Txt_Tips.text = "水母兑换权益卡没有库存限制\n当前兑换权益卡数量：" + (double)item.Target / 100f + ""+ ""; ;
             }
-            m_Img_Icon.SetNativeSize();
-            m_Img_gold.SetNativeSize();
+            // m_Img_Icon.SetNativeSize();
+            // m_Img_gold.SetNativeSize();
             m_Txt_lab2.text = (double)item.Original / 100f + "";
             m_Btn_duihuan.interactable = true;
-
+            m_Txt_CanExchangeNum.text = item.Day == 0 ? $"999+" : $"{item.Day}";
+            m_Txt_CanExchangeTimes.text = item.Day == 0 ? $"999+" : $"{item.Day}";
 
         }
 

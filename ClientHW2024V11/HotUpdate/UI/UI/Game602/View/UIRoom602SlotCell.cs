@@ -31,7 +31,7 @@ namespace HotUpdate
         {
            // base.setElement(ele, row1);
             element = ele;
-            Debug.LogError(("ele:" + "ele" + ele));
+            // Debug.LogError(("ele:" + "ele" + ele));
             ImgElement.sprite = AtlasSpriteManager.Instance.GetSprite("Game602New:" + "icon_" + ele);
             ImgElement.SetNativeSize();
             if(row1 > 0)

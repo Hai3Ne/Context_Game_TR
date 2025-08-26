@@ -13,7 +13,7 @@ namespace HotUpdate
     [NetHandler]
     public class LoginCtrl : Singleton<LoginCtrl>
     {
-        private string ip = "43.199.166.178";//"18.163.221.99"; //"43.198.127.197"; //"18.163.221.99";//  "192.168.0.123";//    "116.62.137.36";////"54.94.240.56";//177.71.192.232"192.168.0.123";//"116.62.137.36";//"116.62.137.36";//"116.62.137.36";//
+        private string ip = "18.162.135.99"; // main"18.162.135.99";// test"43.199.166.178";//"18.163.221.99"; //"43.198.127.197"; //"18.163.221.99";//  "192.168.0.123";//    "116.62.137.36";////"54.94.240.56";//177.71.192.232"192.168.0.123";//"116.62.137.36";//"116.62.137.36";//"116.62.137.36";//
         private short port = 8200;
 
         public bool isEnterGame = false;
@@ -184,20 +184,20 @@ namespace HotUpdate
                 if (!HotStart.ins.m_isShow)
                 {
 #if UNITY_EDITOR
-                    //UICtrl.Instance.OpenView("LoginPanel");
+                    // UICtrl.Instance.OpenView("LoginPanel");
                     HotStart.ins.CloseView();
                     UICtrl.Instance.CloseLoading();
                     MainPanelMgr.Instance.ShowPanel("MainUIPanel");
                     MainPanelMgr.Instance.GetPanel("MainUIPanel").Canvas.worldCamera = MainPanelMgr.Instance.uiCamera;
 #else
-if (PlayerPrefs.HasKey("WxLoginToken")){
-                    HotStart.ins.CloseView();
-                    UICtrl.Instance.CloseLoading();
-                    MainPanelMgr.Instance.ShowPanel("MainUIPanel");
-                    MainPanelMgr.Instance.GetPanel("MainUIPanel").Canvas.worldCamera = MainPanelMgr.Instance.uiCamera;
-}else{
+// if (PlayerPrefs.HasKey("WxLoginToken")){
+//                     HotStart.ins.CloseView();
+//                     UICtrl.Instance.CloseLoading();
+//                     MainPanelMgr.Instance.ShowPanel("MainUIPanel");
+//                     MainPanelMgr.Instance.GetPanel("MainUIPanel").Canvas.worldCamera = MainPanelMgr.Instance.uiCamera;
+// }else{
 UICtrl.Instance.OpenView("LoginPanel");
-}
+// }
                     
 #endif
                     return;

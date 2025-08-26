@@ -281,15 +281,11 @@ public class SdkCtrl : SingletonMonoBehaviour<SdkCtrl>
             return;
         }
         UICtrl.Instance.ShowLoading();
-#if UNITY_EDITOR
-        Message.Broadcast<string>(MessageName.WX_LOGIN_CALLBACK, "");
-
-#elif UNITY_ANDROID
-      AndroidJavaClass js = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-      AndroidJavaObject jc = js.GetStatic<AndroidJavaObject>("currentActivity");
-      jc.Call("Login");
+#if UNITY_ANDROID
+        AndroidJavaClass js = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+        AndroidJavaObject jc = js.GetStatic<AndroidJavaObject>("currentActivity");
+        jc.Call("Login");
 #endif
-
     }
 
     public void OnWxLoginSucess(string str)

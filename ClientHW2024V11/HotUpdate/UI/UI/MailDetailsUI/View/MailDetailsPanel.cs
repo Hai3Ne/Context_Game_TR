@@ -76,7 +76,7 @@ namespace HotUpdate
         {
             CoreEntry.gAudioMgr.PlayUISound(46);
             m_Rect_Panel.gameObject.SetActive(true);
-            m_Txt_Gold.text = (m_data.mailItemVo[0].m_i8itemcount * 200) + "";
+            m_Txt_Gold.text = (m_data.mailItemVo[0].m_i8itemcount * 220) + "";
 
         }
 

@@ -33,7 +33,7 @@ public class RankItemChild : MonoBehaviour
         {
             IdTxt.gameObject.SetActive(rank > 3);
             IdTxt.text = rank.ToString();
-            nameTxt.text = "ÐéÎ»ÒÔ´ý";
+            nameTxt.text = "è™šæ‹Ÿä»¥å¾…";
             goldTxt.text = "";
             //rewardNum.text = "";
             Bg.gameObject.SetActive(true);
@@ -128,7 +128,7 @@ public class RankItemChild : MonoBehaviour
             else
             {
                 head.sprite = null;
-                Debug.Log("ÏÂÔØ³ö´í" + "," + www.error);
+                Debug.Log("ï¿½ï¿½ï¿½Ø³ï¿½ï¿½ï¿½" + "," + www.error);
             }
         }
     }

@@ -21,7 +21,6 @@ public class SevenDayItem : MonoBehaviour
     [Header("Day On/Off Objects")]
     [SerializeField] private GameObject _objDayOn;
     [SerializeField] private GameObject _objDayOff;
-    [SerializeField] private GameObject _objCheckAlreadyCollect;
     
     [Header("Background Image")]
     [SerializeField] private Image bgImage;
@@ -29,7 +28,7 @@ public class SevenDayItem : MonoBehaviour
     [SerializeField] private Sprite _spriteDayOff;
     
     [Header("Color Text")]
-    [SerializeField] private OutlineEx colorText;
+    [SerializeField] private Text colorText;
 
     public int signInId = -1;
     
@@ -44,12 +43,10 @@ public class SevenDayItem : MonoBehaviour
         {
             isSign = XxlCtrl.Instance.signInDay && XxlCtrl.Instance.sign > index;
             mask.SetActive(isSign);
-            //show UI for sign in day
             _objDayOn.SetActive(!isSign);
             _objDayOff.SetActive(isSign);
             bgImage.sprite = !isSign ? _spriteDayOn : _spriteDayOff;
-            _objCheckAlreadyCollect.SetActive(isSign);
-            colorText.outlineColor = isSign ? new Color32(82, 82, 82, 255): new Color32(195, 101, 9, 255);
+            colorText.color = isSign ? new Color32(104, 104, 104, 255): new Color32(80, 13, 220, 255);
             //check.SetActive(isSign);
             dayLablOn.text = _dayTxt;
             dayLablOff.text = _dayTxt;
@@ -74,8 +71,7 @@ public class SevenDayItem : MonoBehaviour
             _objDayOn.SetActive(!isSign);
             _objDayOff.SetActive(isSign);
             bgImage.sprite = !isSign ? _spriteDayOn : _spriteDayOff;
-            _objCheckAlreadyCollect.SetActive(isSign);
-            colorText.outlineColor = isSign ? new Color32(82, 82, 82, 255): new Color32(195, 101, 9, 255);
+            colorText.color = isSign ? new Color32(82, 82, 82, 255): new Color32(195, 101, 9, 255);
             
             
             //dayLable.GetComponent<Text>().text = _dayTxt;

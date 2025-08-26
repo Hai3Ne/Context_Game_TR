@@ -8,6 +8,7 @@ namespace HotUpdate
 		private InputField m_Input_name;
 		private InputField m_Input_code;
 		private Button m_Btn_JumpToPhone;
+		private Button m_Btn_Close;
 
 		private void GetBindComponents(GameObject go)
 		{
@@ -16,6 +17,7 @@ namespace HotUpdate
 			m_Input_name = autoBindTool.GetBindComponent<InputField>(0);
 			m_Input_code = autoBindTool.GetBindComponent<InputField>(1);
 			m_Btn_JumpToPhone = autoBindTool.GetBindComponent<Button>(2);
+			m_Btn_Close = autoBindTool.GetBindComponent<Button>(3);
 		}
 	}
 }

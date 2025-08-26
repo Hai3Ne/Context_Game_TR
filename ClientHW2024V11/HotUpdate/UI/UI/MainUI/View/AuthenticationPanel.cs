@@ -30,6 +30,7 @@ namespace HotUpdate
         {
       
             m_Btn_JumpToPhone.onClick.AddListener(OpenPhoneBindPanel);
+            m_Btn_Close.onClick.AddListener(OnCloseBtn);
             Message.AddListener(MessageName.REFRESH_AUTHENTICATION_PANEL, OnCloseBtn);
         }
 
@@ -37,6 +38,7 @@ namespace HotUpdate
         {
     
             m_Btn_JumpToPhone.onClick.RemoveListener(OpenPhoneBindPanel);
+            m_Btn_Close.onClick.RemoveListener(OnCloseBtn);
             Message.RemoveListener(MessageName.REFRESH_AUTHENTICATION_PANEL, OnCloseBtn);
         }
 

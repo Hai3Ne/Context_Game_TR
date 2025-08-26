@@ -313,7 +313,7 @@ namespace HotUpdate
                 }
                 else
                 {
-                    Debug.LogError($"itemIndex:{itemIndex}");
+                    // Debug.LogError($"itemIndex:{itemIndex}");
                     script.SetUpItem(data[RankModel.Instance.rankType].Count > itemIndex ? data[RankModel.Instance.rankType][itemIndex] : null, RankModel.Instance.rankType, itemIndex + 1);
                     //script.SetUpItem(data[RankModel.Instance.rankType][itemIndex], RankModel.Instance.rankType, itemIndex + 1);
                 }

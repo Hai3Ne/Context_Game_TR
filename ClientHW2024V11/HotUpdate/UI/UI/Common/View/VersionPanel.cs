@@ -24,12 +24,12 @@ namespace HotUpdate
             gameType = type;
             if (gameType == 1)
             {
-                m_Txt_dest.text = "·¢ÏÖ°æ±¾¸üÐÂ,ÇëÍË³öÖØ½ø";
-                m_Txt_go.text = "È· ¶¨";
+                m_Txt_dest.text = "ï¿½ï¿½ï¿½Ö°æ±¾ï¿½ï¿½ï¿½ï¿½,ï¿½ï¿½ï¿½Ë³ï¿½ï¿½Ø½ï¿½";
+                m_Txt_go.text = "È· ï¿½ï¿½";
             }
             else {
-                m_Txt_dest.text = "·¢ÏÖ´ó°æ±¾¸üÐÂ,ÊÇ·ñÇ°ÍùÁ´½Ó";
-                m_Txt_go.text = "Ç° Íù";
+                m_Txt_dest.text = "ï¿½ï¿½ï¿½Ö´ï¿½æ±¾ï¿½ï¿½ï¿½ï¿½,ï¿½Ç·ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½";
+                m_Txt_go.text = "Ç° ï¿½ï¿½";
             }
 
         }
@@ -45,7 +45,7 @@ namespace HotUpdate
         {
             if (gameType == 0)
             {
-                Application.OpenURL("https://a.lywl2025.com/apk/com.zhlx.mitxj.apk");
+                Application.OpenURL("https://a.lywl2025.com/apk/com.dwzy.bfmx.apk");
             }
             else {
                 Application.Quit();
