@@ -15,7 +15,7 @@ namespace HotUpdate
         [SerializeField] private List<SevenDayItem> sevenDayItems = new List<SevenDayItem>();
         [SerializeField] private Text countdownText;
         private bool isCountdownActive = false;
-      
+        private Coroutine countdownCoroutine;
         protected override void Awake()
         {
             base.Awake();
@@ -26,12 +26,13 @@ namespace HotUpdate
         {
             base.OnEnable();
             RegisterListener();
+            StartCountdown();
         }
 
         protected override void Update()
         {
             base.Update();
-
+            UnityEngine.Debug.Log($"cai gi ne {FormatTimeToString(MainUIModel.Instance.signInData.SignTime)}");
            
         }
 
@@ -39,6 +40,7 @@ namespace HotUpdate
         {
             base.OnDisable();
             UnRegisterListener();
+            StopCountdown();
 
         }
 
@@ -94,7 +96,6 @@ namespace HotUpdate
                 {
                     return;
                 }
-
                 CoreEntry.gAudioMgr.PlayUISound(46);
                 if (MainUIModel.Instance.signInData.IsSignToday == 0)
                 {
@@ -170,7 +171,8 @@ namespace HotUpdate
                 var day = $"第{ConvertNumberToChinese(i+1)}天";
                 sevenDayItems[i].SetUpItem(day, num,i+1);
             }
-           // Debug.LogError($"下次可领取天数：{MainUIModel.Instance.signInData.signInDay}");
+            
+            
         }
 
         public void RefreshPanel() 
@@ -196,13 +198,17 @@ namespace HotUpdate
         private void StartCountdown()
         {
             isCountdownActive = true;
-            InvokeRepeating("UpdateCountdown", 0f, 1f);
+            countdownCoroutine = StartCoroutine(CountdownCoroutine());
         }
 
         private void StopCountdown()
         {
             isCountdownActive = false;
-            CancelInvoke("UpdateCountdown");
+            if (countdownCoroutine != null)
+            {
+                StopCoroutine(countdownCoroutine);
+                countdownCoroutine = null;
+            }
         }
 
         private void UpdateCountdown()
@@ -216,6 +222,98 @@ namespace HotUpdate
             if (MainUIModel.Instance.signInData.IsSignToday == 0)
             {
                 RefreshPanel();
+            }
+        }
+        
+        public long GetTimeToNextReward()
+        {
+            var signInData = MainUIModel.Instance.signInData;
+    
+            if (signInData.IsSignToday == 0 && signInData.signInDay <= 7)
+            {
+                if (signInData.signInDay > 1)
+                {
+                    MainUIModel.Instance.palyerState.TryGetValue(EHumanRewardBits.E_FirstRechargeEd, out bool isState);
+                    if (!isState)
+                    {
+                        return -1;
+                    }
+                }
+                return 0; 
+            }
+            if (signInData.signInDay >= 8)
+            {
+                return -2;
+            }
+            return GetSecondsUntilNextDay();
+        }
+
+        private long GetSecondsUntilNextDay()
+        {
+            var now = System.DateTime.Now;
+            var tomorrow = now.Date.AddDays(1); 
+            var timeSpan = tomorrow - now;
+            return (long)timeSpan.TotalSeconds;
+        }
+
+        public string FormatTimeToString(long seconds)
+        {
+            if (seconds <= 0) return "00:00:00";
+    
+            int hours = (int)(seconds / 3600);
+            int minutes = (int)((seconds % 3600) / 60);
+            int secs = (int)(seconds % 60);
+    
+            return $"{hours:D2}:{minutes:D2}:{secs:D2}";
+        }
+        private IEnumerator CountdownCoroutine()
+        {
+            while (true)
+            {
+                long timeToNext = GetTimeToNextReward();
+                UpdateCountdownUI(timeToNext);
+        
+                yield return new WaitForSeconds(1f); // Update mỗi giây
+            }
+        }
+        private void UpdateCountdownUI(long timeToNext)
+        {
+            switch (timeToNext)
+            {
+                case 0:
+                    SetCountdownText("可以领取!", Color.green);
+                    m_Btn_Get.interactable = true;
+                    break;
+            
+                case -1:
+                    SetCountdownText("充值即可领取", Color.yellow);
+                    m_Btn_Get.interactable = false;
+                    break;
+            
+                case -2:
+                    SetCountdownText("已完成全部签到", Color.gray);
+                    m_Btn_Get.interactable = false;
+                    break;
+            
+                default:
+                    string timeString = FormatTimeToString(timeToNext);
+                    SetCountdownText($"下次签到: {timeString}", Color.white);
+                    m_Btn_Get.interactable = false;
+                    break;
+            }
+        }
+        private void SetCountdownText(string text, Color color)
+        {
+            if (countdownText != null)
+            {
+                countdownText.text = text;
+                countdownText.color = color;
+        
+                // Show/hide countdown panel nếu có
+                // if (countdownPanel != null)
+                // {
+                //     countdownPanel.SetActive(!string.IsNullOrEmpty(text));
+                // }
             }
         }
     }

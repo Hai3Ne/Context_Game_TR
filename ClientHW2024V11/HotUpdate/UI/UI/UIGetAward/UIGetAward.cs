@@ -30,6 +30,7 @@ namespace HotUpdate
         {
             base.OnEnable();
             await System.Threading.Tasks.Task.Delay(TimeSpan.FromSeconds(0.015f));
+            await System.Threading.Tasks.Task.Delay(TimeSpan.FromSeconds(0.015f));
 
         }
 
@@ -51,7 +52,7 @@ namespace HotUpdate
                 var iconNum = num.ToString("F0");
                 TxtRewardGold.text = "x" + iconNum + "";//  $"{iconNum}金币";
                 icon.sprite = AtlasSpriteManager.Instance.GetSprite("Common:" + "ziyuan_icon_1");
-                //icon.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
+                icon.transform.localScale = new Vector3(2f, 2f, 2f);
                 icon.SetNativeSize();
             }
             else if(id == 14)
@@ -59,7 +60,7 @@ namespace HotUpdate
                 var iconNum = ((double)num /100f);
                 TxtRewardGold.text = "x" + iconNum + "";//  $"{iconNum}金币";
                 icon.sprite = AtlasSpriteManager.Instance.GetSprite("Common:" + "ziyuan_icon_2");
-                //icon.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
+                icon.transform.localScale = new Vector3(2f, 2f, 2f);
                 icon.SetNativeSize();
             }
             else if(id == 15)
@@ -67,7 +68,7 @@ namespace HotUpdate
                 var iconNum = ((double)num / 100f);
                 TxtRewardGold.text = "x" + iconNum + "";//  $"{iconNum}金币";
                 icon.sprite = AtlasSpriteManager.Instance.GetSprite("Common:" + "zfb");
-                //icon.transform.localScale = new Vector3(0.6f, 0.6f, 0.6f);
+                icon.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
                 icon.SetNativeSize();
             }
   

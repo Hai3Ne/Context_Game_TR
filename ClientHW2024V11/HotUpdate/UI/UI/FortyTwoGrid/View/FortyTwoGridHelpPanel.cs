@@ -78,9 +78,9 @@ namespace HotUpdate
             m_Trans_Page0.gameObject.SetActive(type == 0);
             m_Trans_Page1.gameObject.SetActive(type == 1);
             m_Trans_Page2.gameObject.SetActive(type == 2);
-            m_Txt_label1.color = type == 0 ? new Color32(255,  255, 255, 255) : new Color32(0, 138, 239, 255);
-            m_Txt_label2.color = type == 1 ? new Color32(255,  255, 255, 255) : new Color32(0, 138, 239, 255);
-            m_Txt_label3.color = type == 2 ? new Color32(255,  255, 255, 255) : new Color32(0, 138, 239, 255);
+            m_Txt_label1.color = type == 0 ? new Color32(255,  255, 255, 255) : new Color32(107, 84, 137, 255);
+            m_Txt_label2.color = type == 1 ? new Color32(255,  255, 255, 255) : new Color32(107, 84, 137, 255);
+            m_Txt_label3.color = type == 2 ? new Color32(255,  255, 255, 255) : new Color32(107, 84, 137, 255);
 
         }
 
