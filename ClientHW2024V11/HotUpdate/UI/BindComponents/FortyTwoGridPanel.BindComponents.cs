@@ -8,12 +8,12 @@ namespace HotUpdate
 	{
 		private RectTransform m_Rect_bgPanel;
 		private RectTransform m_Rect_copy;
+		private Button m_Btn_Tips;
+		private Button m_Btn_Back;
 		private Button m_Btn_Shop;
 		private Text m_Txt_Gold;
 		private Text m_Txt_Reward;
 		private Text m_Txt_JackPot;
-		private Button m_Btn_Back;
-		private Button m_Btn_Tips;
 		private Button m_Btn_Tour;
 		private Button m_Btn_Rank;
 		private Button m_Btn_Task;
@@ -25,6 +25,7 @@ namespace HotUpdate
 		private RectTransform m_Rect_Item;
 		private RectMask2D m_Mask2D_Panel;
 		private RectTransform m_Rect_Ani;
+		private RectTransform m_Rect_RewardFloatingText;
 		private Button m_Btn_Reload;
 		private Image m_Img_roll;
 		private Button m_Btn_Auto;
@@ -42,12 +43,12 @@ namespace HotUpdate
 
 			m_Rect_bgPanel = autoBindTool.GetBindComponent<RectTransform>(0);
 			m_Rect_copy = autoBindTool.GetBindComponent<RectTransform>(1);
-			m_Btn_Shop = autoBindTool.GetBindComponent<Button>(2);
-			m_Txt_Gold = autoBindTool.GetBindComponent<Text>(3);
-			m_Txt_Reward = autoBindTool.GetBindComponent<Text>(4);
-			m_Txt_JackPot = autoBindTool.GetBindComponent<Text>(5);
-			m_Btn_Back = autoBindTool.GetBindComponent<Button>(6);
-			m_Btn_Tips = autoBindTool.GetBindComponent<Button>(7);
+			m_Btn_Tips = autoBindTool.GetBindComponent<Button>(2);
+			m_Btn_Back = autoBindTool.GetBindComponent<Button>(3);
+			m_Btn_Shop = autoBindTool.GetBindComponent<Button>(4);
+			m_Txt_Gold = autoBindTool.GetBindComponent<Text>(5);
+			m_Txt_Reward = autoBindTool.GetBindComponent<Text>(6);
+			m_Txt_JackPot = autoBindTool.GetBindComponent<Text>(7);
 			m_Btn_Tour = autoBindTool.GetBindComponent<Button>(8);
 			m_Btn_Rank = autoBindTool.GetBindComponent<Button>(9);
 			m_Btn_Task = autoBindTool.GetBindComponent<Button>(10);

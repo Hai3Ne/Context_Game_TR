@@ -298,7 +298,7 @@ namespace HotUpdate
             m_Txt_Couma.text = ToolUtil.ShowF2Num2(m_chipArr[m_selecChipIndex]) + "";
             FortyTwoGridModel.Instance.SetInitData();
             // 初始化列表  new Vector3(-307f, 13.192f,0f);
-            var itemY = -10f;
+            var itemY = -12f;
             for (int i = 0; i < 6; i++)
             {
                 var obj = ToolUtil.ClonePrefab(m_Rect_Item.gameObject, m_Mask2D_Panel.transform, "item");
@@ -493,7 +493,7 @@ namespace HotUpdate
                 var pos1 = FortyTwoGridTabList[i].obj.anchoredPosition3D;
                 var pos2 = new Vector3(pos1.x, 900f, pos1.z);
                 var pos3 = new Vector3(pos1.x, -18f, pos1.z);
-                var pos4 = new Vector3(pos1.x, -10f, pos1.z);
+                var pos4 = new Vector3(pos1.x, -12f, pos1.z);
                 var seq = DOTween.Sequence();
                 FortyTwoGridTabList[i].obj.anchoredPosition3D = pos2;
                 if (i == FortyTwoGridTabList.Count - 1)
@@ -696,7 +696,7 @@ namespace HotUpdate
                     item1.transform.SetAsLastSibling();
                     var text = item1.transform.GetChild(0).GetComponent<Text>();
                     var ani = text.transform.GetComponent<Animation>();
-                    // var rect = dic2[i].icon.transform.GetComponent<>();
+                    var rect = dic2[i].icon.transform.GetComponent<Transform>();
                     item1.transform.position = dic2[i].icon.transform.position;
                     item1.transform.localScale = Vector3.one;
                     text.text = "+" + num;
@@ -787,7 +787,7 @@ namespace HotUpdate
         /// </summary>
         public IEnumerator startMove()
         {
-
+            // ToolUtil.RollText(FortyTwoGridModel.Instance.gameData[0].n64TotalGold, FortyTwoGridModel.Instance.gameData[0].n64TotalGold * FortyTwoGridModel.Instance.gameData[0].nTotalDouble, m_Txt_Reward);
             m_Txt_Reward.text = FortyTwoGridModel.Instance.gameData[0].n64TotalGold + "";
 
             if (FortyTwoGridModel.Instance.gameData[0].n64RSPowerGold > 0)

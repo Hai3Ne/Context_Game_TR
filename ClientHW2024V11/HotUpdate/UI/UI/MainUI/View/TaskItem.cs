@@ -41,7 +41,7 @@ namespace HotUpdate
             //{
             //    targetNum = (float.Parse(targetNum)).ToString("f0");
             //}
-            taskTitle.text = $"海底爬虫消耗 {ToolUtil.AbbreviateNumberf0(data.taskTarget, true)} ";
+            taskTitle.text = $"暗影星落消耗 {ToolUtil.AbbreviateNumberf0(data.taskTarget, true)} ";
             iconNumTxt.text = $"x{(double)data.award / 100f}";
             progress.fillAmount = (float)data.total / data.taskTarget;
             calimedTxt.gameObject.SetActive(data.IsCollect);

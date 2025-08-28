@@ -20,8 +20,13 @@ namespace HotUpdate
 		private Button m_Btn_Rank;
 		private RectTransform m_Trans_Rate;
 		private Button m_Btn_Help2;
+		private RectTransform m_Rect_Coin;
+		private Text m_Txt_golds;
+		private Button m_Btn_Plus;
+		private RectTransform m_Trans_Tips;
 		private RectTransform m_Trans_ScoreTitle;
 		private Text m_Txt_Score;
+		private Button m_Btn_Leave;
 		private Button m_Btn_Min;
 		private Button m_Btn_Add;
 		private Text m_Txt_Chips;
@@ -45,11 +50,6 @@ namespace HotUpdate
 		private UnityArmatureComponent m_Dragon_taskRedDot;
 		private Button m_Btn_Feng;
 		private Button m_Btn_Help;
-		private Button m_Btn_Leave;
-		private RectTransform m_Rect_Coin;
-		private Button m_Btn_Plus;
-		private Text m_Txt_golds;
-		private RectTransform m_Trans_Tips;
 
 		private void GetBindComponents(GameObject go)
 		{
@@ -68,36 +68,36 @@ namespace HotUpdate
 			m_Btn_Rank = autoBindTool.GetBindComponent<Button>(10);
 			m_Trans_Rate = autoBindTool.GetBindComponent<RectTransform>(11);
 			m_Btn_Help2 = autoBindTool.GetBindComponent<Button>(12);
-			m_Trans_ScoreTitle = autoBindTool.GetBindComponent<RectTransform>(13);
-			m_Txt_Score = autoBindTool.GetBindComponent<Text>(14);
-			m_Btn_Min = autoBindTool.GetBindComponent<Button>(15);
-			m_Btn_Add = autoBindTool.GetBindComponent<Button>(16);
-			m_Txt_Chips = autoBindTool.GetBindComponent<Text>(17);
-			m_Tog_Tubo = autoBindTool.GetBindComponent<Toggle>(18);
-			m_Btn_Max = autoBindTool.GetBindComponent<Button>(19);
-			m_Tog_Auto = autoBindTool.GetBindComponent<Toggle>(20);
-			m_Rect_Mask = autoBindTool.GetBindComponent<RectTransform>(21);
-			m_Btn_BeginSpin = autoBindTool.GetBindComponent<Button>(22);
-			m_Trans_Rorate = autoBindTool.GetBindComponent<RectTransform>(23);
-			m_Trans_Normal = autoBindTool.GetBindComponent<RectTransform>(24);
-			m_Trans_Grey = autoBindTool.GetBindComponent<RectTransform>(25);
-			m_Rect_tips = autoBindTool.GetBindComponent<RectTransform>(26);
-			m_Trans_GoAutoSpinNum = autoBindTool.GetBindComponent<RectTransform>(27);
-			m_Txt_AutoSpinNum = autoBindTool.GetBindComponent<Text>(28);
-			m_Btn_CloseAutoSpin = autoBindTool.GetBindComponent<Button>(29);
-			m_Trans_GoFreeTimes = autoBindTool.GetBindComponent<RectTransform>(30);
-			m_Txt_Times = autoBindTool.GetBindComponent<Text>(31);
-			m_Btn_biwu = autoBindTool.GetBindComponent<Button>(32);
-			m_Btn_GameRank = autoBindTool.GetBindComponent<Button>(33);
-			m_Btn_Task = autoBindTool.GetBindComponent<Button>(34);
-			m_Dragon_taskRedDot = autoBindTool.GetBindComponent<UnityArmatureComponent>(35);
-			m_Btn_Feng = autoBindTool.GetBindComponent<Button>(36);
-			m_Btn_Help = autoBindTool.GetBindComponent<Button>(37);
-			m_Btn_Leave = autoBindTool.GetBindComponent<Button>(38);
-			m_Rect_Coin = autoBindTool.GetBindComponent<RectTransform>(39);
-			m_Btn_Plus = autoBindTool.GetBindComponent<Button>(40);
-			m_Txt_golds = autoBindTool.GetBindComponent<Text>(41);
-			m_Trans_Tips = autoBindTool.GetBindComponent<RectTransform>(42);
+			m_Rect_Coin = autoBindTool.GetBindComponent<RectTransform>(13);
+			m_Txt_golds = autoBindTool.GetBindComponent<Text>(14);
+			m_Btn_Plus = autoBindTool.GetBindComponent<Button>(15);
+			m_Trans_Tips = autoBindTool.GetBindComponent<RectTransform>(16);
+			m_Trans_ScoreTitle = autoBindTool.GetBindComponent<RectTransform>(17);
+			m_Txt_Score = autoBindTool.GetBindComponent<Text>(18);
+			m_Btn_Leave = autoBindTool.GetBindComponent<Button>(19);
+			m_Btn_Min = autoBindTool.GetBindComponent<Button>(20);
+			m_Btn_Add = autoBindTool.GetBindComponent<Button>(21);
+			m_Txt_Chips = autoBindTool.GetBindComponent<Text>(22);
+			m_Tog_Tubo = autoBindTool.GetBindComponent<Toggle>(23);
+			m_Btn_Max = autoBindTool.GetBindComponent<Button>(24);
+			m_Tog_Auto = autoBindTool.GetBindComponent<Toggle>(25);
+			m_Rect_Mask = autoBindTool.GetBindComponent<RectTransform>(26);
+			m_Btn_BeginSpin = autoBindTool.GetBindComponent<Button>(27);
+			m_Trans_Rorate = autoBindTool.GetBindComponent<RectTransform>(28);
+			m_Trans_Normal = autoBindTool.GetBindComponent<RectTransform>(29);
+			m_Trans_Grey = autoBindTool.GetBindComponent<RectTransform>(30);
+			m_Rect_tips = autoBindTool.GetBindComponent<RectTransform>(31);
+			m_Trans_GoAutoSpinNum = autoBindTool.GetBindComponent<RectTransform>(32);
+			m_Txt_AutoSpinNum = autoBindTool.GetBindComponent<Text>(33);
+			m_Btn_CloseAutoSpin = autoBindTool.GetBindComponent<Button>(34);
+			m_Trans_GoFreeTimes = autoBindTool.GetBindComponent<RectTransform>(35);
+			m_Txt_Times = autoBindTool.GetBindComponent<Text>(36);
+			m_Btn_biwu = autoBindTool.GetBindComponent<Button>(37);
+			m_Btn_GameRank = autoBindTool.GetBindComponent<Button>(38);
+			m_Btn_Task = autoBindTool.GetBindComponent<Button>(39);
+			m_Dragon_taskRedDot = autoBindTool.GetBindComponent<UnityArmatureComponent>(40);
+			m_Btn_Feng = autoBindTool.GetBindComponent<Button>(41);
+			m_Btn_Help = autoBindTool.GetBindComponent<Button>(42);
 		}
 	}
 }

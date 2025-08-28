@@ -32,7 +32,6 @@ namespace HotUpdate
         protected override void Update()
         {
             base.Update();
-            UnityEngine.Debug.Log($"cai gi ne {FormatTimeToString(MainUIModel.Instance.signInData.SignTime)}");
            
         }
 
@@ -250,10 +249,14 @@ namespace HotUpdate
 
         private long GetSecondsUntilNextDay()
         {
-            var now = System.DateTime.Now;
-            var tomorrow = now.Date.AddDays(1); 
-            var timeSpan = tomorrow - now;
-            return (long)timeSpan.TotalSeconds;
+            // var now = System.DateTime.Now;
+            // var tomorrow = now.Date.AddDays(1); 
+            // var timeSpan = tomorrow - now;
+            // return (long)timeSpan.TotalSeconds;
+            DateTime currentTime = DateTime.Now;
+            DateTime nextDay = currentTime.Date.AddDays(1); 
+            TimeSpan timeRemaining = nextDay - currentTime;
+            return (long)timeRemaining.TotalSeconds;
         }
 
         public string FormatTimeToString(long seconds)
@@ -273,7 +276,7 @@ namespace HotUpdate
                 long timeToNext = GetTimeToNextReward();
                 UpdateCountdownUI(timeToNext);
         
-                yield return new WaitForSeconds(1f); // Update mỗi giây
+                yield return new WaitForSeconds(1f);
             }
         }
         private void UpdateCountdownUI(long timeToNext)
@@ -282,23 +285,19 @@ namespace HotUpdate
             {
                 case 0:
                     SetCountdownText("可以领取!", Color.green);
-                    m_Btn_Get.interactable = true;
                     break;
             
                 case -1:
                     SetCountdownText("充值即可领取", Color.yellow);
-                    m_Btn_Get.interactable = false;
                     break;
             
                 case -2:
                     SetCountdownText("已完成全部签到", Color.gray);
-                    m_Btn_Get.interactable = false;
                     break;
             
                 default:
                     string timeString = FormatTimeToString(timeToNext);
                     SetCountdownText($"下次签到: {timeString}", Color.white);
-                    m_Btn_Get.interactable = false;
                     break;
             }
         }
@@ -309,12 +308,12 @@ namespace HotUpdate
                 countdownText.text = text;
                 countdownText.color = color;
         
-                // Show/hide countdown panel nếu có
                 // if (countdownPanel != null)
                 // {
                 //     countdownPanel.SetActive(!string.IsNullOrEmpty(text));
                 // }
             }
         }
+        
     }
 }

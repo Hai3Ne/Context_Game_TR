@@ -52,7 +52,7 @@ namespace HotUpdate
                 var iconNum = num.ToString("F0");
                 TxtRewardGold.text = "x" + iconNum + "";//  $"{iconNum}金币";
                 icon.sprite = AtlasSpriteManager.Instance.GetSprite("Common:" + "ziyuan_icon_1");
-                icon.transform.localScale = new Vector3(2f, 2f, 2f);
+                icon.transform.localScale = new Vector3(1.1f, 1.1f, 1.1f);
                 icon.SetNativeSize();
             }
             else if(id == 14)
