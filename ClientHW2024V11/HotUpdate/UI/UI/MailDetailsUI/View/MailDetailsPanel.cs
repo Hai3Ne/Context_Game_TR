@@ -135,7 +135,7 @@ namespace HotUpdate
             }
             else if ((int)EPlayerAttrType.eDiamond == data.mailItemVo[0].m_i4itemid)
             {
-                m_Txt_account.text = $"{((double)data.mailItemVo[0].m_i8itemcount)/100f}水母";
+                m_Txt_account.text = $"{((double)data.mailItemVo[0].m_i8itemcount)/100f}宝石";
                 m_Img_Icon.sprite = AtlasSpriteManager.Instance.GetSprite("Common:" + "ziyuan_icon_2");
                 m_Img_Icon.transform.localScale = Vector3.one;
             }

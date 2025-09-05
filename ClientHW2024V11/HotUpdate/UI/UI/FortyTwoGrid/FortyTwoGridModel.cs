@@ -90,7 +90,7 @@ namespace HotUpdate
             Gold = data.n64Gold;
             nAllBet = data.nAllBet;
             gameData.Clear();
-
+            MainUIModel.Instance.Golds = data.n64Gold;
             var dic = new Dictionary<int, int>();
             for (int i = 0; i < data.sInfo.Count; i++)
             {

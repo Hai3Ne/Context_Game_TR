@@ -60,16 +60,17 @@ namespace HotUpdate
 			m_Rect_Item = autoBindTool.GetBindComponent<RectTransform>(16);
 			m_Mask2D_Panel = autoBindTool.GetBindComponent<RectMask2D>(17);
 			m_Rect_Ani = autoBindTool.GetBindComponent<RectTransform>(18);
-			m_Btn_Reload = autoBindTool.GetBindComponent<Button>(19);
-			m_Img_roll = autoBindTool.GetBindComponent<Image>(20);
-			m_Btn_Auto = autoBindTool.GetBindComponent<Button>(21);
-			m_Btn_XxAuto = autoBindTool.GetBindComponent<Button>(22);
-			m_Img_Bg = autoBindTool.GetBindComponent<Image>(23);
-			m_Rect_Tips = autoBindTool.GetBindComponent<RectTransform>(24);
-			m_Rect_Effect = autoBindTool.GetBindComponent<RectTransform>(25);
-			m_Rect_Pool = autoBindTool.GetBindComponent<RectTransform>(26);
-			m_Img_shan = autoBindTool.GetBindComponent<Image>(27);
-			m_Trans_CommonTop = autoBindTool.GetBindComponent<RectTransform>(28);
+			m_Rect_RewardFloatingText = autoBindTool.GetBindComponent<RectTransform>(19);
+			m_Btn_Reload = autoBindTool.GetBindComponent<Button>(20);
+			m_Img_roll = autoBindTool.GetBindComponent<Image>(21);
+			m_Btn_Auto = autoBindTool.GetBindComponent<Button>(22);
+			m_Btn_XxAuto = autoBindTool.GetBindComponent<Button>(23);
+			m_Img_Bg = autoBindTool.GetBindComponent<Image>(24);
+			m_Rect_Tips = autoBindTool.GetBindComponent<RectTransform>(25);
+			m_Rect_Effect = autoBindTool.GetBindComponent<RectTransform>(26);
+			m_Rect_Pool = autoBindTool.GetBindComponent<RectTransform>(27);
+			m_Img_shan = autoBindTool.GetBindComponent<Image>(28);
+			m_Trans_CommonTop = autoBindTool.GetBindComponent<RectTransform>(29);
 		}
 	}
 }

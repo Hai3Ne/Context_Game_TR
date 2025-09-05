@@ -98,7 +98,7 @@ namespace HotUpdate
                   
                     img.SetParent(m_Rect_bgPanel);
                     img.localScale = new Vector3(1, 1, 1);
-                    img.anchoredPosition = new Vector2((-307 + i % 2 * 115) + 115 * j * 2, 256 - i * 115); //new Vector3(-307f, 13.192f,0f); 
+                    img.anchoredPosition = new Vector2((-283 + i % 2 * 110) + 110 * j * 2, 256 - i * 110); //new Vector3(-307f, 13.192f,0f); 
 
                 }
             }
@@ -298,12 +298,12 @@ namespace HotUpdate
             m_Txt_Couma.text = ToolUtil.ShowF2Num2(m_chipArr[m_selecChipIndex]) + "";
             FortyTwoGridModel.Instance.SetInitData();
             // 初始化列表  new Vector3(-307f, 13.192f,0f);
-            var itemY = -12f;
+            var itemY = -3.3f;
             for (int i = 0; i < 6; i++)
             {
                 var obj = ToolUtil.ClonePrefab(m_Rect_Item.gameObject, m_Mask2D_Panel.transform, "item");
                 obj.gameObject.SetActive(true);
-                obj.anchoredPosition3D = new Vector3(-308 + 123 * i, itemY, 0);
+                obj.anchoredPosition3D = new Vector3(-283 + 110 * i, itemY, 0);
                 //obj.anchoredPosition3D = new Vector3(-307 + 122 * i, itemY, 0);
                 for (int j = 0; j < 7; j++)
                 {
@@ -493,7 +493,7 @@ namespace HotUpdate
                 var pos1 = FortyTwoGridTabList[i].obj.anchoredPosition3D;
                 var pos2 = new Vector3(pos1.x, 900f, pos1.z);
                 var pos3 = new Vector3(pos1.x, -18f, pos1.z);
-                var pos4 = new Vector3(pos1.x, -12f, pos1.z);
+                var pos4 = new Vector3(pos1.x, -3.3f, pos1.z);
                 var seq = DOTween.Sequence();
                 FortyTwoGridTabList[i].obj.anchoredPosition3D = pos2;
                 if (i == FortyTwoGridTabList.Count - 1)
@@ -789,7 +789,6 @@ namespace HotUpdate
         {
             // ToolUtil.RollText(FortyTwoGridModel.Instance.gameData[0].n64TotalGold, FortyTwoGridModel.Instance.gameData[0].n64TotalGold * FortyTwoGridModel.Instance.gameData[0].nTotalDouble, m_Txt_Reward);
             m_Txt_Reward.text = FortyTwoGridModel.Instance.gameData[0].n64TotalGold + "";
-
             if (FortyTwoGridModel.Instance.gameData[0].n64RSPowerGold > 0)
             {
                 var isShow = true;
@@ -1035,7 +1034,7 @@ namespace HotUpdate
 
             yield return null;
         }
-
+        
         private void ArmatureAni(GameObject obj, GameObject obj1, GameObject obj2)
         {
             obj1.SetActive(true);

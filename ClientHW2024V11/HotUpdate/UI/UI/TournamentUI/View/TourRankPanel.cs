@@ -473,7 +473,7 @@ namespace HotUpdate
                 var item = m_VGridScroll_TournamentList.GetShownItemByItemIndex(i);
                 if (item != null)
                 {
-                    if (i < 20)
+                    if (i < 30)
                     {
 
                         tempList.Add(item.transform);
