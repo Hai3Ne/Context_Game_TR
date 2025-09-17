@@ -98,33 +98,6 @@ public class DependManager {
                 }
             }
         }
-        for (int i = 0; i < check_list.Count; i++)
-        {
-            if (check_list[i].IsAssetBundle)
-                continue;
-
-            if (check_list[i].AssetPath.EndsWith(".prefab"))
-            {
-                try
-                {
-                    GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(check_list[i].AssetPath);
-                    if (prefab != null)
-                    {
-                        Component uiAtlas = prefab.GetComponent("UIAtlas");
-                        if (uiAtlas != null)
-                        {
-                            check_list[i].IsAssetBundle = true;
-                            export_list.Add(check_list[i]);
-                            Debug.Log("Force included UIAtlas prefab: " + check_list[i].AssetPath);
-                        }
-                    }
-                }
-                catch (System.Exception e)
-                {
-                    Debug.LogWarning("Error checking UIAtlas for: " + check_list[i].AssetPath + " - " + e.Message);
-                }
-            }
-        }
     }
 
     public static FileDepend AddDepend(string path) {//添加一个引用文件

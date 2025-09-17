@@ -57,7 +57,7 @@ public class UI_QuickRecharge : UILayer {
                             LogMgr.LogError("pay_result_code:" + errr_code.ToString());
                             if (errr_code == 0) {
                                 MainEntrace.Instance.ShowLoad("支付确认中...", 5);
-                                // PayManager.AddFinishOrder(PayManager.mPreOrder);
+                                PayManager.AddFinishOrder(PayManager.mPreOrder);
                                 this.Close();
                             }
                         });

@@ -3,14 +3,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Security.Cryptography;
 using UnityEngine;
 using UnityEngine.Networking;
 
 public class HotMain : MonoBehaviour
 {
-    public UILabel uiLabelProgress, uiLabelInfo, uiLabelSpeed, uiLabelETA;
+    public UILabel uiLabelProgress, uiLabelInfo;
     public UISlider uiSlider;
     
     private string mLoadingInfo;
@@ -24,67 +23,18 @@ public class HotMain : MonoBehaviour
     private string DllAsset;
     private string resAsset;
     
-    private int maxConcurrentDownloads = 3;
+    private int maxConcurrentDownloads = 5;
     private int activeDownloads = 0;
     private readonly object downloadCountLock = new object();
     private readonly Dictionary<string, string> md5Cache = new Dictionary<string, string>();
-    
-    private const int BUFFER_SIZE = 8192;
-    private const int MAX_RETRY_COUNT = 3;
-    private const float PROGRESS_UPDATE_INTERVAL = 0.1f;
-    
-    private readonly Dictionary<string, float> serverResponseTimes = new Dictionary<string, float>();
-    private float lastProgressUpdate = 0f;
-    
-    private readonly Queue<float> speedHistory = new Queue<float>();
-    private const int SPEED_HISTORY_SIZE = 10;
-    private DateTime downloadStartTime;
 
     void Start()
     {
-        Application.runInBackground = true;
         StartCoroutine(CheckFirst());
     }
-    
-    private string GetPlatformPath()
-    {
-        string platform = "";
-    
-#if UNITY_ANDROID
-    platform = "ANDROID";
-#elif UNITY_IOS  
-    platform = "IOS";
-#elif UNITY_STANDALONE_WIN
-        platform = "WINDOWS";
-#elif UNITY_STANDALONE_OSX
-    platform = "MAC";
-#elif UNITY_WEBGL
-    platform = "WEBGL";
-#else
-    platform = "ANDROID";
-#endif
-        return platform;
-    }
+
     private IEnumerator CheckFirst()
     {
-#if BUILD_PC_DEV_TEST
-
-        if (!CheckDiskSpace())
-        {
-            mLoadingInfo = "存储空间不足!";
-            yield break;
-        }
-        yield return StartCoroutine(CopyFromTestFolder());
-        yield break;
-#endif
-
-
-        if (!CheckDiskSpace())
-        {
-            mLoadingInfo = "存储空间不足!";
-            yield break;
-        }
-    
         var versionPath = Application.persistentDataPath + "/resversion.ver";
         if (File.Exists(versionPath))
         {
@@ -105,51 +55,25 @@ public class HotMain : MonoBehaviour
             yield return StartCoroutine(CheckUpdate());
         }
     }
-    
-    private bool CheckDiskSpace()
-    {
-        const long MIN_FREE_SPACE = 500L * 1024 * 1024;
-        
-        try
-        {
-            var driveInfo = new DriveInfo(Path.GetPathRoot(Application.persistentDataPath));
-            return driveInfo.AvailableFreeSpace > MIN_FREE_SPACE;
-        }
-        catch
-        {
-            return true;
-        }
-    }
 
     private IEnumerator CheckUpdate()
     {
-#if BUILD_PC_DEV_TEST
-        Debug.Log("TEST MODE: Loading assets from local test folder instead of CDN");
-        yield return StartCoroutine(CopyFromTestFolder());
-        yield break;
-#endif
-
         mLoadingInfo = "检查版本更新...";
-        mProgress = 0.02f;
-    
+        mProgress = 1;
+        
         var updateArr = new Dictionary<string, AssetBundleInfo>();
         long totalSize = 0;
-    
+        
         yield return StartCoroutine(CheckDllUpdate(updateArr, (size) => totalSize += size));
-        mProgress = 0.05f;
-    
         yield return StartCoroutine(CheckResourceUpdate(updateArr, (size) => totalSize += size));
-        mProgress = 0.08f;
-    
+        
         if (updateArr.Count > 0)
         {
             mTotalSize = totalSize;
             mCurSize = 0;
             mlastSize = 0;
-            downloadStartTime = DateTime.Now;
-        
             string tick = string.Format("资源大小：[ff0000]{0}[-]", GetDownSpdStr(mTotalSize));
-        
+            
             if (Application.internetReachability != NetworkReachability.ReachableViaLocalAreaNetwork)
             {
                 UI_VersionTickDialog.Show().InitData(tick, "(当前处于非wifi网络环境,是否继续下载?)", () =>
@@ -175,166 +99,166 @@ public class HotMain : MonoBehaviour
     private IEnumerator CheckDllUpdate(Dictionary<string, AssetBundleInfo> updateArr, Action<long> onSizeAdd)
     {
         var path = Application.persistentDataPath + "/DLL/version.bytes";
-    
-        string platformPath = GetPlatformPath();
-        var outfile = GameParams.Instance.AbDownLoadSite + "/" + platformPath + "/DLL/version.bytes";
-    
+        var outfile = GameParams.Instance.AbDownLoadSite + "/ANDROID/DLL/version.bytes";
         var localVersion = "";
         var newVersion = "";
-    
-        Debug.Log($"Checking DLL update from: {outfile}");
-    
+        
         if (File.Exists(path))
         {
             localVersion = File.ReadAllText(path);
         }
 
         yield return StartCoroutine(DownloadVersionFile(outfile, (text) => newVersion = text));
-    
-        if (newVersion != localVersion && !string.IsNullOrEmpty(newVersion))
+        
+        if (newVersion != localVersion)
         {
             DllVersion = newVersion;
             path = Application.persistentDataPath + "/DLL/assets.bytes";
-            outfile = GameParams.Instance.AbDownLoadSite + "/" + platformPath + "/DLL/assets.bytes";
-        
+            outfile = GameParams.Instance.AbDownLoadSite + "/ANDROID/DLL/assets.bytes";
+            
             var list = new List<AssetBundleInfo>();
             if (File.Exists(path))
             {
                 var text = File.ReadAllText(path);
                 list = LitJson.JsonMapper.ToObject<List<AssetBundleInfo>>(text);
             }
-        
+            
             var newList = new List<AssetBundleInfo>();
             yield return StartCoroutine(DownloadVersionFile(outfile, (text) => {
-                if (!string.IsNullOrEmpty(text))
-                {
-                    DllAsset = text;
-                    newList = LitJson.JsonMapper.ToObject<List<AssetBundleInfo>>(text);
-                }
+                DllAsset = text;
+                newList = LitJson.JsonMapper.ToObject<List<AssetBundleInfo>>(text);
             }));
-        
-            ProcessUpdateList(list, newList, "/DLL/", "/" + platformPath + "/DLL/", updateArr, onSizeAdd);
+            
+            var existingFileDict = new Dictionary<string, AssetBundleInfo>();
+            foreach (var item in list)
+            {
+                existingFileDict[item.ABname] = item;
+            }
+            
+            foreach (var newItem in newList)
+            {
+                var needUpdate = false;
+                var localFilePath = Application.persistentDataPath + "/DLL/" + newItem.ABname;
+                
+                if (existingFileDict.ContainsKey(newItem.ABname))
+                {
+                    if (existingFileDict[newItem.ABname].MD5 != newItem.MD5 || 
+                        !File.Exists(localFilePath) || 
+                        !ValidateFileMD5(localFilePath, newItem.MD5))
+                    {
+                        needUpdate = true;
+                    }
+                }
+                else
+                {
+                    needUpdate = true;
+                }
+                
+                if (needUpdate)
+                {
+                    onSizeAdd(newItem.Size);
+                    newItem.root = GameParams.Instance.AbDownLoadSite + "/ANDROID/DLL/";
+                    newItem.saveroot = Application.persistentDataPath + "/DIR/DLL/";
+                    updateArr.Add(GameParams.Instance.AbDownLoadSite + "/ANDROID/DLL/" + newItem.ABname, newItem);
+                }
+            }
         }
     }
 
     private IEnumerator CheckResourceUpdate(Dictionary<string, AssetBundleInfo> updateArr, Action<long> onSizeAdd)
     {
         var path = Application.persistentDataPath + "/AssetBundle_ALL/version.bytes";
-        string platformPath = GetPlatformPath();
-        var outfile = GameParams.Instance.AbDownLoadSite + "/" + platformPath + "/AssetBundle_ALL/version.bytes";
-    
+        var outfile = GameParams.Instance.AbDownLoadSite + "/ANDROID/AssetBundle_ALL/version.bytes";
         var localVersion = "";
         var newVersion = "";
-    
+        
         if (File.Exists(path))
         {
             localVersion = File.ReadAllText(path);
         }
-    
+        
         yield return StartCoroutine(DownloadVersionFile(outfile, (text) => newVersion = text));
-    
-        if (newVersion != localVersion && !string.IsNullOrEmpty(newVersion))
+        
+        if (newVersion != localVersion)
         {
             resVersion = newVersion;
             path = Application.persistentDataPath + "/AssetBundle_ALL/assets.bytes";
-            outfile = GameParams.Instance.AbDownLoadSite + "/" + platformPath + "/AssetBundle_ALL/assets.bytes";
-        
+            outfile = GameParams.Instance.AbDownLoadSite + "/ANDROID/AssetBundle_ALL/assets.bytes";
+            
             var list = new List<AssetBundleInfo>();
             if (File.Exists(path))
             {
                 var text = File.ReadAllText(path);
                 list = LitJson.JsonMapper.ToObject<List<AssetBundleInfo>>(text);
             }
-        
+            
             var newList = new List<AssetBundleInfo>();
             yield return StartCoroutine(DownloadVersionFile(outfile, (text) => {
-                if (!string.IsNullOrEmpty(text))
-                {
-                    resAsset = text;
-                    newList = LitJson.JsonMapper.ToObject<List<AssetBundleInfo>>(text);
-                }
+                resAsset = text;
+                newList = LitJson.JsonMapper.ToObject<List<AssetBundleInfo>>(text);
             }));
-        
-            ProcessUpdateList(list, newList, "/AssetBundle_ALL/", "/" + platformPath + "/AssetBundle_ALL/", updateArr, onSizeAdd);
-        }
-    }
-    
-    private void ProcessUpdateList(List<AssetBundleInfo> oldList, List<AssetBundleInfo> newList, 
-        string localPath, string remotePath, Dictionary<string, AssetBundleInfo> updateArr, Action<long> onSizeAdd)
-    {
-        var existingFileDict = new Dictionary<string, AssetBundleInfo>();
-        foreach (var item in oldList)
-        {
-            existingFileDict[item.ABname] = item;
-        }
-        
-        foreach (var newItem in newList)
-        {
-            var needUpdate = false;
-            var localFilePath = Application.persistentDataPath + localPath + newItem.ABname;
             
-            if (existingFileDict.ContainsKey(newItem.ABname))
+            var existingFileDict = new Dictionary<string, AssetBundleInfo>();
+            foreach (var item in list)
             {
-                if (existingFileDict[newItem.ABname].MD5 != newItem.MD5 || 
-                    !File.Exists(localFilePath) || 
-                    !ValidateFileMD5(localFilePath, newItem.MD5))
+                existingFileDict[item.ABname] = item;
+            }
+            
+            foreach (var newItem in newList)
+            {
+                var needUpdate = false;
+                var localFilePath = Application.persistentDataPath + "/AssetBundle_ALL/" + newItem.ABname;
+                
+                if (existingFileDict.ContainsKey(newItem.ABname))
+                {
+                    if (existingFileDict[newItem.ABname].MD5 != newItem.MD5 || 
+                        !File.Exists(localFilePath) || 
+                        !ValidateFileMD5(localFilePath, newItem.MD5))
+                    {
+                        needUpdate = true;
+                    }
+                }
+                else
                 {
                     needUpdate = true;
                 }
-            }
-            else
-            {
-                needUpdate = true;
-            }
-            
-            if (needUpdate)
-            {
-                onSizeAdd(newItem.Size);
-                newItem.root = GameParams.Instance.AbDownLoadSite + remotePath;
-                newItem.saveroot = Application.persistentDataPath + "/DIR" + localPath;
-                updateArr.Add(GameParams.Instance.AbDownLoadSite + remotePath + newItem.ABname, newItem);
+                
+                if (needUpdate)
+                {
+                    onSizeAdd(newItem.Size);
+                    newItem.root = GameParams.Instance.AbDownLoadSite + "/ANDROID/AssetBundle_ALL/";
+                    newItem.saveroot = Application.persistentDataPath + "/DIR/AssetBundle_ALL/";
+                    updateArr.Add(GameParams.Instance.AbDownLoadSite + "/ANDROID/AssetBundle_ALL/" + newItem.ABname, newItem);
+                }
             }
         }
     }
 
     private IEnumerator StartOptimizedDownload(Dictionary<string, AssetBundleInfo> updateArr)
     {
-        mProgress = 0.1f;
+        mProgress = 0;
         mLoadingInfo = "准备下载...";
-        isUpdate = true;
-        downloadStartTime = DateTime.Now;
-        
-        var sortedDownloads = new List<KeyValuePair<string, AssetBundleInfo>>(updateArr);
-        
-        sortedDownloads.Sort((x, y) => {
-            var sizeX = x.Value.Size;
-            var sizeY = y.Value.Size;
-            var avgSize = mTotalSize / updateArr.Count;
-            
-            var diffX = Math.Abs(sizeX - avgSize);
-            var diffY = Math.Abs(sizeY - avgSize);
-            
-            return diffX.CompareTo(diffY);
-        });
-        
         var totalCount = updateArr.Count;
         var completedCount = 0;
+        var sortedDownloads = new List<KeyValuePair<string, AssetBundleInfo>>(updateArr);
+        sortedDownloads.Sort((x, y) => x.Value.Size.CompareTo(y.Value.Size));
         
         foreach (var item in sortedDownloads)
         {
-            StartCoroutine(DownloadWithConcurrencyControl(item.Value.root, item.Value.saveroot, item.Value, (long downSize, bool success) => {
-                if (success)
+            StartCoroutine(DownloadWithConcurrencyControl(item.Value.root, item.Value.saveroot, item.Value, (int downSize) => {
+                isUpdate = true;
+                completedCount++;
+                
+                lock (downloadCountLock)
                 {
-                    lock (downloadCountLock)
-                    {
-                        mCurSize += downSize;
-                        completedCount++;
-                    }
-                    
-                    if (completedCount >= totalCount)
-                    {
-                        StartCoroutine(DownloadSuccess());
-                    }
+                    mCurSize += downSize;
+                }
+                
+                mProgress = (float)completedCount / totalCount;
+                
+                if (completedCount >= totalCount)
+                {
+                    StartCoroutine(DownloadSuccess());
                 }
             }));
         }
@@ -342,12 +266,9 @@ public class HotMain : MonoBehaviour
         yield return new WaitForEndOfFrame();
     }
 
-    private IEnumerator DownloadWithConcurrencyControl(string path, string savePath, AssetBundleInfo asset, Action<long, bool> callback)
+    private IEnumerator DownloadWithConcurrencyControl(string path, string savePath, AssetBundleInfo asset, Action<int> callback)
     {
-        var serverUrl = new Uri(path + asset.ABname).Host;
-        var waitTime = serverResponseTimes.ContainsKey(serverUrl) ? 
-            Math.Max(0.05f, serverResponseTimes[serverUrl] * 0.1f) : 0.05f;
-        
+        var waitTime = 0.05f;
         while (true)
         {
             lock (downloadCountLock)
@@ -362,7 +283,7 @@ public class HotMain : MonoBehaviour
             waitTime = Math.Min(waitTime * 1.1f, 0.5f);
         }
         
-        yield return StartCoroutine(SaveAssetBundleOptimized(path, savePath, asset, callback));
+        yield return StartCoroutine(SaveAssetBundle(path, savePath, asset, callback));
         
         lock (downloadCountLock)
         {
@@ -377,33 +298,19 @@ public class HotMain : MonoBehaviour
         var fileInfo = new FileInfo(filePath);
         var cacheKey = filePath + "_" + fileInfo.LastWriteTime.Ticks + "_" + fileInfo.Length;
         
-        if (md5Cache.TryGetValue(cacheKey, out var cachedMD5))
+        if (md5Cache.TryGetValue(cacheKey, out var value))
         {
-            return cachedMD5.Equals(expectedMD5, StringComparison.OrdinalIgnoreCase);
+            return value.Equals(expectedMD5, StringComparison.OrdinalIgnoreCase);
         }
         
-        StartCoroutine(ValidateFileMD5Async(filePath, expectedMD5, cacheKey));
-        return true;
-    }
-    
-    private IEnumerator ValidateFileMD5Async(string filePath, string expectedMD5, string cacheKey)
-    {
         using (var md5 = MD5.Create())
         {
             using (var stream = File.OpenRead(filePath))
             {
-                var buffer = new byte[BUFFER_SIZE];
-                int bytesRead;
-                
-                while ((bytesRead = stream.Read(buffer, 0, BUFFER_SIZE)) > 0)
-                {
-                    md5.TransformBlock(buffer, 0, bytesRead, buffer, 0);
-                    yield return new WaitForEndOfFrame();
-                }
-                
-                md5.TransformFinalBlock(new byte[0], 0, 0);
-                var hashString = BitConverter.ToString(md5.Hash).Replace("-", "").ToLowerInvariant();
+                var hash = md5.ComputeHash(stream);
+                var hashString = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
                 md5Cache[cacheKey] = hashString;
+                return hashString.Equals(expectedMD5, StringComparison.OrdinalIgnoreCase);
             }
         }
     }
@@ -457,27 +364,6 @@ public class HotMain : MonoBehaviour
         else
         {
             return $"{size}B";
-        }
-    }
-    
-    private string GetETAString(float currentSpeed)
-    {
-        if (currentSpeed <= 0 || mTotalSize <= mCurSize) return "计算中...";
-        
-        var remainingBytes = mTotalSize - mCurSize;
-        var etaSeconds = remainingBytes / currentSpeed;
-        
-        if (etaSeconds > 3600)
-        {
-            return $"{etaSeconds / 3600:0.1}小时";
-        }
-        else if (etaSeconds > 60)
-        {
-            return $"{etaSeconds / 60:0.1}分钟";
-        }
-        else
-        {
-            return $"{etaSeconds:0}秒";
         }
     }
 
@@ -551,11 +437,11 @@ public class HotMain : MonoBehaviour
         var totalCount = copyOperations.Count;
         var currentNum = 0;
         var processedInBatch = 0;
-        const int batchSize = 20;
+        const int batchSize = 25;
         
         foreach (var operation in copyOperations)
         {
-            yield return StartCoroutine(CopyFileOptimized(operation.sourcePath, operation.destPath));
+            yield return StartCoroutine(CopyFile(operation.sourcePath, operation.destPath));
             currentNum++;
             processedInBatch++;
             
@@ -571,7 +457,7 @@ public class HotMain : MonoBehaviour
 
         if (Directory.Exists(Application.persistentDataPath + "/DIR"))
         {
-            yield return StartCoroutine(CopyFolderWithProgress(Application.persistentDataPath + "/DIR", Application.persistentDataPath, mProgress, 1.0f));
+            yield return StartCoroutine(CopyFolder(Application.persistentDataPath + "/DIR", Application.persistentDataPath));
             Directory.Delete(Application.persistentDataPath + "/DIR", true);
         }
         
@@ -587,55 +473,22 @@ public class HotMain : MonoBehaviour
 
     void Update()
     {
-        if (Time.time - lastProgressUpdate < PROGRESS_UPDATE_INTERVAL) return;
-        lastProgressUpdate = Time.time;
-        
         if (isUpdate)
         {
             var currentSize = mCurSize;
-            var downloadSpeed = (currentSize - mlastSize) * (1f / PROGRESS_UPDATE_INTERVAL);
+            var downloadSpeed = (currentSize - mlastSize) * 2;
             
-            speedHistory.Enqueue(downloadSpeed);
-            if (speedHistory.Count > SPEED_HISTORY_SIZE)
-            {
-                speedHistory.Dequeue();
-            }
-            
-            float avgSpeed = 0;
-            foreach (var speed in speedHistory)
-            {
-                avgSpeed += speed;
-            }
-            avgSpeed /= speedHistory.Count;
-            
-            var targetProgress = Math.Min(0.85f, (float)currentSize / mTotalSize);
-            mProgress = Mathf.Lerp(mProgress, targetProgress, Time.deltaTime * 2f);
-            
-            if (mProgress < 0.85f)
-            {
-                mLoadingInfo = string.Format("下载中 {0}/{1}", 
-                    GetDownSpdStr(currentSize), 
-                    GetDownSpdStr(mTotalSize));
-                
-                if (uiLabelSpeed != null)
-                {
-                    uiLabelSpeed.text = $"速度: {GetDownSpdStr((long)downloadSpeed)}/s";
-                }
-                
-                if (uiLabelETA != null)
-                {
-                    uiLabelETA.text = $"剩余: {GetETAString(avgSpeed)}";
-                }
-            }
-            
+            mLoadingInfo = string.Format("下载文件{0}/{1} 速度：{2}/s 安装中...", 
+                GetDownSpdStr(currentSize), 
+                GetDownSpdStr(mTotalSize), 
+                GetDownSpdStr(downloadSpeed));
             mlastSize = currentSize;
         }
-        
         setProgress(mProgress);
         setLoadingInfo(mLoadingInfo);
     }
 
-    private IEnumerator CopyFolderWithProgress(string srcPath, string tarPath, float startProgress, float endProgress)
+    private IEnumerator CopyFolder(string srcPath, string tarPath)
     {
         if (!Directory.Exists(srcPath))
         {
@@ -647,52 +500,30 @@ public class HotMain : MonoBehaviour
             Directory.CreateDirectory(tarPath);
         }
 
-        var allFiles = GetAllFiles(srcPath);
-        var totalFiles = allFiles.Count;
-        var currentFile = 0;
-
-        foreach (var file in allFiles)
+        var files = Directory.GetFiles(srcPath);
+        foreach (var file in files)
         {
-            var relativePath = file.Substring(srcPath.Length + 1);
-            var destFile = Path.Combine(tarPath, relativePath);
-            var destDir = Path.GetDirectoryName(destFile);
+            string destFile = Path.Combine(tarPath, Path.GetFileName(file));
             
-            if (!Directory.Exists(destDir))
-            {
-                Directory.CreateDirectory(destDir);
-            }
-
             if (Application.platform != RuntimePlatform.Android || !file.Contains("StreamingAssets"))
             {
                 File.Copy(file, destFile, true);
             }
             else
             {
-                yield return StartCoroutine(CopyFileOptimized(file, destFile));
-            }
-
-            currentFile++;
-            mProgress = startProgress + (endProgress - startProgress) * currentFile / totalFiles;
-            mLoadingInfo = $"安装资源: {currentFile}/{totalFiles}";
-            
-            if (currentFile % 5 == 0)
-            {
-                yield return new WaitForEndOfFrame();
+                yield return StartCoroutine(CopyFile(file, destFile));
             }
         }
-    }
 
-    private List<string> GetAllFiles(string path)
-    {
-        var result = new List<string>();
-        if (Directory.Exists(path))
+        var folders = Directory.GetDirectories(srcPath);
+        foreach (var folder in folders)
         {
-            result.AddRange(Directory.GetFiles(path, "*", SearchOption.AllDirectories));
+            string destDir = Path.Combine(tarPath, Path.GetFileName(folder));
+            yield return StartCoroutine(CopyFolder(folder, destDir));
         }
-        return result;
     }
 
-    private IEnumerator CopyFileOptimized(string sourcePath, string destinationPath)
+    private IEnumerator CopyFile(string sourcePath, string destinationPath)
     {
         byte[] fileData = null;
         
@@ -716,16 +547,7 @@ public class HotMain : MonoBehaviour
         {
             if (File.Exists(sourcePath))
             {
-                var fileInfo = new FileInfo(sourcePath);
-                if (fileInfo.Length > 10 * 1024 * 1024)
-                {
-                    yield return StartCoroutine(CopyLargeFile(sourcePath, destinationPath));
-                    yield break;
-                }
-                else
-                {
-                    fileData = File.ReadAllBytes(sourcePath);
-                }
+                fileData = File.ReadAllBytes(sourcePath);
             }
             else
             {
@@ -742,35 +564,6 @@ public class HotMain : MonoBehaviour
             }
             
             File.WriteAllBytes(destinationPath, fileData);
-        }
-    }
-    
-    private IEnumerator CopyLargeFile(string sourcePath, string destinationPath)
-    {
-        var destinationFolder = Path.GetDirectoryName(destinationPath);
-        if (!Directory.Exists(destinationFolder))
-        {
-            Directory.CreateDirectory(destinationFolder);
-        }
-        
-        using (var sourceStream = File.OpenRead(sourcePath))
-        using (var destStream = File.Create(destinationPath))
-        {
-            var buffer = new byte[BUFFER_SIZE];
-            int bytesRead;
-            var totalBytes = sourceStream.Length;
-            var copiedBytes = 0L;
-            
-            while ((bytesRead = sourceStream.Read(buffer, 0, BUFFER_SIZE)) > 0)
-            {
-                destStream.Write(buffer, 0, bytesRead);
-                copiedBytes += bytesRead;
-                
-                if (copiedBytes % (BUFFER_SIZE * 10) == 0)
-                {
-                    yield return new WaitForEndOfFrame();
-                }
-            }
         }
     }
 
@@ -793,10 +586,6 @@ public class HotMain : MonoBehaviour
 
     private IEnumerator DownloadSuccess()
     {
-        mProgress = 0.85f;
-        mLoadingInfo = "正在安装资源...";
-        isUpdate = false;
-        
         if (!string.IsNullOrEmpty(DllVersion))
         {
             var dllDir = Application.persistentDataPath + "/DIR/DLL";
@@ -819,30 +608,23 @@ public class HotMain : MonoBehaviour
 
         if (Directory.Exists(Application.persistentDataPath + "/DIR"))
         {
-            mProgress = 0.87f;
-            yield return StartCoroutine(CopyFolderWithProgress(Application.persistentDataPath + "/DIR", Application.persistentDataPath, 0.87f, 0.98f));
+            yield return StartCoroutine(CopyFolder(Application.persistentDataPath + "/DIR", Application.persistentDataPath));
             Directory.Delete(Application.persistentDataPath + "/DIR", true);
         }
         
-        mProgress = 1.0f;
-        mLoadingInfo = "安装完成!";
+        isUpdate = false;
+        mLoadingInfo = "下载完毕,解压完成...";
         
-        md5Cache.Clear();
-        speedHistory.Clear();
-        
-        yield return new WaitForSeconds(0.5f);
         yield return StartCoroutine(LoadDll());
     }
 
     private IEnumerator LoadDll()
     {
-        mLoadingInfo = "加载游戏模块...";
-        
 #if !UNITY_EDITOR
         List<string> aotMetaAssemblyFiles = new List<string>()
         {
             "mscorlib.dll",
-            "System.dll", 
+            "System.dll",
             "System.Core.dll"
         };
         
@@ -850,7 +632,8 @@ public class HotMain : MonoBehaviour
         
         foreach (var aotDllName in aotMetaAssemblyFiles)
         {
-            var fullPath = Application.persistentDataPath + "/DLL/" + aotDllName + ".bytes";
+            var path = "/DLL/" + aotDllName + ".bytes";
+            var fullPath = Application.persistentDataPath + path;
             
             if (File.Exists(fullPath))
             {
@@ -860,13 +643,16 @@ public class HotMain : MonoBehaviour
                     
                     if (request.result == UnityWebRequest.Result.Success)
                     {
-                        RuntimeApi.LoadMetadataForAOTAssembly(request.downloadHandler.data, mode);
+                        LoadImageErrorCode err = RuntimeApi.LoadMetadataForAOTAssembly(request.downloadHandler.data, mode);
                     }
                 }
             }
         }
 
-        var hotMetaAssemblyFiles = new List<string>() { "HotUpdate.dll.bytes" };
+        List<string> hotMetaAssemblyFiles = new List<string>()
+        {
+            "HotUpdate.dll.bytes"
+        };
         
         foreach (var item in hotMetaAssemblyFiles)
         {
@@ -889,8 +675,6 @@ public class HotMain : MonoBehaviour
         yield return new WaitForSecondsRealtime(0.1f);
 #endif
         
-        mLoadingInfo = "启动游戏...";
-        
 #if UNITY_EDITOR
         var pre = UnityEditor.AssetDatabase.LoadAssetAtPath("Assets/Arts_ALL/GameRes/Prefabs/UI/GameEntrance.prefab", typeof(GameObject)) as GameObject;
         var go = Instantiate(pre);
@@ -899,7 +683,6 @@ public class HotMain : MonoBehaviour
         Destroy(gameObject);
 #else
         AssetBundle loadingbundle = AssetBundle.LoadFromFile(Application.persistentDataPath + "/AssetBundle_ALL/assets^arts_all^gameres^prefabs^ui^gameentrance.kb");
-        Debug.Log("------------- check ----------" + Application.persistentDataPath);
         if (loadingbundle != null)
         {
             var pre = loadingbundle.LoadAsset("gameentrance", typeof(GameObject)) as GameObject;
@@ -912,40 +695,21 @@ public class HotMain : MonoBehaviour
         yield break;
     }
 
-    private IEnumerator SaveAssetBundleOptimized(string path, string savePath, AssetBundleInfo asset, Action<long, bool> callback)
+    private IEnumerator SaveAssetBundle(string path, string savePath, AssetBundleInfo asset, Action<int> DownLoad = null)
     {
         string originPath = path + asset.ABname;
         string fullSavePath = savePath + asset.ABname;
-        string tempPath = fullSavePath + ".tmp";
-        
-        int retryCount = MAX_RETRY_COUNT;
+        int retryCount = 5;
         float retryDelay = 0.5f;
-        var serverUrl = new Uri(originPath).Host;
-        var requestStartTime = Time.time;
         
         while (retryCount > 0)
         {
             using (UnityWebRequest request = UnityWebRequest.Get(originPath))
             {
-                request.timeout = Math.Max(30, (int)(asset.Size / (1024 * 1024)) * 5);
+                request.timeout = 45;
                 request.SetRequestHeader("User-Agent", "Unity-Game-Client");
                 
-                var asyncOp = request.SendWebRequest();
-                
-                while (!asyncOp.isDone)
-                {
-                    if (request.downloadedBytes > 0)
-                    {
-                        yield return new WaitForEndOfFrame();
-                    }
-                    else
-                    {
-                        yield return new WaitForEndOfFrame();
-                    }
-                }
-
-                var responseTime = Time.time - requestStartTime;
-                serverResponseTimes[serverUrl] = responseTime;
+                yield return request.SendWebRequest();
 
                 if (request.result != UnityWebRequest.Result.Success)
                 {
@@ -959,7 +723,7 @@ public class HotMain : MonoBehaviour
                     }
                     else
                     {
-                        callback?.Invoke(0, false);
+                        DownLoad?.Invoke(0);
                         yield break;
                     }
                 }
@@ -978,47 +742,32 @@ public class HotMain : MonoBehaviour
                     Directory.CreateDirectory(dir);
                 }
 
-                File.WriteAllBytes(tempPath, results);
+                File.WriteAllBytes(fullSavePath, results);
                 
-                if (File.Exists(tempPath) && new FileInfo(tempPath).Length == results.Length)
+                if (File.Exists(fullSavePath) && new FileInfo(fullSavePath).Length == results.Length)
                 {
-                    if (File.Exists(fullSavePath))
-                    {
-                        File.Delete(fullSavePath);
-                    }
-                    File.Move(tempPath, fullSavePath);
-                    
-                    callback?.Invoke(results.Length, true);
+                    DownLoad?.Invoke(results.Length);
                     yield break;
                 }
                 else
                 {
-                    if (File.Exists(tempPath))
-                    {
-                        File.Delete(tempPath);
-                    }
                     retryCount--;
                 }
             }
         }
-        
-        callback?.Invoke(0, false);
     }
 
-    private IEnumerator DownloadVersionFile(string path, Action<string> callback)
+    private IEnumerator DownloadVersionFile(string path, Action<string> DownLoad = null)
     {
-        int retryCount = MAX_RETRY_COUNT;
+        int retryCount = 5;
         float retryDelay = 0.3f;
         
         while (retryCount > 0)
         {
             using (UnityWebRequest request = UnityWebRequest.Get(path))
             {
-                request.timeout = 15;
-                request.SetRequestHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-                request.SetRequestHeader("Pragma", "no-cache");
-                request.SetRequestHeader("Expires", "0");
-                
+                request.timeout = 20;
+                request.SetRequestHeader("Cache-Control", "no-cache");
                 yield return request.SendWebRequest();
                 
                 if (request.result != UnityWebRequest.Result.Success)
@@ -1037,7 +786,7 @@ public class HotMain : MonoBehaviour
                     var text = request.downloadHandler.text;
                     if (!string.IsNullOrEmpty(text))
                     {
-                        callback?.Invoke(text);
+                        DownLoad?.Invoke(text);
                         yield break;
                     }
                     else
@@ -1048,458 +797,6 @@ public class HotMain : MonoBehaviour
             }
         }
         
-        callback?.Invoke("");
+        DownLoad?.Invoke("");
     }
-    
-    private void OnDestroy()
-    {
-        md5Cache?.Clear();
-        speedHistory?.Clear();
-        serverResponseTimes?.Clear();
-    }
-    
-    private void OnApplicationPause(bool pauseStatus)
-    {
-        if (!pauseStatus && isUpdate)
-        {
-            downloadStartTime = DateTime.Now;
-            mlastSize = mCurSize;
-        }
-    }
-    
-    
-    #if BUILD_PC_DEV_TEST
-    private string GetTestAssetsPath()
-    {
-        return "C:/Users/pc/AppData/LocalLow/Tamron/1378捕鱼/Assets_for_test";
-    }
-    private readonly string[] ALL_ASSET_BUNDLES = {
-        "DLL",
-        "AssetBundle_ALL",
-        "AssetBundle_KB",    // Fish3D
-        "AssetBundle_LK",    // 李逵劈鱼
-        "AssetBundle_SH",    // 神话
-        "AssetBundle_WZQ",   // 五子棋
-        "AssetBundle_FQZS"   // 飞禽走兽
-    };
-
-    private IEnumerator CopyFromTestFolder()
-    {
-        string testPath = GetTestAssetsPath();
-        
-        if (!Directory.Exists(testPath))
-        {
-            mLoadingInfo = "Test assets folder not found: " + testPath;
-            Debug.LogError("Test assets folder not found at: " + testPath);
-            yield return new WaitForSeconds(2f);
-            yield return StartCoroutine(LoadDll());
-            yield break;
-        }
-        
-        mLoadingInfo = "Loading test assets...";
-        mProgress = 0.1f;
-        Debug.Log("Starting to copy test assets from: " + testPath);
-        
-        // Clean old folders
-        yield return StartCoroutine(CleanOldTestFolders());
-        
-        // Scan for available assets
-        var availableAssets = ScanAvailableAssets(testPath);
-        
-        if (availableAssets.Count == 0)
-        {
-            mLoadingInfo = "No test assets found!";
-            Debug.LogError("No test assets found in: " + testPath);
-            yield return new WaitForSeconds(2f);
-            yield return StartCoroutine(LoadDll());
-            yield break;
-        }
-        
-        // Create copy tasks with dynamic progress distribution
-        var copyTasks = CreateCopyTasks(availableAssets);
-        
-        // Execute copy tasks
-        foreach (var task in copyTasks)
-        {
-            string sourcePath = Path.Combine(testPath, task.SourceFolder);
-            string destPath = Path.Combine(Application.persistentDataPath, task.DestFolder);
-            
-            Debug.Log($"Copying {task.SourceFolder} ({task.FileCount} files) from: {sourcePath} to: {destPath}");
-            yield return StartCoroutine(CopyFolderContentsWithProgress(sourcePath, destPath, task.StartProgress, task.EndProgress));
-        }
-        
-        mProgress = 1.0f;
-        mLoadingInfo = "All test assets loaded successfully!";
-        Debug.Log("All test assets copied successfully!");
-        
-        // Verify copied files
-        VerifyAllTestAssets();
-        
-        yield return new WaitForSeconds(0.5f);
-        yield return StartCoroutine(LoadDll());
-    }
-    private IEnumerator CleanOldTestFolders()
-    {
-        mLoadingInfo = "Cleaning old assets...";
-        
-        if (Directory.Exists(Application.persistentDataPath))
-        {
-            try
-            {
-                foreach (var assetBundle in ALL_ASSET_BUNDLES)
-                {
-                    var oldPath = Path.Combine(Application.persistentDataPath, assetBundle);
-                    if (Directory.Exists(oldPath))
-                    {
-                        Directory.Delete(oldPath, true);
-                        Debug.Log($"Cleaned old {assetBundle} folder");
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Debug.LogWarning("Could not delete old folders: " + e.Message);
-            }
-        }
-        
-        yield return new WaitForEndOfFrame();
-    }
-
-    private List<AssetFolderInfo> ScanAvailableAssets(string testPath)
-    {
-        var available = new List<AssetFolderInfo>();
-        
-        foreach (var assetBundle in ALL_ASSET_BUNDLES)
-        {
-            string folderPath = Path.Combine(testPath, assetBundle);
-            if (Directory.Exists(folderPath))
-            {
-                var fileCount = Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories).Length;
-                available.Add(new AssetFolderInfo
-                {
-                    FolderName = assetBundle,
-                    FileCount = fileCount,
-                    Priority = GetAssetPriority(assetBundle)
-                });
-                Debug.Log($"Found {assetBundle} with {fileCount} files");
-            }
-            else
-            {
-                Debug.LogWarning($"{assetBundle} folder not found - skipping");
-            }
-        }
-        
-        // Sort by priority (DLL first, then AssetBundle_ALL, then games)
-        available.Sort((a, b) => a.Priority.CompareTo(b.Priority));
-        
-        Debug.Log($"Found {available.Count} available asset folders");
-        return available;
-    }
-
-    private int GetAssetPriority(string assetBundle)
-    {
-        switch (assetBundle)
-        {
-            case "DLL": return 1;
-            case "AssetBundle_ALL": return 2;
-            case "AssetBundle_KB": return 3;  // Fish3D - popular
-            case "AssetBundle_LK": return 4;  // 李逵劈鱼 - popular
-            case "AssetBundle_SH": return 5;
-            case "AssetBundle_WZQ": return 6;
-            case "AssetBundle_FQZS": return 7;
-            default: return 99;
-        }
-    }
-
-    private List<CopyTask> CreateCopyTasks(List<AssetFolderInfo> availableAssets)
-    {
-        var tasks = new List<CopyTask>();
-        
-        float startProgress = 0.1f;
-        float endProgress = 0.9f;
-        float progressRange = endProgress - startProgress;
-        
-        // Calculate total files for progress weighting
-        int totalFiles = availableAssets.Sum(a => a.FileCount);
-        
-        float currentProgress = startProgress;
-        
-        foreach (var asset in availableAssets)
-        {
-            float taskProgressRange = progressRange * (asset.FileCount / (float)totalFiles);
-            float taskEndProgress = currentProgress + taskProgressRange;
-            
-            tasks.Add(new CopyTask
-            {
-                SourceFolder = asset.FolderName,
-                DestFolder = asset.FolderName,
-                StartProgress = currentProgress,
-                EndProgress = taskEndProgress,
-                FileCount = asset.FileCount
-            });
-            
-            currentProgress = taskEndProgress;
-        }
-        
-        return tasks;
-    }
-
-    private class AssetFolderInfo
-    {
-        public string FolderName { get; set; }
-        public int FileCount { get; set; }
-        public int Priority { get; set; }
-    }
-    private class CopyTask
-    {
-        public string SourceFolder { get; set; }
-        public string DestFolder { get; set; }
-        public float StartProgress { get; set; }
-        public float EndProgress { get; set; }
-        public int FileCount { get; set; }
-    }
-    
-    private void VerifyAllTestAssets()
-    {
-        Debug.Log("=== Verification Results ===");
-        
-        var foundFolders = new List<string>();
-        
-        foreach (var assetBundle in ALL_ASSET_BUNDLES)
-        {
-            string folderPath = Path.Combine(Application.persistentDataPath, assetBundle);
-            
-            if (Directory.Exists(folderPath))
-            {
-                var files = Directory.GetFiles(folderPath);
-                foundFolders.Add(assetBundle);
-                
-                Debug.Log($"✓ {assetBundle} folder: {files.Length} files");
-                
-                // Check for important files
-                var importantFiles = new string[] { "version.bytes", "assets.bytes" };
-                foreach (var important in importantFiles)
-                {
-                    var found = files.FirstOrDefault(f => Path.GetFileName(f) == important);
-                    if (found != null)
-                    {
-                        Debug.Log($"  ✓ {important}");
-                    }
-                    else
-                    {
-                        Debug.LogWarning($"  ✗ {important} - MISSING!");
-                    }
-                }
-                
-                // Show sample files
-                var sampleFiles = files.Where(f => !importantFiles.Contains(Path.GetFileName(f))).Take(3);
-                foreach (var file in sampleFiles)
-                {
-                    Debug.Log($"  - {Path.GetFileName(file)}");
-                }
-                
-                if (files.Length > 5)
-                {
-                    Debug.Log($"  ... and {files.Length - 5} more files");
-                }
-            }
-            else
-            {
-                Debug.Log($"✗ {assetBundle} folder not found");
-            }
-        }
-        
-        Debug.Log($"\n=== Summary ===");
-        Debug.Log($"Successfully copied {foundFolders.Count}/{ALL_ASSET_BUNDLES.Length} asset folders:");
-        foreach (var folder in foundFolders)
-        {
-            Debug.Log($"  ✓ {folder}");
-        }
-        
-        Debug.Log("=== End Verification ===");
-    }
-
-
-    private IEnumerator CopyFolderContentsWithProgress(string srcPath, string tarPath, float startProgress, float endProgress)
-    {
-        if (!Directory.Exists(srcPath))
-        {
-            Debug.LogWarning("Source path does not exist: " + srcPath);
-            yield break;
-        }
-
-        // Create destination directory
-        if (!Directory.Exists(tarPath))
-        {
-            Directory.CreateDirectory(tarPath);
-            Debug.Log("Created destination directory: " + tarPath);
-        }
-
-        // Get all files
-        var allFiles = new List<string>();
-        GetAllFilesRecursive(srcPath, allFiles);
-        
-        var totalFiles = allFiles.Count;
-        var currentFile = 0;
-        var processedInBatch = 0;
-        const int batchSize = 30; // Larger batch for faster copying
-        
-        string folderDisplayName = Path.GetFileName(srcPath);
-        Debug.Log($"Copying {folderDisplayName}: {totalFiles} files");
-
-        foreach (var sourceFile in allFiles)
-        {
-            // Calculate relative path
-            var relativePath = sourceFile.Substring(srcPath.Length + 1);
-            var destFile = Path.Combine(tarPath, relativePath);
-            var destDir = Path.GetDirectoryName(destFile);
-            
-            // Create subdirectory if needed
-            if (!Directory.Exists(destDir))
-            {
-                Directory.CreateDirectory(destDir);
-            }
-
-            // Copy file
-            try
-            {
-                File.Copy(sourceFile, destFile, true);
-                
-                // Log progress for important files or every 50th file
-                if (currentFile % 50 == 0 || relativePath.Contains("version.bytes") || relativePath.Contains("assets.bytes"))
-                {
-                    Debug.Log($"  Copied: {relativePath}");
-                }
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"Failed to copy {sourceFile} to {destFile}: {e.Message}");
-            }
-
-            currentFile++;
-            processedInBatch++;
-            
-            // Update progress
-            var currentProgress = startProgress + (endProgress - startProgress) * currentFile / totalFiles;
-            mProgress = currentProgress;
-            mLoadingInfo = $"Copying {folderDisplayName}: {currentFile}/{totalFiles} files";
-            
-            if (processedInBatch >= batchSize)
-            {
-                processedInBatch = 0;
-                yield return new WaitForEndOfFrame();
-            }
-        }
-        
-        Debug.Log($"✓ Finished copying {folderDisplayName}: {totalFiles} files");
-    }
-
-    private void GetAllFilesRecursive(string path, List<string> fileList)
-    {
-        try
-        {
-            // Lấy tất cả files trong thư mục hiện tại
-            fileList.AddRange(Directory.GetFiles(path));
-            
-            // Lấy recursively từ subfolder
-            foreach (var directory in Directory.GetDirectories(path))
-            {
-                GetAllFilesRecursive(directory, fileList);
-            }
-        }
-        catch (Exception e)
-        {
-            Debug.LogError($"Error getting files from {path}: {e.Message}");
-        }
-    }
-
-    private void VerifyTestAssets()
-    {
-        string dllPath = Path.Combine(Application.persistentDataPath, "DLL");
-        string abPath = Path.Combine(Application.persistentDataPath, "AssetBundle_ALL");
-        
-        Debug.Log("=== Verification Results ===");
-        
-        if (Directory.Exists(dllPath))
-        {
-            var dllFiles = Directory.GetFiles(dllPath);
-            Debug.Log($"DLL folder exists with {dllFiles.Length} files:");
-            foreach (var file in dllFiles)
-            {
-                Debug.Log($"  - {Path.GetFileName(file)}");
-            }
-        }
-        else
-        {
-            Debug.LogError("DLL folder not found after copy!");
-        }
-        
-        if (Directory.Exists(abPath))
-        {
-            var abFiles = Directory.GetFiles(abPath);
-            Debug.Log($"AssetBundle_ALL folder exists with {abFiles.Length} files:");
-            foreach (var file in abFiles.Take(10)) // Show first 10 files only
-            {
-                Debug.Log($"  - {Path.GetFileName(file)}");
-            }
-            if (abFiles.Length > 10)
-            {
-                Debug.Log($"  ... and {abFiles.Length - 10} more files");
-            }
-        }
-        else
-        {
-            Debug.LogError("AssetBundle_ALL folder not found after copy!");
-        }
-        
-        Debug.Log("=== End Verification ===");
-    }
-
-    private IEnumerator CopyLocalFolderOptimized(string srcPath, string tarPath)
-    {
-        if (!Directory.Exists(srcPath))
-        {
-            Debug.LogWarning("Source path does not exist: " + srcPath);
-            yield break;
-        }
-
-        if (!Directory.Exists(tarPath))
-        {
-            Directory.CreateDirectory(tarPath);
-        }
-
-        // Get all files recursively
-        var allFiles = GetAllFiles(srcPath);
-        var totalFiles = allFiles.Count;
-        var currentFile = 0;
-        var processedInBatch = 0;
-        const int batchSize = 10;
-
-        foreach (var file in allFiles)
-        {
-            var relativePath = file.Substring(srcPath.Length + 1);
-            var destFile = Path.Combine(tarPath, relativePath);
-            var destDir = Path.GetDirectoryName(destFile);
-            
-            if (!Directory.Exists(destDir))
-            {
-                Directory.CreateDirectory(destDir);
-            }
-
-            File.Copy(file, destFile, true);
-
-            currentFile++;
-            processedInBatch++;
-            
-            mLoadingInfo = $"Copying test assets: {currentFile}/{totalFiles}";
-            
-            if (processedInBatch >= batchSize)
-            {
-                processedInBatch = 0;
-                yield return new WaitForEndOfFrame();
-            }
-        }
-    }
-#endif
-    
 }

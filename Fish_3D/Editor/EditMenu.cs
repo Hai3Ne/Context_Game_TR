@@ -185,7 +185,7 @@ public class EditMenu
     private static void LKAssetBundleExport_IOS() {
         StartPack(GameEnum.Fish_LK, BuildTarget.iOS);
     }
-    [MenuItem("Tools/Android/飞禽走兽资源(FQZS)", false, 5)]
+    [MenuItem("Tools/Android/飞禽走兽资源", false, 5)]
     private static void FQAssetBundleExport_Android() {
         StartPack(GameEnum.FQZS, BuildTarget.Android);
     }
@@ -194,7 +194,7 @@ public class EditMenu
         StartPack(GameEnum.FQZS, BuildTarget.iOS);
     }
 
-    [MenuItem("Tools/Android/神话资源(SH)",false,5)]
+    [MenuItem("Tools/Android/神话资源",false,5)]
     private static void SHAssetBundleExport_Android()
     {
         StartPack(GameEnum.SH, BuildTarget.Android);
@@ -206,7 +206,7 @@ public class EditMenu
         StartPack(GameEnum.SH, BuildTarget.iOS);
     }
 
-    [MenuItem("Tools/Android/五子棋资源(WZQ)", false, 5)]
+    [MenuItem("Tools/Android/五子棋资源", false, 5)]
     private static void WZQAssetBundleExport_Android()
     {
         StartPack(GameEnum.WZQ, BuildTarget.Android);
@@ -217,23 +217,90 @@ public class EditMenu
     {
         StartPack(GameEnum.WZQ, BuildTarget.iOS);
     }
-    
-    
-    [MenuItem("Tools/PC/DLL", false, 4)]
-    private static void HandleDllBoundle_PC()
-    {
-        BuildTarget target = BuildTarget.StandaloneWindows64;
 
+    private static void StartPack(GameEnum type, BuildTarget target) {
+        AssetBundleExport.StartPack(target, GameManager.GetResPath(type), GameManager.GetAbPath(type));
+    }
+    // Thêm vào EditMenu.cs class
+
+    [MenuItem("Tools/PC/Full PC Build Pipeline", false, 100)]
+    private static void FullPCBuildPipeline()
+    {
+        Debug.Log("=== Starting Full PC Build Pipeline ===");
+        
+        try 
+        {
+            // Step 1: Setup PC Build Environment
+            SetupPCBuildEnvironment();
+            
+            // Step 2: Handle DLL Bundle for PC
+            HandleDllBoundlePC();
+            
+            // Step 3: Build PC Assets
+            BuildPCAssets();
+            
+            // Step 4: Copy PC Resources
+            CopyPCResources();
+            
+            // Step 5: Build PC Executable
+            BuildPCExecutable();
+            
+            Debug.Log("=== PC Build Pipeline Completed Successfully ===");
+            EditorUtility.DisplayDialog("Build Complete", "PC Build completed successfully!", "OK");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"PC Build Pipeline failed: {e.Message}");
+            EditorUtility.DisplayDialog("Build Failed", $"PC Build failed: {e.Message}", "OK");
+        }
+    }
+
+    [MenuItem("Tools/PC/1. Setup PC Environment", false, 101)]
+    private static void SetupPCBuildEnvironment()
+    {
+        Debug.Log("Setting up PC build environment...");
+        
+        // Switch to PC platform
+        EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Standalone, BuildTarget.StandaloneWindows64);
+        
+        // Set PC-specific scripting defines
+        string pcDefines = "UNUSE_ASSETBOUNDLE_INEDITOR;PC_BUILD;STANDALONE_BUILD";
+        PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone, pcDefines);
+        
+        // PC-specific settings
+        PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Standalone, "com.tamron.fishing3D.pc");
+        PlayerSettings.bundleVersion = GameConfig.ClientVersionStr;
+        PlayerSettings.companyName = "Tamron";
+        PlayerSettings.productName = "1378捕鱼";
+        
+        // PC Performance settings
+        PlayerSettings.defaultScreenWidth = 1280;
+        PlayerSettings.defaultScreenHeight = 720;
+        PlayerSettings.runInBackground = true;
+        PlayerSettings.displayResolutionDialog = ResolutionDialogSetting.Enabled;
+        PlayerSettings.defaultIsNativeResolution = true;
+        
+        Debug.Log("PC build environment setup completed");
+    }
+
+    [MenuItem("Tools/PC/2. Build PC DLL", false, 102)]
+    private static void HandleDllBoundlePC()
+    {
+        Debug.Log("Building DLL for PC...");
+        
+        BuildTarget target = BuildTarget.StandaloneWindows64;
+        
         CompileDllCommand.CompileDll(target);
-        var dir = Application.dataPath + "/../DLL";
+        var dir = Application.dataPath + "/../DLL_PC";
         DirectoryInfo dirOutDir = new DirectoryInfo(dir);
         if (!dirOutDir.Exists)
         {
             Directory.CreateDirectory(dir);
         }
-        CopyAOTAssembliesToStreamingAssets_PC();
-        CopyHotUpdateAssembliesToStreamingAssets_PC();
-
+        
+        CopyAOTAssembliesToPC(dir);
+        CopyHotUpdateAssembliesToPC(dir);
+        
         var list = new List<AssetBundleInfo>();
         DirectoryInfo dirOutDir1 = new DirectoryInfo(dir);
         var files = dirOutDir1.GetFiles();
@@ -246,112 +313,313 @@ public class EditMenu
             ab.Size = file.Length;
             list.Add(ab);
         }
-        byte[] versionNO = System.Text.Encoding.UTF8.GetBytes(DateTime.Now.ToString("yyyyMMddHHmm"));
-
-        //生成版本号文件
-        File.WriteAllBytes(dir + "/" + ABLoadConfig.VersionNO, versionNO);
-
-        File.WriteAllLines(dir + "/" + ABLoadConfig.VersionPath, new string[]{
-            LitJson.JsonMapper.ToJson(list),});
         
-        Debug.Log("PC DLL打包完成");
+        byte[] versionNO = System.Text.Encoding.UTF8.GetBytes(DateTime.Now.ToString("yyyyMMddHHmm"));
+        
+        // Generate version files
+        File.WriteAllBytes(dir + "/" + ABLoadConfig.VersionNO, versionNO);
+        File.WriteAllLines(dir + "/" + ABLoadConfig.VersionPath, new string[]{
+            LitJson.JsonMapper.ToJson(list),
+        });
+        
+        Debug.Log("PC DLL build completed");
     }
 
-    public static void CopyAOTAssembliesToStreamingAssets_PC()
+    [MenuItem("Tools/PC/3. Build PC Assets", false, 103)]
+    private static void BuildPCAssets()
+    {
+        Debug.Log("Building PC Assets...");
+        
+        // Build main hall assets for PC
+        StartPack(GameEnum.All, BuildTarget.StandaloneWindows64);
+        
+        // Build other game assets if needed
+        StartPack(GameEnum.Fish_3D, BuildTarget.StandaloneWindows64);
+        StartPack(GameEnum.Fish_LK, BuildTarget.StandaloneWindows64);
+        StartPack(GameEnum.FQZS, BuildTarget.StandaloneWindows64);
+        StartPack(GameEnum.SH, BuildTarget.StandaloneWindows64);
+        StartPack(GameEnum.WZQ, BuildTarget.StandaloneWindows64);
+        
+        Debug.Log("PC Assets build completed");
+    }
+
+    [MenuItem("Tools/PC/4. Copy PC Resources", false, 104)]
+    private static void CopyPCResources()
+    {
+        Debug.Log("Copying PC Resources...");
+        
+        // Clean and create StreamingAssets for PC
+        if (Directory.Exists(Application.streamingAssetsPath))
+        {
+            Directory.Delete(Application.streamingAssetsPath, true);
+        }
+        Directory.CreateDirectory(Application.streamingAssetsPath);
+        
+        // Copy DLL
+        CopyFolder(Application.dataPath + "/../DLL_PC", Application.streamingAssetsPath + "/DLL");
+        Debug.Log("PC DLL copied");
+        
+        // Copy main assets
+        CopyFolder(Application.dataPath + "/../AssetBundle_ALL", Application.streamingAssetsPath + "/AssetBundle_ALL");
+        Debug.Log("PC main assets copied");
+        
+        // Copy other game assets
+        string[] gameAssetPaths = {
+            "AssetBundle_Fish3D",
+            "AssetBundle_LK", 
+            "AssetBundle_FQZS",
+            "AssetBundle_SH",
+            "AssetBundle_WZQ"
+        };
+        
+        foreach (string assetPath in gameAssetPaths)
+        {
+            string srcPath = Application.dataPath + "/../" + assetPath;
+            if (Directory.Exists(srcPath))
+            {
+                CopyFolder(srcPath, Application.streamingAssetsPath + "/" + assetPath);
+                Debug.Log($"PC {assetPath} copied");
+            }
+        }
+        
+        // Generate folder configuration
+        HandlefolderBoundle();
+        
+        Debug.Log("PC Resources copy completed");
+    }
+
+    [MenuItem("Tools/PC/5. Build PC Executable", false, 105)]
+    private static void BuildPCExecutable()
+    {
+        Debug.Log("Building PC Executable...");
+        
+        string[] levels = {
+            "Assets/Scene/Main.unity",
+        };
+        
+        string timestamp = DateTime.Now.ToString("yyyyMMddHHmm");
+        string buildPath = $"D:/build_source/PC/Fishing3D_PC_{timestamp}/";
+        string exePath = buildPath + "Fishing3D.exe";
+        
+        // Ensure build directory exists
+        if (!Directory.Exists(buildPath))
+        {
+            Directory.CreateDirectory(buildPath);
+        }
+        
+        // PC Build options
+        BuildPlayerOptions buildOptions = new BuildPlayerOptions();
+        buildOptions.scenes = levels;
+        buildOptions.locationPathName = exePath;
+        buildOptions.target = BuildTarget.StandaloneWindows64;
+        buildOptions.targetGroup = BuildTargetGroup.Standalone;
+        
+        // PC-specific build options
+        buildOptions.options = BuildOptions.None;
+        // buildOptions.options = BuildOptions.Development | BuildOptions.AllowDebugging; // For debug builds
+        
+        var result = BuildPipeline.BuildPlayer(buildOptions);
+        
+        if (result.summary.result == UnityEditor.Build.Reporting.BuildResult.Succeeded)
+        {
+            Debug.Log($"PC Build succeeded: {exePath}");
+            
+            // Copy additional PC files
+            CopyPCAdditionalFiles(buildPath);
+            
+            // Create installer or zip if needed
+            CreatePCDistribution(buildPath, timestamp);
+        }
+        else
+        {
+            Debug.LogError("PC Build failed: " + result.summary.ToString());
+            throw new System.Exception("PC executable build failed");
+        }
+    }
+
+    private static void CopyAOTAssembliesToPC(string targetDir)
     {
         var target = BuildTarget.StandaloneWindows64;
         string aotAssembliesSrcDir = SettingsUtil.GetAssembliesPostIl2CppStripDir(target);
-        string aotAssembliesDstDir = Application.dataPath + "/../DLL";
-
+        
         foreach (var dll in SettingsUtil.AOTAssemblyNames)
         {
             string srcDllPath = $"{aotAssembliesSrcDir}/{dll}.dll";
             if (!File.Exists(srcDllPath))
             {
-                Debug.LogError($"ab中添加AOT补充元数据dll:{srcDllPath} 时发生错误,文件不存在。裁剪后的AOT dll在BuildPlayer时才能生成，因此需要你先构建一次游戏App后再打包。");
+                Debug.LogWarning($"AOT DLL not found: {srcDllPath}");
                 continue;
             }
-
-            string dllBytesPath = $"{aotAssembliesDstDir}/{dll}.dll.bytes";
+            
+            string dllBytesPath = $"{targetDir}/{dll}.dll.bytes";
             File.Copy(srcDllPath, dllBytesPath, true);
-            Debug.Log($"[CopyAOTAssembliesToStreamingAssets_PC] copy AOT dll {srcDllPath} -> {dllBytesPath}");
+            Debug.Log($"[PC AOT] copy AOT dll {srcDllPath} -> {dllBytesPath}");
         }
     }
 
-    public static void CopyHotUpdateAssembliesToStreamingAssets_PC()
+    private static void CopyHotUpdateAssembliesToPC(string targetDir)
     {
         var target = BuildTarget.StandaloneWindows64;
-
         string hotfixDllSrcDir = SettingsUtil.GetHotUpdateDllsOutputDirByTarget(target);
-        string hotfixAssembliesDstDir = Application.dataPath + "/../DLL";
-
+        
         foreach (var dll in SettingsUtil.HotUpdateAssemblyFilesExcludePreserved)
         {
             string dllPath = $"{hotfixDllSrcDir}/{dll}";
-            string dllBytesPath = $"{hotfixAssembliesDstDir}/{dll}.bytes";
+            string dllBytesPath = $"{targetDir}/{dll}.bytes";
             File.Copy(dllPath, dllBytesPath, true);
-            Debug.Log($"[CopyHotUpdateAssembliesToStreamingAssets_PC] copy hotfix dll {dllPath} -> {dllBytesPath}");
+            Debug.Log($"[PC HotUpdate] copy hotfix dll {dllPath} -> {dllBytesPath}");
         }
     }
 
-    [MenuItem("Tools/PC/大厅资源(All)", false, 5)]
-    private static void MainHallAssetBundleExport_PC()
+    private static void CopyPCAdditionalFiles(string buildPath)
     {
-        StartPack(GameEnum.All, BuildTarget.StandaloneWindows64);
-    }
-
-    [MenuItem("Tools/PC/3D捕鱼资源 (Fish3D)", false, 5)]
-    private static void Fish3DAssetBundleExport_PC()
-    {
-        StartPack(GameEnum.Fish_3D, BuildTarget.StandaloneWindows64);
-    }
-
-    [MenuItem("Tools/PC/李逵劈鱼资源(LK)", false, 5)]
-    private static void LKAssetBundleExport_PC()
-    {
-        StartPack(GameEnum.Fish_LK, BuildTarget.StandaloneWindows64);
-    }
-
-    [MenuItem("Tools/PC/飞禽走兽资源(FQZS)", false, 5)]
-    private static void FQAssetBundleExport_PC()
-    {
-        StartPack(GameEnum.FQZS, BuildTarget.StandaloneWindows64);
-    }
-
-    [MenuItem("Tools/PC/神话资源(SH)", false, 5)]
-    private static void SHAssetBundleExport_PC()
-    {
-        StartPack(GameEnum.SH, BuildTarget.StandaloneWindows64);
-    }
-
-    [MenuItem("Tools/PC/五子棋资源(WZQ)", false, 5)]
-    private static void WZQAssetBundleExport_PC()
-    {
-        StartPack(GameEnum.WZQ, BuildTarget.StandaloneWindows64);
-    }
-
-    [MenuItem("Tools/MoveStreaming", false, 4)]
-    private static void CopyFileToBoundle_PC()
-    {
-        if (Directory.Exists(Application.streamingAssetsPath))
+        try
         {
-            Directory.Delete(Application.streamingAssetsPath, true);
+            // Copy PC-specific config files
+            string configSrc = Application.dataPath + "/StreamingAssets/PC_Config";
+            if (Directory.Exists(configSrc))
+            {
+                string configDest = buildPath + "Config";
+                CopyFolder(configSrc, configDest);
+            }
+            
+            // Create PC launcher script
+            CreatePCLauncher(buildPath);
+            
+            // Create README
+            CreatePCReadme(buildPath);
+            
+            Debug.Log("PC additional files copied");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogWarning($"Failed to copy additional PC files: {e.Message}");
+        }
+    }
+
+    private static void CreatePCLauncher(string buildPath)
+    {
+        string launcherContent = @"@echo off
+    echo Starting Fishing 3D...
+    echo.
+
+    REM Check if game executable exists
+    if not exist ""Fishing3D.exe"" (
+        echo Error: Fishing3D.exe not found!
+        pause
+        exit /b 1
+    )
+
+    REM Set compatibility mode
+    echo Setting up game environment...
+
+    REM Launch game
+    echo Launching game...
+    start """" ""Fishing3D.exe""
+
+    REM Optional: Wait for game to close
+    REM ""Fishing3D.exe""
+
+    echo Game closed.
+    pause
+    ";
+        
+        File.WriteAllText(buildPath + "Launch_Fishing3D.bat", launcherContent);
+    }
+
+    private static void CreatePCReadme(string buildPath)
+    {
+        string readmeContent = @"Fishing 3D - PC Version
+    ========================
+
+    System Requirements:
+    - Windows 10 64-bit or later
+    - DirectX 11 compatible graphics card
+    - 4GB RAM minimum
+    - 2GB free disk space
+
+    Installation:
+    1. Extract all files to a folder
+    2. Run Launch_Fishing3D.bat or Fishing3D.exe
+    3. Enjoy the game!
+
+    Controls:
+    - Mouse: Aim and shoot
+    - Keyboard: Various game functions
+    - ESC: Exit game
+
+    Troubleshooting:
+    - If game doesn't start, run as Administrator
+    - Ensure Windows Defender/Antivirus allows the game
+    - Update graphics drivers if you experience issues
+
+    Version: " + GameConfig.ClientVersionStr + @"
+    Build Date: " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + @"
+
+    Contact: support@touchmind.com
+    ";
+        
+        File.WriteAllText(buildPath + "README.txt", readmeContent);
+    }
+
+    private static void CreatePCDistribution(string buildPath, string timestamp)
+    {
+        try
+        {
+            // Create zip file for distribution
+            string zipPath = $"D:/build_source/PC/Fishing3D_PC_{timestamp}.zip";
+            
+            // You can use System.IO.Compression or third-party zip library
+            Debug.Log($"PC build ready for distribution at: {buildPath}");
+            Debug.Log($"Create ZIP manually or programmatically: {zipPath}");
+            
+            // Open build folder
+            System.Diagnostics.Process.Start("explorer.exe", buildPath);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogWarning($"Failed to create PC distribution: {e.Message}");
+        }
+    }
+
+    [MenuItem("Tools/PC/Quick PC Build (No Assets)", false, 106)]
+    private static void QuickPCBuild()
+    {
+        Debug.Log("=== Quick PC Build (Executable Only) ===");
+        
+        SetupPCBuildEnvironment();
+        
+        string[] levels = { "Assets/Scene/Main.unity" };
+        string timestamp = DateTime.Now.ToString("yyyyMMddHHmm");
+        string exePath = $"D:/build_source/PC/Quick_Fishing3D_PC_{timestamp}.exe";
+        
+        BuildPlayerOptions buildOptions = new BuildPlayerOptions();
+        buildOptions.scenes = levels;
+        buildOptions.locationPathName = exePath;
+        buildOptions.target = BuildTarget.StandaloneWindows64;
+        buildOptions.options = BuildOptions.Development | BuildOptions.AllowDebugging;
+        
+        var result = BuildPipeline.BuildPlayer(buildOptions);
+        
+        if (result.summary.result == UnityEditor.Build.Reporting.BuildResult.Succeeded)
+        {
+            Debug.Log($"Quick PC Build succeeded: {exePath}");
+            System.Diagnostics.Process.Start("explorer.exe", "/select," + exePath);
         }
         else
         {
-            Directory.CreateDirectory(Application.streamingAssetsPath);
+            Debug.LogError("Quick PC Build failed");
         }
-        HandleDllBoundle_PC();
-        Debug.Log("PC DLL打包");
-        MainHallAssetBundleExport_PC();
-        Debug.Log("PC 大厅资源打包");
-        CopyFolder(Application.dataPath + "/../DLL", Application.streamingAssetsPath + "/DLL");
-        Debug.Log("PC DLL复制完成");
-        CopyFolder(Application.dataPath + "/../AssetBundle_ALL", Application.streamingAssetsPath + "/AssetBundle_ALL");
-        Debug.Log("PC 大厅资源复制完成");
-        HandlefolderBoundle();
     }
-    private static void StartPack(GameEnum type, BuildTarget target) {
-        AssetBundleExport.StartPack(target, GameManager.GetResPath(type), GameManager.GetAbPath(type));
+
+    [MenuItem("Tools/PC/Open PC Build Folder", false, 107)]
+    private static void OpenPCBuildFolder()
+    {
+        string buildFolder = "D:/build_source/PC/";
+        if (!Directory.Exists(buildFolder))
+        {
+            Directory.CreateDirectory(buildFolder);
+        }
+        System.Diagnostics.Process.Start("explorer.exe", buildFolder);
     }
 }

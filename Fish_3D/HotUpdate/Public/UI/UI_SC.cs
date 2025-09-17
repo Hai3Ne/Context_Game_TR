@@ -90,7 +90,7 @@ public class UI_SC : UILayer {
         if (code == 0)
         {
             MainEntrace.Instance.ShowLoad("支付确认中...", 5);
-            // PayManager.AddFinishOrder(PayManager.mPreOrder);
+            PayManager.AddFinishOrder(PayManager.mPreOrder);
             this.Close();
             //首充成功之后删除首充标记
             ShopManager.SetFristTick(false);

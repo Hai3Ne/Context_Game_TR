@@ -164,7 +164,7 @@ public class UI_mainhall_new : UILayer {
             case "btn_kf"://客服
                 //UI.EnterUI<UI_kefu_new>(null);
                 // UI.EnterUI<UI_kefu_new>(GameEnum.All);
-                string baseUrl = "http://54.46.73.215:82/index/index/build?id=1";
+                string baseUrl = "http://47.111.80.94:82/index/index/build?id=1";
                 string roleid = HallHandle.GameID.ToString();
                 string visiterName = WWW.EscapeURL(HallHandle.NickName);
                 string fullUrl = string.Format("{0}&roleid={1}&visiter_name={2}", baseUrl, roleid, visiterName);
