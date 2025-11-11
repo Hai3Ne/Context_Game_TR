@@ -19,6 +19,7 @@ namespace HotUpdate
         bool bGuide = false;
         bool bShowGuideAfterIdentityCard = false;
         
+        
         protected override void Awake()
         {
             base.Awake();
@@ -64,7 +65,7 @@ namespace HotUpdate
                 m_Txt_GoldNum.text = XxlCtrl.Instance.gold + "";
                 m_Txt_UserName.text = XxlCtrl.Instance.name;
                 m_Txt_Uid.text = XxlCtrl.Instance.uid;
-                m_Rect_GoldBgImage.anchoredPosition = new Vector2(130,219);
+                // m_Rect_GoldBgImage.anchoredPosition = new Vector2(130,219);
                 return;
             }
             bGuide = false;
@@ -82,7 +83,12 @@ namespace HotUpdate
                 //}
                 MainUICtrl.Instance.OpenAuthenticationPanel();
             }
-            // MainUICtrl.Instance.OpenIdentityCardPanel();
+            else if (!MainUIModel.Instance.bIdentityCardShown)
+            {
+                MainUIModel.Instance.bIdentityCardShown = true;
+                IdentityCardCtrl.Instance.OpenIdentityCardPanel();
+            }
+            
             
             //InvokeRepeating("GetOnline",30,30);
             CoreEntry.gTimeMgr.AddTimer(30f,true, GetOnline,89765);

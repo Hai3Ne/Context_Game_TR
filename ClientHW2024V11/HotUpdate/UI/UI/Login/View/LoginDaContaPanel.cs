@@ -9,6 +9,9 @@ namespace HotUpdate
     public partial class LoginDaContaPanel : PanelBase
     {
         const string pwdKey = "pud4tIdkyRQ8zl9O";
+        const string SAVE_PHONE_KEY = "SavedLoginPhone";
+        const string SAVE_PWD_KEY = "SavedLoginPassword";
+        const string SAVE_DATA_KEY = "SaveLoginData";
         protected override void Awake()
         {
             base.Awake();
@@ -21,6 +24,7 @@ namespace HotUpdate
             m_Img_eyeH.gameObject.SetActive(m_Input_pwd.inputType == InputField.InputType.Standard);
             m_Img_eyeS.gameObject.SetActive(m_Input_pwd.inputType == InputField.InputType.Password);
             RegisterListener();
+            LoadSavedData();
         }
 
         protected override void OnDisable()
@@ -104,6 +108,17 @@ namespace HotUpdate
             }
             MainUIModel.Instance.Phone = phone;
             MainUIModel.Instance.PhonePwd = pwd;
+
+            // Lưu dữ liệu nếu toggle được chọn
+            if (m_Toggle_SaveData != null && m_Toggle_SaveData.isOn)
+            {
+                SaveLoginData(phone, pwd);
+            }
+            else
+            {
+                ClearSavedData();
+            }
+
             LoginCtrl.Instance.SendPhoneLogin(phone, pwd,"", "", 101, 0, 0, code, hash, "", "3.0.1", "", "", "", "");
         }
 
@@ -123,5 +138,44 @@ namespace HotUpdate
             m_Img_eyeS.gameObject.SetActive(m_Input_pwd.inputType == InputField.InputType.Password);
             m_Input_pwd.ForceLabelUpdate();
         }
+
+        #region Lưu/Load dữ liệu đăng nhập
+        private void SaveLoginData(string phone, string password)
+        {
+            PlayerPrefs.SetString(SAVE_PHONE_KEY, phone);
+            PlayerPrefs.SetString(SAVE_PWD_KEY, password);
+            PlayerPrefs.SetInt(SAVE_DATA_KEY, 1);
+            PlayerPrefs.Save();
+        }
+
+        private void LoadSavedData()
+        {
+            if (PlayerPrefs.HasKey(SAVE_DATA_KEY) && PlayerPrefs.GetInt(SAVE_DATA_KEY) == 1)
+            {
+                if (PlayerPrefs.HasKey(SAVE_PHONE_KEY))
+                {
+                    m_Input_phone.text = PlayerPrefs.GetString(SAVE_PHONE_KEY);
+                }
+
+                if (PlayerPrefs.HasKey(SAVE_PWD_KEY))
+                {
+                    m_Input_pwd.text = PlayerPrefs.GetString(SAVE_PWD_KEY);
+                }
+
+                if (m_Toggle_SaveData != null)
+                {
+                    m_Toggle_SaveData.isOn = true;
+                }
+            }
+        }
+
+        private void ClearSavedData()
+        {
+            PlayerPrefs.DeleteKey(SAVE_PHONE_KEY);
+            PlayerPrefs.DeleteKey(SAVE_PWD_KEY);
+            PlayerPrefs.DeleteKey(SAVE_DATA_KEY);
+            PlayerPrefs.Save();
+        }
+        #endregion
     }
 }

@@ -53,6 +53,7 @@ namespace HotUpdate
         public PixData midPixData;
         public SC_HUMAN_RECHARGE_MONEY_RET RechargeData;
         public bool isOpenGuid = false;
+        public bool bIdentityCardShown = false;
         public string Phonemima;
         public List<cfg.Game.GameRoomConfig> roomCfgList = new List<cfg.Game.GameRoomConfig>();
         public long AlmsCondition;//领取金额

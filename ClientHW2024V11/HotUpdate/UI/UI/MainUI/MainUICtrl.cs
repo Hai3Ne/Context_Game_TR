@@ -454,7 +454,8 @@ namespace HotUpdate
             MainUIModel.Instance.GetAlsmCondition();
             Debug.LogError($"phone:{Encoding.Default.GetString(data.m_szPhone)}");
             MainUIModel.Instance.IsBindPhone(data.m_szPhone);
-
+            MainUIModel.Instance.bIdentityCardShown = false;
+            
             for (int i = 0; i < (int)EHumanRewardBits.E_Reward_Max; i++)
             {
                 MainUIModel.Instance.palyerState.Add((EHumanRewardBits)i, ToolUtil.ValueByBit(data.m_i4FlagBits, i));
@@ -1469,7 +1470,10 @@ namespace HotUpdate
         {
             MainPanelMgr.Instance.ShowDialog("IdentityCardPanel");
         }
-
+        public void CloseIdentityCardPanel()
+        {
+            MainPanelMgr.Instance.Close("IdentityCardPanel");
+        }
 
 
         #endregion

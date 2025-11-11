@@ -257,16 +257,34 @@ UICtrl.Instance.OpenView("LoginPanel");
                         var hash = ToolUtil.HMACSHA1(code, pwdKey);
                         SendReqcLogin("", "", "", 101, 0, 0, code, hash, "", "3.0.1", channelId + "", "", "", "", token);
                     }
+                    else if (PlayerPrefs.HasKey("GuestLoginToken"))
+                    {
+                        var token = PlayerPrefs.GetString("GuestLoginToken");
+                        var code = ToolUtil.GetRandomCode(12);
+                        var hash = ToolUtil.HMACSHA1(code, pwdKey);
+                        SendReqcLogin("", "", "", 101, 0, 0, code, hash, "", "3.0.1", channelId + "", "", "", "", token);
+                    }
                     else
                     {
                         UICtrl.Instance.OpenView("LoginPanel");
                     }
 #else
-                    UICtrl.Instance.OpenView("LoginPanel");
-                    return;
-                    var code = ToolUtil.GetRandomCode(12);
-                    var hash = ToolUtil.HMACSHA1(code, pwdKey);
-                    SendReqcLogin("", "", "", 101, 0, 0, code, hash, "", "3.0.1", channelId + "", "", "", "", SystemInfo.deviceUniqueIdentifier);
+                    if (PlayerPrefs.HasKey("GuestLoginToken"))
+                    {
+                        var token = PlayerPrefs.GetString("GuestLoginToken");
+                        var code = ToolUtil.GetRandomCode(12);
+                        var hash = ToolUtil.HMACSHA1(code, pwdKey);
+                        SendReqcLogin("", "", "", 101, 0, 0, code, hash, "", "3.0.1", channelId + "", "", "", "", token);
+                    }
+                    else
+                    {
+                        UICtrl.Instance.OpenView("LoginPanel");
+                    }
+                    // UICtrl.Instance.OpenView("LoginPanel");
+                    // return;
+                    // var code = ToolUtil.GetRandomCode(12);
+                    // var hash = ToolUtil.HMACSHA1(code, pwdKey);
+                    // SendReqcLogin("", "", "", 101, 0, 0, code, hash, "", "3.0.1", channelId + "", "", "", "", SystemInfo.deviceUniqueIdentifier);
 #endif
 
                 }
@@ -351,7 +369,7 @@ UICtrl.Instance.OpenView("LoginPanel");
             string deviceId = wxCode;
             
 #if UNITY_EDITOR
-            deviceId = "HWCNDY34_4" + SystemInfo.deviceUniqueIdentifier;
+            deviceId = "HWCNDY34_5" + SystemInfo.deviceUniqueIdentifier;
 #endif
       
 
@@ -582,6 +600,11 @@ UICtrl.Instance.OpenView("LoginPanel");
             else if (data.ResultCode == 0)
             {
                 Guid = data.AccountGUID;
+                
+                string guestToken = "HWCNDY37_" + SystemInfo.deviceUniqueIdentifier;
+                PlayerPrefs.SetString("GuestLoginToken", guestToken);
+                PlayerPrefs.Save();
+                
                 Debug.Log($"<color=#ffff00>成功</color>");
                 if (MainPanelMgr.Instance.IsShow("LoginDaContaPanel"))
                 {
@@ -711,6 +734,7 @@ UICtrl.Instance.OpenView("LoginPanel");
                     Message.Broadcast(MessageName.OPEN_LOGINBTN);
                     JumpToLoginPanel();
                     ToolUtil.FloattingText("账号已在线", MainPanelMgr.Instance.GetPanel("LoginPanel").transform);
+                    ToolUtil.FloattingText("账号已在线", MainPanelMgr.Instance.GetPanel("LoginDaContaPanel").transform);
                 }
 
             }
