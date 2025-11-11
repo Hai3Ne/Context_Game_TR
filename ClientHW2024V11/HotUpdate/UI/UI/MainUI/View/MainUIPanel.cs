@@ -17,6 +17,7 @@ namespace HotUpdate
         private List<List<cfg.Game.GameRoomConfig>> roomList = new List<List<cfg.Game.GameRoomConfig>>();
 
         bool bGuide = false;
+        bool bShowGuideAfterIdentityCard = false;
         
         protected override void Awake()
         {
@@ -46,7 +47,6 @@ namespace HotUpdate
         {
             base.OnEnable();
             RegisterListener();
-
             if (!CoreEntry.gAudioMgr.IsPlaying())
             {
                 CoreEntry.gAudioMgr.PlayUIMusic(47);
@@ -82,6 +82,8 @@ namespace HotUpdate
                 //}
                 MainUICtrl.Instance.OpenAuthenticationPanel();
             }
+            // MainUICtrl.Instance.OpenIdentityCardPanel();
+            
             //InvokeRepeating("GetOnline",30,30);
             CoreEntry.gTimeMgr.AddTimer(30f,true, GetOnline,89765);
             CoreEntry.gTimeMgr.AddTimer(1, false, RefreshRedDot, 76592);
@@ -171,6 +173,7 @@ namespace HotUpdate
             CoreEntry.gEventMgr.AddListener(GameEvent.GE_ClosePanel, CloseOnePanel);
             m_Btn_Wealth.onClick.AddListener(ExchangeCardPanel);
             Message.AddListener(MessageName.REALName, HandleGuide);
+            Message.AddListener(MessageName.IDENTITY_CARD_CLOSED, OnIdentityCardClosed);
         }
 
         private void CloseOnePanel(GameEvent ge, EventParameter parameter)
@@ -214,19 +217,32 @@ namespace HotUpdate
             CoreEntry.gEventMgr.RemoveListener(GameEvent.GE_ClosePanel, CloseOnePanel);
             m_Btn_Wealth.onClick.RemoveListener(ExchangeCardPanel);
             Message.RemoveListener(MessageName.REALName, HandleGuide);
+            Message.RemoveListener(MessageName.IDENTITY_CARD_CLOSED, OnIdentityCardClosed);
         }
 
 
 
         private void HandleGuide()
         {
-      
-                if (GuideModel.Instance.bReachCondition(0))
-                {
-                    GuideModel.Instance.SetFinish(0);
-                    MainUICtrl.Instance.OpenGuidePanel(m_Rect_TipsBgImage2, OnGame2Btn, 0);
-                }
-       
+            if (GuideModel.Instance.bReachCondition(0))
+            {
+                bShowGuideAfterIdentityCard = true;
+                IdentityCardCtrl.Instance.OpenIdentityCardPanel();
+            }
+            // if (GuideModel.Instance.bReachCondition(0))
+            // {
+            //     GuideModel.Instance.SetFinish(0);
+            //     MainUICtrl.Instance.OpenGuidePanel(m_Rect_TipsBgImage2, OnGame2Btn, 0);
+            // }
+        }
+        private void OnIdentityCardClosed()
+        {
+            if (bShowGuideAfterIdentityCard)
+            {
+                bShowGuideAfterIdentityCard = false;
+                GuideModel.Instance.SetFinish(0);
+                MainUICtrl.Instance.OpenGuidePanel(m_Rect_TipsBgImage2, OnGame2Btn, 0);
+            }
         }
         #endregion
 

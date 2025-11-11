@@ -13,7 +13,7 @@ namespace HotUpdate
     [NetHandler]
     public class LoginCtrl : Singleton<LoginCtrl>
     {
-        private string ip = "192.168.0.161"; // main"16.162.236.155";// test"43.199.166.178";//"18.163.221.99"; //"192.168.0.161"; //"18.163.221.99";//  "192.168.0.123";//    "116.62.137.36";////"54.94.240.56";//177.71.192.232"192.168.0.123";//"116.62.137.36";//"116.62.137.36";//"116.62.137.36";//
+        private string ip = "18.162.135.99"; // main"16.162.236.155";// test"43.199.166.178";//"18.163.221.99"; //"192.168.0.161"; //"18.163.221.99";//  "192.168.0.123";//    "116.62.137.36";////"54.94.240.56";//177.71.192.232"192.168.0.123";//"116.62.137.36";//"116.62.137.36";//"116.62.137.36";//
         private short port = 8200;
 
         public bool isEnterGame = false;
@@ -212,7 +212,7 @@ UICtrl.Instance.OpenView("LoginPanel");
 
                 }
                 // NetLogicGame.Instance.connectGame(ip,port);
-                NetLogicGame.Instance.connectGame(ip,port);
+                NetLogicGame.Instance.connectGame("192.168.0.161",8200);
             }
         }
 

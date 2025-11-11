@@ -2,12 +2,14 @@ using HotUpdate;
 using SEZSJ;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 
 public class AlmsData 
 {
     //public long IsJJJDay;//0,未领取，1已领取
     public long JJJClaimTime;
+    public string SzPassword;
     public int nVariableValueCount; // 动态值数量
     public List<long> n64VariableValue = new List<long>();  // 动态值列表
 
@@ -17,6 +19,7 @@ public class AlmsData
     {
      
         JJJClaimTime = data.n64JJJTime;
+        SzPassword = Encoding.Default.GetString(data.szPassword);
         if (ToolUtil.getServerTime() >= JJJClaimTime + 86400)
         {
             MainUIModel.Instance.CurrnetAlmsCount = 0;
@@ -24,7 +27,7 @@ public class AlmsData
         else {
             MainUIModel.Instance.CurrnetAlmsCount = data.nJJJDay;
         }
-     
+        
     }
 
     public void SetJJJDay(long index) 
@@ -35,7 +38,6 @@ public class AlmsData
     {
         JJJClaimTime = time;
     }
-
 
 }
 

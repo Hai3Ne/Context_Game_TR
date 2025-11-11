@@ -1101,7 +1101,6 @@ namespace HotUpdate
             {
                 Debug.LogError("认证成功！");
                 ToolUtil.FloattingText("认证成功", MainPanelMgr.Instance.GetPanel("MainUIPanel").gameObject.transform);
-         
             }
             else if (data.m_i1Ret == 2)
             {
@@ -1465,7 +1464,11 @@ namespace HotUpdate
         {
             MainPanelMgr.Instance.Close("AuthenticationPanel");
         }
-
+        
+        public void OpenIdentityCardPanel()
+        {
+            MainPanelMgr.Instance.ShowDialog("IdentityCardPanel");
+        }
 
 
 
