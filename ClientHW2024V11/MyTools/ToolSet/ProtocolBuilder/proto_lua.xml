@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+
+<!-- 
+										协议配置说明
+		1、dir用于指示当前协议消息是上行(C2S)还是下行(S2C)，如果是上行，标记为1；下行标记为2；如果
+		   上下行都用到，标记为3。
+		2、基本数据类型如下：
+			int8/uint8
+			int16/uint16
+			int32/uint32
+			int64/uint64
+			float
+			double
+			string(若指定了大于0的fixed字段，则采取定长存储方法，否则采取通用字符串存储格式：2字节的长度+字符串内容+\0结束)
+			buffer(lua暂时不支持字节流，用uint8数组代替，定长字符串使用string+fixed)
+		3、文件格式需使用UTF8编码
+		4、固定长度数组，使用count="常量"
+		5、变长数组，count域引用指定数组长度的字段
+-->
+
+<lib name="NetMsgData" >
+
+	<struct name="MsgData_cShopping" desc="客户端请求: 商店购物 msgId:3116" dir="1">
+		<entry name="ID" type="int32" desc="商品id" />
+		<entry name="Number" type="int32" desc="购买数量" />
+	</struct>
+	
+	<struct name="MsgData_sShoppingResult" desc="服务端通知: 商品购买返回结果 msgId:8116" dir="2">
+		<entry name="Result" type="int32" desc="0=成功 1=失败" />
+		<entry name="ID" type="int32" desc="商品id" />
+		<entry name="Number" type="int32" desc="购买数量" />
+	</struct>
+	
+	<struct name="MsgData_cQuestGoalInfo" desc="任务目标列表成员信息" dir="1">
+		<entry name="goalId" type="int32" desc="目标id" />
+		<entry name="curCount" type="int32" desc="当前任务计数" />
+	</struct>
+	
+	<struct name="MsgData_cQuestInfo" desc="任务列表成员信息" dir="1">
+		<entry name="id" type="int32" desc="任务id" />
+		<entry name="state" type="int32" desc="任务状态 0未接 1进行中 2可交" />
+		<entry name="flag" type="int32" desc="日环任务时，高16位环数 中8位星级 低8位倍率" />
+		<entry name="goalinfo" type="MsgData_cQuestGoalInfo" desc="任务个数" />
+	</struct>
+
+	<struct name="MsgData_cQueryQuestResult" desc="服务端任务列表反馈 msgid:8059" dir="1">
+		<entry name="number" type="int32" count = "4" desc="4种类型任务完成次数" />
+		<entry name="name" type="string" fixed = "32" desc="名称" />
+		<entry name="questListCount" type="uint32" desc="表成员个数" />
+		<entry name="questList" type="MsgData_cQuestInfo" count = "questListCount"  desc="任务列表" />	
+		<entry name="questListEx" type="MsgData_cQuestInfo" count = "5"  desc="额外任务列表" />	
+	</struct>
+	
+	<struct name="MsgData_sQuestGoalInfo" desc="任务目标列表成员信息" dir="2">
+		<entry name="goalId" type="int32" desc="目标id" />
+		<entry name="curCount" type="int32" desc="当前任务计数" />
+	</struct>
+	
+	<struct name="MsgData_sQuestInfo" desc="任务列表成员信息" dir="2">
+		<entry name="id" type="int32" desc="任务id" />
+		<entry name="state" type="int32" desc="任务状态 0未接 1进行中 2可交" />
+		<entry name="flag" type="int32" desc="日环任务时，高16位环数 中8位星级 低8位倍率" />
+		<entry name="goalinfo" type="MsgData_sQuestGoalInfo" desc="任务个数" />
+	</struct>
+
+	<struct name="MsgData_sQueryQuestResult" desc="服务端任务列表反馈 msgid:8059" dir="2">
+		<entry name="number" type="int32" count = "4" desc="4种类型任务完成次数" />
+		<entry name="name" type="string" fixed = "32" desc="名称" />
+		<entry name="questListCount" type="uint32" desc="表成员个数" />
+		<entry name="questList" type="MsgData_sQuestInfo" count = "questListCount"  desc="任务列表" />	
+		<entry name="questListEx" type="MsgData_sQuestInfo" count = "5"  desc="额外任务列表" />	
+	</struct>
+	
+	
+</lib>

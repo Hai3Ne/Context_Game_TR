@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ExportConfig>
+  <Config>
+    <SourceFolder Value="..\..\..\new1-cehua\Excel(efun版本主干)" />
+	<ExportFolderClientLua Value="Data_export" />
+	<ExportFolderClientYYLua Value="Data_export/YYData" />
+    <ExportFolderClientCSV Value="" />
+    <ExportFolderServerLua Value="Server" />
+    <ExportFolderServerCPP Value="CPP" />
+  </Config>
+  <IgnoreNPOI>
+	<File Name="quest" />
+	<File Name="dailyquest" />
+	<File Name="guild" />
+	<File Name="map" />
+	<File Name="Minimap" />
+	<File Name="shop" />
+	<File Name="equip" />
+	<File Name="monster" />
+	<File Name="quest" />
+	<File Name="functionopen" />
+	<File Name="hero" />
+	<File Name="zhiyuanfb" />
+  </IgnoreNPOI>
+  <YYTables>
+	<File Name="t_activity" />
+  </YYTables>
+</ExportConfig>

@@ -1,0 +1,7 @@
+D:\Client\trunk\GameClient2020\MyTools\ToolSet\ProtocolBuilder\bin\Debug\ProtocolBuilder.exe.config
+D:\Client\trunk\GameClient2020\MyTools\ToolSet\ProtocolBuilder\bin\Debug\ProtocolBuilder.exe
+D:\Client\trunk\GameClient2020\MyTools\ToolSet\ProtocolBuilder\bin\Debug\ProtocolBuilder.pdb
+D:\Client\trunk\GameClient2020\MyTools\ToolSet\ProtocolBuilder\obj\Debug\ProtocolBuilder.csproj.AssemblyReference.cache
+D:\Client\trunk\GameClient2020\MyTools\ToolSet\ProtocolBuilder\obj\Debug\ProtocolBuilder.csproj.CoreCompileInputs.cache
+D:\Client\trunk\GameClient2020\MyTools\ToolSet\ProtocolBuilder\obj\Debug\ProtocolBuilder.exe
+D:\Client\trunk\GameClient2020\MyTools\ToolSet\ProtocolBuilder\obj\Debug\ProtocolBuilder.pdb

@@ -1,0 +1,194 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{7E75FBF0-35C9-44D9-B161-5C46C8720282}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>XuXiang.Tool.ControlLibrary</RootNamespace>
+    <AssemblyName>ControlLibrary</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BooleanInputBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="BooleanInputBox.Designer.cs">
+      <DependentUpon>BooleanInputBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ColorInputBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ColorInputBox.Designer.cs">
+      <DependentUpon>ColorInputBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FileInputBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="FileInputBox.Designer.cs">
+      <DependentUpon>FileInputBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FolderInputBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="FolderInputBox.Designer.cs">
+      <DependentUpon>FolderInputBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ImageView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ImageView.Designer.cs">
+      <DependentUpon>ImageView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="InputBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="InputBox.Designer.cs">
+      <DependentUpon>InputBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NumberInputBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="NumberInputBox.Designer.cs">
+      <DependentUpon>NumberInputBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PointInputBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="PointInputBox.Designer.cs">
+      <DependentUpon>PointInputBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="RectInputBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="RectInputBox.Designer.cs">
+      <DependentUpon>RectInputBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SizeInputBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="SizeInputBox.Designer.cs">
+      <DependentUpon>SizeInputBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ItemInputBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ItemInputBox.Designer.cs">
+      <DependentUpon>ItemInputBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TextInputBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="TextInputBox.Designer.cs">
+      <DependentUpon>TextInputBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TristateTreeView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="TristateTreeView.Designer.cs">
+      <DependentUpon>TristateTreeView.cs</DependentUpon>
+    </Compile>
+    <Service Include="{94E38DFF-614B-4cbd-B67C-F211BB35CE8B}" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="BooleanInputBox.resx">
+      <DependentUpon>BooleanInputBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ColorInputBox.resx">
+      <DependentUpon>ColorInputBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FileInputBox.resx">
+      <DependentUpon>FileInputBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FolderInputBox.resx">
+      <DependentUpon>FolderInputBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ImageView.resx">
+      <DependentUpon>ImageView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="InputBox.resx">
+      <DependentUpon>InputBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NumberInputBox.resx">
+      <DependentUpon>NumberInputBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PointInputBox.resx">
+      <DependentUpon>PointInputBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="RectInputBox.resx">
+      <DependentUpon>RectInputBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SizeInputBox.resx">
+      <DependentUpon>SizeInputBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ItemInputBox.resx">
+      <DependentUpon>ItemInputBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TextInputBox.resx">
+      <DependentUpon>TextInputBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TristateTreeView.resx">
+      <DependentUpon>TristateTreeView.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\check.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\uncheck.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\transparent.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

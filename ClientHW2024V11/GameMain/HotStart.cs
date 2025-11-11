@@ -21,6 +21,7 @@ public class HotStart : MonoBehaviour
 
 
     public Text _pressTxt;
+    public Text _pressPercenTxt;
     public GameObject _pressBg;
     public GameObject _pressImg;
     public Image _press;
@@ -28,7 +29,7 @@ public class HotStart : MonoBehaviour
     public int gameType = 0;
     public Transform _login;
 
-    public int m_urlResVersion = 1001;
+    public int m_urlResVersion = 1000;
     public string m_ip = "";
     public string m_port = "";
     public string m_backstage = "";
@@ -40,7 +41,6 @@ public class HotStart : MonoBehaviour
     private void Awake()
     {
         ins = this;
-        Debug.Log($"start HotStart Awake");
         DontDestroyOnLoad(gameObject);
     }
     public void Start()
@@ -98,7 +98,11 @@ public class HotStart : MonoBehaviour
                 {
                     m_isShow = node["isShowks"].AsInt == 1;
                 }
-            
+                if (getChannle() == 9999)
+                {
+                    m_isShow = true;
+                }
+                //
                 StartCoroutine(loadGame());
             }, true));
 
@@ -189,24 +193,26 @@ public class HotStart : MonoBehaviour
         var obj = UpdateUI.Find("pressBg/pressTxt").gameObject;
         var obj1 = UpdateUI.Find("pressBg/press").gameObject;
         var obj2 = UpdateUI.Find("pressBg/text").gameObject;
+        var objPercent = UpdateUI.Find("pressBg/pressPercentTxt").gameObject;
 
         _pressImg = UpdateUI.Find("pressBg/Image").gameObject;
         Splash.gameObject.SetActive(false);
         _pressTxt = obj.GetComponent<Text>();
+        _pressPercenTxt = objPercent.GetComponent<Text>();
         _press = obj1.GetComponent<Image>();
         _pressTips = obj2.GetComponent<Text>();
         var obj3 = UpdateUI.Find("lab_version").gameObject;
         var txt = obj3.GetComponent<Text>();
         txt.text = "版本: " + resVersion;
-        if (m_urlResVersion > resVersion)
-        {
-            resVersion = m_urlResVersion;
-            StartCoroutine(ResDown());
-        }
-        else
-        {
-            showNext();
-        }
+        // if (m_urlResVersion > resVersion)
+        // {
+        //     resVersion = m_urlResVersion;
+        //     StartCoroutine(ResDown());
+        // }
+        // else
+        // {
+        showNext();
+        // }
     }
 
     public void showNext()
@@ -229,6 +235,8 @@ public class HotStart : MonoBehaviour
         {
             displayProgress += 0.005f;
             _press.fillAmount = Mathf.Min(0.99f, displayProgress);
+            _pressPercenTxt.gameObject.SetActive(displayProgress != 0f);
+            _pressPercenTxt.text = ((displayProgress * 100f) > 100f ? 100f :(displayProgress * 100f)).ToString("F0", CultureInfo.InvariantCulture) + "%";
             if (_pressImg)
                 _pressImg.transform.localPosition = new Vector3(512 * _press.fillAmount - 256, 2, 0);
         }

@@ -1,0 +1,4296 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+
+<lib name="NetMsgData" >
+<!-- 
+										协议配置说明
+		1、dir用于指示当前协议消息是上行(C2S)还是下行(S2C)，如果是上行，标记为1；下行标记为2；如果
+		   上下行都用到，标记为3。
+		2、基本数据类型如下：
+			int8/uint8
+			int16/uint16
+			int32/uint32
+			int64/uint64
+			float
+			double
+			string(采取通用字符串存储格式：2字节的长度+字符串内容+\0结束)
+			buffer，必须指定buffer长度count字段。
+		3、文件格式需使用UTF8编码
+		4、固定长度数组，使用count="常量"
+		5、变长数组，count域引用指定数组长度的字段
+-->
+
+<struct name="MsgData_cHeartBeat" desc= "心跳 msgId:2136;" dir="1">
+	<entry name="Time" type="int64" desc="时间" />
+</struct>
+
+<struct name="MsgData_sHeartBeat" desc= "心跳 msgId:7136;" dir="2">
+	<entry name="Time" type="int64" desc="时间" />
+</struct>
+
+<struct name="MsgData_GMCommand" desc= "GM命令 msgId:23;" dir="1">
+	<entry name="uid" type="uint64" desc="角色guid" />
+	<entry name="length" type="int32" desc="命令长度" />
+	<entry name="command" type="buffer" count="length" desc="命令" />
+</struct>
+
+<struct name="MsgData_cLogin" desc="c->s 登录协议(CL_CONN_SRV) msgId:1001" dir="1">
+	<entry name="Account" type="buffer" count="64" desc="玩家帐号"/>	
+	<entry name="Platform" type="buffer" count="32" desc="平台"/>
+	<entry name="GameName" type="buffer" count="32" desc="游戏名字" />
+	<entry name="ServerID" type="uint32" desc="区服ID" />
+	<entry name="ClientTime" type="uint32" desc="客户端时间" />
+	<entry name="IsAdult" type="uint32" desc="防沉迷标记" />
+	<entry name="Exts" type="buffer" count="64" desc="扩展信息"/>
+	<entry name="Sign" type="buffer" count="64" desc="签名信息"/>
+	<entry name="Mac" type="buffer" count="32" desc="本地mac地址"/>
+	<entry name="Version" type="buffer" count="33" desc="协议版本号"/>
+	<entry name="Channel" type="buffer" count="64" desc="渠道标识"/>
+</struct>
+
+<struct name="MsgData_sLogin" desc="S->C 登录返回 msgId:6001(LC_CONN_RESP)" dir="2">
+	<entry name="ResultCode" type="int32" desc="返回：0:OK -1:Create Role -2:时间戳错误 -3:签名不匹配 -4:封停 -5:协议不一致 -6:MAC封禁"/>
+	<entry name="TxCode" type="int32" desc="如果是TX接口失败,返回TX的错误码" />
+	<entry name="Account" type="buffer" count="64" desc="玩家帐号" />
+	<entry name="GUID" type="int64" desc="guid" />
+	<entry name="ForbbidenTime" type="int32" desc="封禁时间" />	
+	<entry name="ServerTime" type="int32" desc="服务器时间" />	
+	<entry name="Exts" type="buffer" count="64" desc="扩展信息" />
+	<entry name="ServerID" type="uint32" desc="区服ID" />
+	<entry name="AccountGUID" type="int64" desc="帐号guid" />
+	<entry name="RoleCount" type="int8" desc="角色个数" />
+</struct>
+
+<struct name="MsgData_sLoginRole" desc="登录时返回的角色概要信息" dir="2">
+	<entry name="ID" type="int64" desc="角色ID" />	
+	<entry name="Name" type="buffer" count="32" desc="角色名字" />
+	<entry name="MapID" type="int32" desc="地图ID" />
+	<entry name="Job" type="int32" desc="角色职业" />
+	<entry name="Level" type="int32" desc="角色等级" />
+	<entry name="FightPoint" type="int32" desc="战斗力" />
+	<entry name="VipLevel" type="int32" desc="Vip等级" />
+	<entry name="Weapon" type="int32" desc="武器" />
+	<entry name="MagicWeapon" type="int32" desc="神兵" />
+	<entry name="Dress" type="int32" desc="衣服" />
+	<entry name="FashionHead" type="int32" desc="时装头" />
+	<entry name="FashionWeapon" type="int32" desc="时装武器" />
+	<entry name="FashionDress" type="int32" desc="时装衣服" />	
+	<entry name="Wing" type="int32" desc="翅膀" />
+	<entry name="LastLoginTime" type="int64" desc="最近登录时间" />
+	<entry name="ForbbidenTime" type="int32" desc="封禁结束时间" />
+</struct>
+
+<struct name="MsgData_sRoleInfo" desc="返回登录角色信息 msgId:6003" dir="2">
+	<entry name="SelectIndex" type="int8" desc="选中的角色索引" />
+	<entry name="RoleCount" type="int8" desc="角色个数" />
+	<entry name="Roles" type="MsgData_sLoginRole" count="RoleCount" desc="角色数组" />
+</struct>
+
+<struct name="MsgData_cCreateRole" desc="c->s 创建角色(CL_CREATE_ROLE_REQ msgId:1002)" dir="1">
+	<entry name="RoleName" type="buffer" count="32" desc="角色名字"/>
+	<entry name="Job" type="int32" desc="角色职业" />
+	<entry name="Icon" type="int32" desc="角色ICON" />
+	<entry name="Channel" type="buffer" count="32" desc="渠道"/>
+	<entry name="Exts" type="buffer" count="64" desc="扩展信息"/>
+	<entry name="AccountGUID" type="int64" desc="帐号guid" />
+	<entry name="CurrentRoleID" type="int64" desc="当前选中的角色guid，没有则填0" />
+</struct>
+
+<struct name="MsgData_sCreateRole" desc="s->c 创建角色(LC_CREATE_ROLE_RESP msgId:6002)" dir="2">	
+	<entry name="Result" type="int32" desc="结果,0成功,-1名字冲突,-2名字不合法 -3其他Error" />
+	<entry name="Job" type="int32" desc="角色职业" />
+	<entry name="ID" type="int64" desc="角色ID"/>
+	<entry name="Name" type="buffer" count="32" desc="角色名"/>
+	<entry name="Externsion" type="int64" desc="扩展ID，客户端无用"/>
+</struct>
+
+<struct name="MsgData_cEnterGame" desc="c->s 请求进入游戏(CW_ENTER_GAME msgId:2001)" dir="1">
+	<entry name="Account" type="buffer" count="64" desc="玩家ID"/>
+	<entry name="IP" type="buffer" count="32" desc="Client IP"/>
+	<entry name="MAC" type="buffer" count="32" desc="物理地址"/>
+	<entry name="OpenKey" type="buffer" count="64" desc="Open Key"/>
+	<entry name="Channel" type="buffer" count="64" desc="渠道"/>
+	<entry name="Exts" type="buffer" count="64" desc="扩展信息"/>
+	<entry name="ServerID" type="int32" desc="服务器ID" />
+	<entry name="LoginType" type="int32" desc="登录类型:0web,1微端" />
+	<entry name="ActivityID" type="int32" desc="活动ID" />
+	<entry name="PID" type="int32" desc="pid" />
+	<entry name="SelectedRole" type="int64" desc="选中的角色guid" />
+	<entry name="AccountGUID" type="int64" desc="角色帐号guid" />
+</struct>
+
+<struct name="MsgData_sEnterGame" desc="s->c 进入游戏返回(WC_ENTER_GAME msgId:7001)" dir="2">
+	<entry name="ResultCode" type="int32" desc="失败原因 1:服务器未启动 2:玩家已在线" />
+</struct>
+
+<struct name="MsgData_sMeInfo" desc="s->c 主角接收自己的信息(SC_SCENE_SHOW_ME_INFO msgId:8002)" dir="2">
+	<entry name="RoleID" type="int64" desc="角色ID" />
+	<entry name="RoleName" type="buffer" count="32" desc="角色名字"/>
+	<entry name="Gender" type="int8" desc="性别" />
+	<entry name="Job" type="int32" desc="职业" />
+	<entry name="Icon" type="int32" desc="头像" />
+	<entry name="Dress" type="int32" desc="衣服" />
+	<entry name="Weapon" type="int32" desc="武器" />
+	<entry name="FashionWing" type="int32" desc="时装翅膀(原时装头)" />
+	<entry name="FashionWeapon" type="int32" desc="时装武器" />
+	<entry name="FashionDress" type="int32" desc="时装衣服" />
+	<entry name="WuHun" type="int32" desc="武魂" />
+	<entry name="FaBao" type="int32" desc="法宝" />
+	<entry name="ShenBing" type="int32" desc="神兵" />
+	<entry name="ZhenYing" type="int8" desc="阵营" />
+	<entry name="JingJie" type="int32" desc="境界0无" />
+	<entry name="Pets" type="int32" desc="萌宠" />
+	<entry name="Wing" type="int32" desc="翅膀" />
+	<entry name="PiFengLevel" type="int32" desc="披风使用等级" />
+	<entry name="SuitFlag" type="int32" desc="套装标识" />
+	<entry name="Footprints" type="int32" desc="脚印" />
+	<entry name="LoryLevel" type="int32" desc="修为等级" />
+	<entry name="MilitaryRank" type="int8" desc="军衔ID" />
+	<entry name="FabaoQuality" type="int32" desc="法宝品质" />
+	<entry name="GuanZhi" type="int32" desc="官职" />
+	<entry name="BaoJiaLevel" type="int32" desc="宝甲等级" />
+	<entry name="TianGangLevel" type="int32" desc="天罡等级" />
+	<entry name="ZhanNuLevel" type="int32" desc="战弩等级" />
+	<entry name="MingLunLevel" type="int32" desc="命轮等级" />
+	<entry name="HunQiLevel" type="int32" desc="魂器等级" />
+	<entry name="ShengQiLevel" type="int32" desc="圣器等级" />
+	<entry name="FaBaoAwake" type="int32" desc="法宝觉醒" />
+	<entry name="TransferID" type="int32" desc="转职ID" />
+	<entry name="ZhenFaID" type="int32" desc="阵法ID" />
+	<entry name="ShenWuID" type="int8" desc="神武ID" />
+	<entry name="FeiShengLevel" type="int32" desc="飞升等级" />
+	<entry name="QiLinBiLevel" type="int32" desc="麒麟臂等级" />
+	<entry name="JianYuLevel" type="int32" desc="剑域等级" />
+	<entry name="FashionState" type="int32" desc="是否隐藏时装 0显示 1隐藏" />
+</struct>
+
+<struct name="MsgData_sEnterScene" desc="s->c 通知玩家进入场景(SC_SCENE_ENTER_GAME msgId:8001)" dir="2">
+	<entry name="Result" type="int32" desc="结果" />
+	<entry name="LineID" type="int32" desc="线" />
+	<entry name="PosX" type="double" desc="X坐标" />
+	<entry name="PosY" type="double" desc="Y坐标" />
+	<entry name="Dir" type="double" desc="方向" />
+	<entry name="MapID" type="int32" desc="地图ID" />
+	<entry name="FubenID" type="int32" desc="地图ID" />
+	<entry name="EnterType" type="int8" desc="0:登录游戏 1:切换场景" />
+	<entry name="ServerTime" type="int64" desc="开服时间,时间戳,秒" />
+	<entry name="MegerServerTime" type="int64" desc="合服时间,时间戳,秒" />
+</struct>
+
+<struct name="MsgData_cMainPlayerEnterScene" desc="c->s 主角进入场景(CS_SCENE_ENTER_SCENE msgId:3003)" dir="1">
+	<entry name="InitGame" type="int32" desc="默认0，取值1为切换地图状态" />
+</struct>
+
+<struct name="MsgData_sMainPlayerEnterScene" desc="s->c 主角进入场景(SC_SCENE_ENTER_SCENE_RET msgId:8003)" dir="2">
+	
+</struct>
+
+<struct name="MsgData_cLogout" desc="登出协议(msgId:1903)" dir="1">
+	<entry name="AccountGUID" type="int64" desc="账号GUID" />
+</struct>
+
+<struct name="MsgData_cLeaveGame" desc="离开游戏协议(msgId:2906)" dir="1">
+</struct>
+
+<struct name="MsgData_sLeaveGame" desc="服务器返回离开游戏(msgId:7906)" dir="2">
+</struct>
+
+<struct name="MsgData_cReconnect" desc="重连协议(msgId:1902)" dir="1">
+	<entry name="Account" type="buffer" count="64" desc="账号GUID" />
+	<entry name="Cookie" type="buffer" count="64" desc="cookie"/>
+	<entry name="Status" type="int8" desc="0 表示 在选角色状态， 1 表示在游戏场景中 ,2表示在跨服场景中"/>
+	<entry name="ServerID" type="int32" desc="server id"/>
+</struct>
+
+<struct name="MsgData_sReconnect" desc="返回重连协议(msgId:6006)" dir="2">
+	<entry name="Result" type="uint8" desc="成功返回0 ，cookie认证失败返回1, 连接失败返回2"/>
+</struct>
+
+<struct name="MsgData_sCookieUpdate" desc="Cookie更新Cookie协议(msgId:6005)" dir="2">
+	<entry name="ExpiredTime" type="uint32" desc="linux timtstamp"/>
+	<entry name="Cookie" type="buffer" count="64" desc="cookie"/>
+</struct>
+
+<struct name="MsgData_cMoveTo" desc="c->s 主角请求移动(CS_SCENE_MOVE_TO msgId:3004)" dir="1">
+	<entry name="SrcX" type="int32" desc="源X" />
+	<entry name="SrcY" type="int32" desc="源Y" />
+	<entry name="DestX" type="int32" desc="目的X" />
+	<entry name="DestY" type="int32" desc="目的Y" />
+</struct>
+
+<struct name="MsgData_sOtherMoveTo" desc="s->c 收到其他玩家移动通知(SC_SCENE_OBJ_MOVE_TO_NOTIFY msgId:8007)" dir="2">
+	<entry name="RoleID" type="int64" desc="角色ID" />
+	<entry name="ObjType" type="int8" desc="类型" />
+	<entry name="SrcX" type="int32" desc="源X" />
+	<entry name="SrcY" type="int32" desc="源Y" />
+	<entry name="DestX" type="int32" desc="目的X" />
+	<entry name="DestY" type="int32" desc="目的Y" />
+</struct>
+
+<struct name="MsgData_cChangeDir" desc="c->s 客户端主动去请求转向(CS_REQ_CHANGE_DIR msgId:3036)" dir="1">
+	<entry name="Dir" type="double" desc="朝向" />
+</struct>
+
+<struct name="MsgData_sOtherChangeDir" desc="s->c 广播给玩家，有人修改朝向(SC_CHAR_CHANGE_DIR msgId:8036)" dir="2">
+	<entry name="GUID" type="int64" desc="角色ID" />
+	<entry name="ObjType" type="int8" desc="类型" />
+	<entry name="Dir" type="double" desc="朝向" />
+</struct>
+
+<struct name="MsgData_cMoveStop" desc="c->s 主角请求停止移动(CS_SCENE_MOVE_STOP msgId:3006)" dir="1">
+	<entry name="StopX" type="int32" desc="停止位置X" />
+	<entry name="StopY" type="int32" desc="停止位置Y" />
+	<entry name="Dir" type="int32" desc="朝向" />
+</struct>
+
+<struct name="MsgData_sOtherMoveStop" desc="s->c 广播收到其他玩家/怪物停止移动(SC_SCENE_OBJ_MOVE_STOP_NOTIFY msgId:8008)" dir="2">
+	<entry name="RoleID" type="int64" desc="角色ID" />
+	<entry name="ObjType" type="int8" desc="类型" />
+	<entry name="StopX" type="int32" desc="停止位置X" />
+	<entry name="StopY" type="int32" desc="停止位置Y" />
+	<entry name="Dir" type="int32" desc="朝向" />
+</struct>
+
+<struct name="MsgData_sMonsterMoveTo" desc="s->c 收到其他怪物移动通知(SC_SCENE_MONSTER_MOVE_TO_NOTIFY msgId:8551)" dir="2">
+	<entry name="RoleID" type="int64" desc="角色ID" />
+	<entry name="DestX" type="int32" desc="目的X" />
+	<entry name="DestY" type="int32" desc="目的Y" />
+</struct>
+
+<struct name="MsgData_cCastMagic" desc="客户端请求: 主角施放技能 msgId:3050" dir="1">
+	<entry name="SkillID" type="int32" desc="技能ID" />
+	<entry name="TargetID" type="int64" desc="目标ID" />
+	<entry name="PosX" type="double" desc="如果是位置施法，坐标X" />
+	<entry name="PosY" type="double" desc="如果是位置施法，坐标Y" />
+	<entry name="SelfPosX" type="float" desc="自身坐标X" />
+	<entry name="SelfPosY" type="float" desc="自身坐标Y" />
+	<entry name="Dir" type="float" desc="自身方向" />
+	<entry name="TargetCount" type="int8" desc="多目标时的目标个数" />
+	<entry name="TargetList" type="int64" count="TargetCount" desc="目标id列表" />
+</struct>
+
+<struct name="MsgData_sCastMagic" desc="服务端通知: 释放技能返回结果 msgId:8099" dir="2">
+	<entry name="SkillID" type="int32" desc="技能ID" />
+	<entry name="ResultCode" type="int32" desc="释放技能返回结果 0:成功 -1:目标或坐标不对 -2:技能不存在 -3:CD -10:目标不存在 -11:消耗检查 -21 目标状态不对 -31/32/33:距离不对 -61施法者状态不对" />	>
+</struct>
+
+<struct name="MsgData_cInterruptCast" desc="客户端请求: 主角打断施法 msgId:3056" dir="1">
+	<entry name="SkillID" type="int32" desc="技能ID" />	
+</struct>
+
+<struct name="MsgData_sCooldown" desc="服务端通知: 法术冷却信息 msgId:8058" dir="2">
+	<entry name="CasterID" type="int64" desc="施法者ID" />
+	<entry name="SkillID" type="int32" desc="技能ID" />
+	<entry name="CD" type="int32" desc="冷却时间" />
+	<entry name="GroupID" type="int32" desc="技能CD组" />
+	<entry name="GroupCD" type="int32" desc="技能CD组时间" />
+</struct>
+
+<struct name="MsgData_sCastBegan" desc="服务端通知: 普通施法开始（全屏广播） msgId:8050" dir="2">
+	<entry name="CasterID" type="int64" desc="施法者ID" />
+	<entry name="SkillID" type="int32" desc="技能ID" />
+	<entry name="TargetID" type="int64" desc="目标ID" />
+	<entry name="PosX" type="int32" desc="如果是位置施法，坐标X" />
+	<entry name="PosY" type="int32" desc="如果是位置施法，坐标Y" />
+	<entry name="CasterPosX" type="int32" desc="施法者坐标X" />
+	<entry name="CasterPosY" type="int32" desc="施法者坐标Y" />
+</struct>
+
+<struct name="MsgData_sCastEnd" desc="服务端通知: 普通施法结束（全屏广播） msgId:8051" dir="2">
+	<entry name="CasterID" type="int64" desc="施法者ID" />
+	<entry name="SkillID" type="int32" desc="技能ID" />
+</struct>	
+
+<struct name="MsgData_sCastPrepBegan" desc="服务端通知: 施法蓄力开始（全屏广播） msgId:8052" dir="2">
+	<entry name="CasterID" type="int64" desc="施法者ID" />
+	<entry name="SkillID" type="int32" desc="技能ID" />
+	<entry name="PrepTime" type="int32" desc="蓄力持续时间（毫秒）" />
+	<entry name="TargetID" type="int64" desc="目标ID" />
+	<entry name="PosX" type="double" desc="如果是位置施法，坐标X" />
+	<entry name="PosY" type="double" desc="如果是位置施法，坐标Y" />
+</struct>
+
+<struct name="MsgData_sCastPrepEnd" desc="服务端通知: 蓄力施法结束（全屏广播） msgId:8053" dir="2">
+	<entry name="CasterID" type="int64" desc="施法者ID" />
+	<entry name="SkillID" type="int32" desc="技能ID" />
+	<entry name="IsEnd" type="int8" desc="0:中断 1:蓄力满" />
+</struct>
+
+<struct name="MsgData_sCastChanBegan" desc="服务端通知: 施法引导结束（全屏广播） msgId:8054" dir="2">
+	<entry name="CasterID" type="int64" desc="施法者ID" />
+	<entry name="SkillID" type="int32" desc="技能ID" />
+	<entry name="TargetID" type="int64" desc="目标ID" />
+	<entry name="PosX" type="double" desc="如果是位置施法，坐标X" />
+	<entry name="PosY" type="double" desc="如果是位置施法，坐标Y" />
+</struct>
+
+<struct name="MsgData_sCastChanEnd" desc="服务端通知: 普通施法结束（全屏广播） msgId:8055" dir="2">
+	<entry name="CasterID" type="int64" desc="施法者ID" />
+	<entry name="SkillID" type="int32" desc="技能ID" />
+</struct>	
+
+
+<struct name="MsgData_sInterruptCast" desc="服务端通知: 施法中断通知（全屏广播） msgId:8056;" dir="2">
+	<entry name="CasterID" type="int64" desc="施法者ID" />
+	<entry name="SkillID" type="int32" desc="技能ID" />
+</struct>	
+ 
+<struct name="MsgData_sCastEffect" desc="服务端通知: 施法效果结算（全屏广播） msgId:8057" dir="2">
+	<entry name="CasterID" type="int64" desc="施法者ID" />
+	<entry name="SkillID" type="int32" desc="技能ID" />
+	<entry name="EffectID" type="int32" desc="效果ID" />
+	<entry name="TargetID" type="int64" desc="目标ID" />
+	<entry name="Flags" type="int32" desc="目标标记" />
+	<entry name="DamagaType" type="int32" desc="伤害类型" />
+	<entry name="Damage" type="double" desc="目标伤害值" />
+</struct>
+
+<struct name="MsgData_sKnockBack" desc="服务端通知:击退 msgId:8081" dir="2">
+	<entry name="CasterID" type="int64" desc="施法者ID" />
+	<entry name="TargetID" type="int64" desc="目标ID" />
+	<entry name="MotionSpeed" type="int32" desc="速度" />
+	<entry name="MotionTime" type="int32" desc="动作持续时间" />
+	<entry name="PosX" type="double" desc="如果是位置施法，坐标X" />
+	<entry name="PosY" type="double" desc="如果是位置施法，坐标Y" />
+</struct>
+
+<struct name="MsgData_sAddBuffer" desc="服务端通知:增加BUFF msgId:8082" dir="2">	
+	<entry name="TargetID" type="int64" desc="目标ID" />
+	<entry name="BufferInstanceID" type="int64" desc="Buffer实例ID" />
+	<entry name="BufferTemplateID" type="int32" desc="Buffer配置ID" />
+	<entry name="Life" type="int32" desc="Buffer持续时间" />
+	<entry name="Param" type="int32" desc="Buffer附带参数" />	
+	<entry name="CasterID" type="int64" desc="施法者ID" />
+</struct>
+
+<struct name="MsgData_sUpdateBuffer" desc="服务端通知:更新BUFF msgId:8083" dir="2">		
+	<entry name="BufferInstanceID" type="int64" desc="Buffer实例ID" />	
+	<entry name="Life" type="int32" desc="Buffer持续时间" />
+	<entry name="Count" type="int32" desc="Buffer叠加层数" />	
+	<entry name="Param" type="int32" count="3" desc="Buffer参数" />	
+</struct>
+
+<struct name="MsgData_sDelBuffer" desc="服务端通知:删除BUFF msgId:8084" dir="2">		
+	<entry name="BufferInstanceID" type="int64" desc="Buffer实例ID" />	
+	<entry name="TargetID" type="int64" desc="目标ID" />
+	<entry name="BufferTemplateID" type="int32" desc="Buffer配置ID" />
+</struct>
+
+<struct name="MsgData_sStateChanged" desc="服务端通知:状态位改变 msgId:8085" dir="2">
+	<entry name="RoleID" type="int64" desc="角色id" />
+	<entry name="State" type="int8" desc="状态位" />
+	<entry name="IsSet" type="int8" desc="0表示False,1表示是set状态" />
+</struct>
+
+<struct name="MsgData_sPlayerShowChanged" desc="服务端通知:场景中玩家形象改变 msgId:8027" dir="2">
+	<entry name="RoleID" type="int64" desc="角色id" />
+	<entry name="Type" type="int32" desc="类型:1Face,2Hair 参照EModelChange" />
+	<entry name="Value" type="int32" desc="值" />
+</struct>
+
+<struct name="MsgData_sComboBegan" desc="服务端通知: 连击持续时间开始（全屏广播） msgId:8086" dir="2">
+	<entry name="CasterID" type="int64" desc="施法者ID" />
+	<entry name="SkillID" type="int32" desc="技能ID" />
+	<entry name="ComboTime" type="int32" desc="连击持续时间" />
+	<entry name="TargetID" type="int64" desc="目标ID" />
+</struct>
+
+<struct name="MsgData_sComboEnded" desc="服务端通知: 连击持续时间结束（全屏广播） msgId:8087" dir="2">
+	<entry name="CasterID" type="int64" desc="施法者ID" />
+	<entry name="SkillID" type="int32" desc="技能ID" />
+</struct>
+
+<struct name="MsgData_sBuffer" desc="地图Buffer" dir="2">
+	<entry name="BufferInstanceID" type="int64" desc="Buffer实例ID" />
+	<entry name="BufferTemplateID" type="int32" desc="Buffer模板ID" />
+	<entry name="Life" type="int32" desc="Buffer持续时间" />
+</struct>
+
+<struct name="MsgData_sAddBufferList" desc="服务端通知:增加BUFF列表 msgId:8364" dir="2">
+	<entry name="TargetID" type="int64" desc="目标ID" />	
+	<entry name="BufferCount" type="uint32" desc="Buffer个数" />
+	<entry name="BufferList" type="MsgData_sBuffer" count="BufferCount" desc="Buffer列表" />
+</struct>
+
+<struct name="MsgData_sSceneObjectEnterNotify" desc="Object进入场景 msgId:8012" dir="2">
+	<entry name="DataSize" type="uint32" desc="消息数据长度" />
+	<entry name="Data" type="buffer" count="DataSize" desc="消息数据" />
+</struct>
+
+<struct name="MsgData_sSceneObjectLeaveNotify" desc="Object离开场景 msgid:8013" dir="2">
+	<entry name="ObjectID" type="uint64" desc="OBJECT ID" />
+	<entry name="ObjectType" type="int8" desc="OBJECT类型" />
+</struct>
+
+<struct name="MsgData_sClientAttr" desc="属性内容" dir="2">
+	<entry name="AttrType" type="int8" desc="属性类型" />
+	<entry name="AttrValue" type="double" desc="属性值" />
+</struct>
+
+<struct name="MsgData_sRoleAttrInfoNotify" desc="角色属性改变 msgid:8011" dir="2">
+	<entry name="RoleID" type="int64" desc="角色ID" />
+	<entry name="ObjectType" type="int8" desc="OBJECT类型" />
+	<entry name="AttrCount" type="uint32" desc="属性个数" />
+	<entry name="AttrList" type="MsgData_sClientAttr" count="AttrCount" desc="属性列表" />
+</struct>
+
+<struct name="MsgData_sModleFightChange" desc="服务端通知:返回模块战斗力变化 msgid:9936" dir="2">
+	<entry name="ModleType" type="int32" desc="战斗力类型" />
+	<entry name="Value" type="int64" desc="改变后的值" />
+</struct>
+
+<struct name="MsgData_sFeatureRide" desc="特色坐骑信息" dir="2">
+	<entry name="RideID" type="int32" desc="坐骑编号" />
+	<entry name="Time" type="int64" desc="坐骑限时" />
+</struct>
+
+<struct name="MsgData_sRideInfo" desc="初始化坐骑信息 msgid:8117" dir="2">
+	<entry name="Stage" type="int32" desc="坐骑阶位" />
+	<entry name="StarProgress" type="int32" desc="星级进度" />
+	<entry name="PillNum" type="int32" desc="属性丹数量" />
+	<entry name="PillNumPercent" type="int32" desc="资质丹数量" />
+	<entry name="RideID" type="int32" desc="当前坐骑ID" />
+	<entry name="RideState" type="int32" desc="骑乘状态 0下马 1上马" />
+	<entry name="UpLevelNum" type="int32" desc="疲劳值 PS:好奇怪的字段" />
+	<entry name="FeatureRideCount" type="uint32" desc="特色坐骑数" />
+	<entry name="FeatureRideList" type="MsgData_sFeatureRide" count="FeatureRideCount" desc="特色坐骑列表" />
+</struct>
+
+<struct name="MsgData_cChangeRideState" desc="客户端请求：更改乘骑状态 msgid:3122" dir="1">
+	<entry name="RideState" type="int32" desc="乘骑状态" />
+</struct>
+
+<struct name="MsgData_sChangeRideState" desc="回复更改乘骑状态 msgid:8122" dir="2">
+	<entry name="RideState" type="int32" desc="乘骑状态" />
+</struct>
+
+<struct name="MsgData_cUseAttrDan" desc="客户端请求：使用属性丹 msgId:3120" dir="1">
+	<entry name="Type" type="int32" desc="属性丹类型 E_AttrDanType" />
+</struct>
+
+<struct name="MsgData_sUseAttrDan" desc="服务器通知：返回使用属性丹 msgId:8120" dir="2">
+	<entry name="Type" type="int32" desc="属性丹类型 E_AttrDanType" />
+	<entry name="Result" type="int32" desc="使用结果 0=成功 -1=未开启 -2达到上限 -3数量不足" />
+	<entry name="PillNumber" type="int32" desc="属性丹数量" />
+</struct>
+
+<struct name="MsgData_cRideLvlUp" desc="客户端请求：坐骑进阶 msgId:3118" dir="1">
+	<entry name="Type" type="int32" desc="消耗类型 0进阶石 1灵力" />
+	<entry name="AutoBuy" type="int32" desc="0 自动购买道具,1 不自动购买" />
+</struct>
+
+<struct name="MsgData_sRideLvlUpInfo" desc="服务器通知：返回坐骑进阶进度 msgId:8118" dir="2">
+	<entry name="Result" type="int32" desc="0=成功 -1=未开启 -2最大等级 -3金币不足 -4进阶石不足 -5元宝不足 -6材料不足" />
+	<entry name="RideLevel" type="int32" desc="坐骑阶位" />
+	<entry name="StarProgress" type="int32" desc="星级进度" />
+	<entry name="UpType" type="int32" desc="1 普通成长,2 双倍成长" />
+	<entry name="UpLevelNum" type="int32" desc="疲劳值" />
+</struct>
+
+<struct name="MsgData_cChangeRide" desc="客户端请求：更改坐骑 msgId:3121" dir="1">
+	<entry name="ID" type="int32" desc="坐骑id" />
+</struct>
+
+<struct name="MsgData_sChangeRideId" desc="服务器通知：返回更改坐骑 msgId:8121" dir="2">
+	<entry name="ID" type="int32" desc="坐骑id" />
+	<entry name="State" type="int32" desc="骑乘状态,0下马,1上马" />
+</struct>
+
+<struct name="MsgData_cZhiYuanFb" desc="客户端请求：请求UI信息 msgId:3759" dir="1">
+</struct>
+
+<struct name="MsgData_cZhiYuanFbChallenge" desc="客户端请求：请求挑战 msgId:3760" dir="1">
+	<entry name="ID" type="int32" desc="副本ID" />
+</struct>
+
+<struct name="MsgData_cZhiYuanFbRequestReward" desc="客户端请求：领取宝箱 msgId:3761" dir="1">
+	<entry name="ID" type="int32" desc="副本ID" />
+</struct>
+
+<struct name="MsgData_cZhiYuanFbQuit" desc="客户端请求：请求退出 msgId:3762" dir="1">
+</struct>
+
+<struct name="MsgData_cZhiYuanFbWipe" desc="客户端请求：请求扫荡 msgId:3764" dir="1">
+	<entry name="ID" type="int32" desc="副本ID" />
+	<entry name="Num" type="int32" desc="扫荡次数" />
+</struct>
+
+<struct name="MsgData_cZhiYuanFbVigor" desc="客户端请求：请求购买精力 msgId:3765" dir="1">
+</struct>
+
+<struct name="MsgData_cZhiYuanFbBoxReward" desc="客户端请求：请求领取宝箱奖励 msgId:3766" dir="1">
+	<entry name="ID" type="int32" desc="宝箱ID" />
+</struct>
+
+<struct name="MsgData_cZhiYuanFbImmediately" desc="客户端请求：请求一键扫荡 msgId:3769" dir="1">
+</struct>
+
+<struct name="MsgData_sVeilvo" desc="章节信息" dir="2">
+	<entry name="RewardState" type="int32" desc="宝箱状态: 0未领取 1已领取" />
+</struct>
+
+<struct name="MsgData_sStagevo" desc="副本信息" dir="2">
+	<entry name="Num" type="int32" desc="剩余挑战次数" />
+	<entry name="ID" type="int32" desc="ID" />
+	<entry name="State" type="int32" desc="0 没扫荡 1在扫荡" />
+	<entry name="TimeNum" type="int64" desc="扫荡剩余时间0 待领取倒计时" />
+	<entry name="MaxNum" type="int32" desc="总次数" />
+	<entry name="Evaluate" type="int32" desc="评价1-3星" />
+	<entry name="RewardType" type="int32" desc="0:未开启1：可领取2：已领取" />
+</struct>
+
+<struct name="MsgData_sZhiYuanFbData" desc="服务器通知：返回UI信息 msgId:8759" dir="2">
+	<entry name="EnterNumList" type="int8" count="128" desc="可挑战次数" />
+	<entry name="VeilList" type="MsgData_sVeilvo" count="11" desc="章节list" />	
+	<entry name="StageListCount" type="uint32" desc="副本信息数量" />
+	<entry name="StageList" type="MsgData_sStagevo" count="StageListCount" desc="副本信息列表" />
+</struct>
+
+<struct name="MsgData_sZhiYuanFbUpDate" desc="服务器通知：刷新 msgId:8760" dir="2">
+	<entry name="Num" type="int32" desc="剩余挑战次数" />	
+	<entry name="State" type="int32" desc="0 没扫荡 1在扫荡" />
+	<entry name="TimeNum" type="int64" desc="扫荡剩余时间0 待领取倒计时" />
+	<entry name="ID" type="int32" desc="ID" />
+	<entry name="RewardType" type="int32" desc="0:未开启1：可领取2：已领取" />
+</struct>
+
+<struct name="MsgData_sBackZhiYuanFbChallenge" desc="服务器通知：返回挑战 msgId:8761" dir="2">
+	<entry name="Result" type="int32" desc="进入结果返回: 0失败 1成功" />	
+	<entry name="ID" type="int32" desc="挑战编号" />
+</struct>
+
+<struct name="MsgData_sBackZhiYuanFbQuit" desc="服务器通知：返回退出 msgId:8762" dir="2">
+	<entry name="Result" type="int32" desc="退出结果返回: 0失败 1成功" />	
+</struct>
+
+<struct name="MsgData_sBackZhiYuanFbInfo" desc="服务器通知：返回追踪信息 msgId:8763" dir="2">
+	<entry name="Num" type="int32" desc="待定~~" />	
+</struct>
+
+<struct name="MsgData_sBackZhiYuanFbWipe" desc="服务器通知：返回扫荡 msgId:8764" dir="2">
+	<entry name="Result" type="int32" desc="扫荡结果返回: 0失败 1成功" />	
+	<entry name="ID" type="int32" desc="扫荡编号" />
+	<entry name="Num" type="int32" desc="返回扫荡次数" />
+</struct>
+
+<struct name="MsgData_sBackZhiYuanFbVigor" desc="服务器通知：返回购买精力 msgId:8765" dir="2">
+	<entry name="Result" type="int32" desc="购买结果返回: 0失败 1成功" />	
+</struct>
+
+<struct name="MsgData_sBackZhiYuanFbBoxReward" desc="服务器通知：返回领取宝箱奖励 msgId:8766" dir="2">
+	<entry name="Result" type="int32" desc="领取结果返回: 0失败 1成功" />
+	<entry name="ID" type="int32" desc="领取编号" />
+</struct>
+
+<struct name="MsgData_sBackZhiYuanFbEnd" desc="服务器通知：返回通关 msgId:8767" dir="2">
+	<entry name="Level" type="int32" desc="评定" />
+	<entry name="Result" type="int32" desc="结果返回: 0失败 1成功" />	
+</struct>
+
+<struct name="MsgData_sBackZhiYuanFbMopupEnd" desc="服务器通知：返回扫荡结束 msgId:8768" dir="2">
+	<entry name="ID" type="int32" desc="扫荡完成的ID" />
+	<entry name="Result" type="int32" desc="扫荡结果" />
+	<entry name="Num" type="int32" desc="扫荡次数" />
+</struct>
+
+<struct name="MsgData_sZhiYuanFbFirstChallenge" desc="服务器通知：返回挑战首通结果 msgId:8769" dir="2">
+	<entry name="ID" type="int32" desc="挑战ID" />
+</struct>
+
+<struct name="MsgData_cSetPKRule" desc="客户端请求：发送定义的PK规则 msgId:3172" dir="1">
+	<entry name="ID" type="int32" desc="PK规则" />
+	<entry name="SelfPK" type="int32" desc="自己定义的PK规则" />
+</struct>
+
+<struct name="MsgData_sSetPKRule" desc="服务器通知：返回定义的PK规则 msgId:8172" dir="2">
+	<entry name="ID" type="int32" desc="PK规则" />
+	<entry name="SelfPK" type="int32" desc="自己定义的PK规则" />
+	<entry name="State" type="int32" desc="当前PK的状态" />
+</struct>
+
+<!-- 组队 begin -->
+
+<struct name="MsgData_cTeamInfo" desc="客户端请求：请求队伍信息,不在队伍中不返回 msgId:2007" dir="1">
+	<entry name="TeamID" type="int64" desc="队伍id" />
+</struct>
+
+<struct name="MsgData_sTeamRole" desc="队伍成员信息" dir="2">
+	<entry name="RoleID" type="int64" desc="角色ID" />
+	<entry name="RoleName"  type="buffer" count="32"  desc="角色名字"/>
+	<entry name="Line" type="int32" desc="分线" />
+	<entry name="MapID" type="int32" desc="地图" />
+	<entry name="Prof" type="int32" desc="职业" />
+	<entry name="Level" type="int32" desc="等级" />
+	<entry name="HP" type="int32" desc="当前血量" />
+	<entry name="MaxHP" type="int32" desc="血量上限" />
+	<entry name="Mp" type="int32" desc="当前法力" />
+	<entry name="MaxMP" type="int32" desc="法力上限" />
+	<entry name="Power" type="int64" desc="战斗力" />
+	<entry name="GuildName"  type="buffer" count="32"  desc="帮会名"/>
+	<entry name="TeamPos" type="int8" desc="职位,0成员,1队长" />
+	<entry name="Online" type="int8" desc="在线状态" />	
+	<entry name="Icon" type="int32" desc="玩家头像" />
+	<entry name="Arms" type="int32" desc="武器" />
+	<entry name="Dress" type="int32" desc="衣服" />
+	<entry name="FashionsHead" type="int32" desc="时装头" />	
+	<entry name="FashionsArms" type="int32" desc="时装武器" />
+	<entry name="FashionsDress" type="int32" desc="时装衣服" />	
+	<entry name="WuhunID" type="int32" desc="武魂id" />
+	<entry name="Wing" type="int32" desc="翅膀" />	
+	<entry name="SuitFlag" type="int32" desc="套装标识" />
+	<entry name="MagicWeapon" type="int32" desc="神兵ID" />
+	<entry name="VIPLevel" type="int32" desc="VIP等级" />
+	<entry name="RoomType" type="int32" desc="准备状态" />
+</struct>
+
+<struct name="MsgData_sTeamInfo" desc="服务器通知：返回队伍信息(登录时推一次) msgId:7007" dir="2">
+	<entry name="TeamID" type="int64" desc="队伍id" />
+	<entry name="RoleListCount" type="uint32" desc="队伍成员数量" />
+	<entry name="RoleList" type="MsgData_sTeamRole" count="RoleListCount" desc="队伍成员列表" />
+</struct>
+
+<struct name="MsgData_cTeamCreate" desc="客户端请求：请求创建队伍(结果走公告聊天) msgId:2008" dir="1">
+	<entry name="TargetRoleID" type="int64" desc="被邀请人,没有直接创建队伍,有创建队伍并邀请" />
+	<entry name="targetID" type="int32" desc="组队目标ID。默认填0" />
+</struct>
+
+<struct name="MsgData_cTeamApply" desc="客户端请求：申请入队(结果走公告聊天) msgId:2009" dir="1">
+	<entry name="TeamID" type="int64" desc="队伍id" />
+</struct>
+
+<struct name="MsgData_cTeamInvite" desc="客户端请求：邀请入队(结果走公告聊天) msgId:2010" dir="1">
+	<entry name="TargetRoleID" type="int64" desc="被邀请人" />
+	<entry name="Type" type="int32" desc="邀请类型 0:正常组队 1:魔域深渊" />
+</struct>
+
+<struct name="MsgData_cTeamQuit" desc="客户端请求：请求退出队伍(结果走公告聊天) msgId:2011" dir="1">
+</struct>
+
+<struct name="MsgData_sTeamRoleExit" desc="服务器通知：广播,有人退出队伍 msgId:7016" dir="2">
+	<entry name="RoleID" type="int64" desc="角色ID" />
+</struct>
+
+<struct name="MsgData_cTeamTransfer" desc="客户端请求：请求转让队长(结果走公告聊天) msgId:2012" dir="1">
+	<entry name="TargetRoleID" type="int64" desc="转让目标" />
+</struct>
+
+<struct name="MsgData_cTeamFire" desc="客户端请求：请求开除(结果走公告聊天) msgId:2013" dir="1">
+	<entry name="TargetRoleID" type="int64" desc="开除目标" />
+</struct>
+
+<struct name="MsgData_cTeamJoinApprove" desc="客户端请求：入队审批 msgId:2017" dir="1">
+	<entry name="TargetRoleID" type="int64" desc="目标" />
+	<entry name="Operate" type="int32" desc="1同意0拒绝" />
+</struct>
+
+<struct name="MsgData_sTeamJoinRequest" desc="服务器通知：入队请求(仅队长) msgId:7017" dir="2">
+	<entry name="RoleID" type="int64" desc="角色ID" />
+	<entry name="RoleName"  type="buffer" count="32"  desc="角色名字"/>
+	<entry name="Power" type="int32" desc="战力" />
+	<entry name="Level" type="int32" desc="等级" />
+	<entry name="Prof" type="int32" desc="职业" />
+</struct>
+
+<struct name="MsgData_cTeamInviteApprove" desc="客户端请求：入队邀请反馈 msgId:2018" dir="1">
+	<entry name="TeamID" type="int64" desc="队伍id" />
+	<entry name="Operate" type="int32" desc="1同意0拒绝" />
+	<entry name="Type" type="int32" desc="邀请类型 0:正常组队 1:魔域深渊" />
+</struct>
+
+<struct name="MsgData_sTeamInviteRequest" desc="服务器通知：入队邀请 msgId:7018" dir="2">
+	<entry name="TeamID" type="int64" desc="队伍id" />
+	<entry name="LeaderName"  type="buffer" count="32"  desc="队长名字"/>
+	<entry name="Type" type="int32" desc="邀请类型 0:正常组队 1:魔域深渊" />
+</struct>
+
+<struct name="MsgData_cTeamSetting" desc="客户端请求：组队设置 msgId:2019" dir="1">
+	<entry name="AutoTeam" type="int32" desc="自己,自动组队1, 需询问0" />
+	<entry name="AutoAgreeEnter" type="int32" desc="队长,自动同意进入队伍1, 需询问0" />
+</struct>
+
+<struct name="MsgData_cTeamNearbyTeam" desc="客户端请求：请求附近队伍 msgId:2020" dir="1">
+</struct>
+
+<struct name="MsgData_sTeamCase" desc="队伍情况" dir="2">
+	<entry name="TeamID" type="int64" desc="队伍ID" />
+	<entry name="LeaderName"  type="buffer" count="32"  desc="队长名字"/>
+	<entry name="MaxRoleLevel" type="int32" desc="最高等级" />
+	<entry name="AverageRoleLevel" type="int32" desc="平均等级" />
+	<entry name="MaxRolePower" type="int64" desc="最高战斗力" />
+	<entry name="AverageRolePower" type="int64" desc="平均战斗力" />
+	<entry name="RoleNum" type="int32" desc="成员数量" />
+</struct>
+
+<struct name="MsgData_sTeamNearbyTeam" desc="服务器通知：返回附近队伍 msgId:7020" dir="2">
+	<entry name="TeamListCount" type="uint32" desc="队伍数量" />
+	<entry name="TeamList" type="MsgData_sTeamCase" count="TeamListCount" desc="队伍列表" />
+</struct>
+
+<struct name="MsgData_cTeamNearbyRole" desc="客户端请求：请求附近玩家 msgId:2021" dir="1">
+</struct>
+
+<struct name="MsgData_sTeamNearbyRoleInfo" desc="附加玩家信息" dir="2">
+	<entry name="RoleID" type="int64" desc="角色ID" />
+	<entry name="RoleName"  type="buffer" count="32"  desc="角色名字"/>
+	<entry name="Level" type="int32" desc="等级" />
+	<entry name="Prof" type="int32" desc="职业" />	
+	<entry name="TeamState" type="int32" desc="组队状态 0未组队,1已组队" />
+	<entry name="GuildName" type="buffer" count="32" desc="公会名称"/>
+	<entry name="GuildPos" type="int32" desc="公会职位" />
+	<entry name="Power" type="int32" desc="战斗力" />
+</struct>
+
+<struct name="MsgData_sTeamNearbyRole" desc="服务器通知：返回附近玩家 msgId:7021" dir="2">
+	<entry name="RoleListCount" type="uint32" desc="玩家数量" />
+	<entry name="RoleList" type="MsgData_sTeamNearbyRoleInfo" count="RoleListCount" desc="玩家列表" />
+</struct>
+
+<struct name="MsgData_sTeamRoleJoin" desc="服务器通知：广播,有人进入队伍 msgId:7014" dir="2">
+	<entry name="TeamID" type="int64" desc="队伍id" />
+	<entry name="RoleID" type="int64" desc="角色ID" />
+	<entry name="RoleName"  type="buffer" count="32"  desc="角色名字"/>
+	<entry name="Line" type="int32" desc="分线" />
+	<entry name="MapID" type="int32" desc="地图" />
+	<entry name="Prof" type="int32" desc="职业" />
+	<entry name="Level" type="int32" desc="等级" />
+	<entry name="HP" type="int32" desc="当前血量" />
+	<entry name="MaxHP" type="int32" desc="血量上限" />
+	<entry name="Mp" type="int32" desc="当前法力" />
+	<entry name="MaxMP" type="int32" desc="法力上限" />
+	<entry name="Power" type="int64" desc="战斗力" />
+	<entry name="GuildName"  type="buffer" count="32"  desc="帮会名,无帮会则发空字符串"/>
+	<entry name="TeamPos" type="int8" desc="职位,0成员,1队长" />
+	<entry name="Online" type="int8" desc="在线状态1:在线, 0:不在线" />	
+	<entry name="Icon" type="int32" desc="玩家头像" />
+	<entry name="Arms" type="int32" desc="武器" />
+	<entry name="Dress" type="int32" desc="衣服" />
+	<entry name="FashionsHead" type="int32" desc="时装头" />	
+	<entry name="FashionsArms" type="int32" desc="时装武器" />
+	<entry name="FashionsDress" type="int32" desc="时装衣服" />	
+	<entry name="WuhunID" type="int32" desc="武魂id" />
+	<entry name="Wing" type="int32" desc="翅膀" />	
+	<entry name="SuitFlag" type="int32" desc="套装标识" />
+	<entry name="MagicWeapon" type="int32" desc="神兵ID" />
+	<entry name="VIPLevel" type="int32" desc="VIP等级" />
+	<entry name="RoomType" type="int32" desc="准备状态" />
+</struct>
+
+<struct name="MsgData_sTeamRoleUpdate" desc="服务器通知：广播,队伍成员信息变化 msgId:7015" dir="2">
+	<entry name="RoleID" type="int64" desc="角色ID" />
+	<entry name="RoleName"  type="buffer" count="32"  desc="角色名字"/>
+	<entry name="Line" type="int32" desc="分线" />
+	<entry name="MapID" type="int32" desc="地图" />
+	<entry name="Prof" type="int32" desc="职业" />
+	<entry name="Level" type="int32" desc="等级" />
+	<entry name="GuildName"  type="buffer" count="32"  desc="帮会名,无帮会则发空字符串"/>
+	<entry name="TeamPos" type="int8" desc="职位,0成员,1队长" />
+	<entry name="Online" type="int8" desc="在线状态1:在线, 0:不在线" />	
+	<entry name="Icon" type="int32" desc="玩家头像" />
+	<entry name="Arms" type="int32" desc="武器" />
+	<entry name="Dress" type="int32" desc="衣服" />
+	<entry name="FashionsHead" type="int32" desc="时装头" />	
+	<entry name="FashionsArms" type="int32" desc="时装武器" />
+	<entry name="FashionsDress" type="int32" desc="时装衣服" />	
+	<entry name="WuhunID" type="int32" desc="武魂id" />
+	<entry name="Wing" type="int32" desc="翅膀" />	
+	<entry name="SuitFlag" type="int32" desc="套装标识" />
+	<entry name="MagicWeapon" type="int32" desc="神兵ID" />
+	<entry name="VIPLevel" type="int32" desc="VIP等级" />
+	<entry name="RoomType" type="int32" desc="准备状态" />
+</struct>
+
+<struct name="MsgData_sTeamRoleUpdateInfo" desc="服务器通知：广播,队伍成员(hp, mp)更新 msgId:7025" dir="2">
+	<entry name="RoleID" type="int64" desc="角色ID" />
+	<entry name="HP" type="int32" desc="当前血量" />
+	<entry name="MaxHP" type="int32" desc="血量上限" />
+	<entry name="Mp" type="int32" desc="当前法力" />
+	<entry name="MaxMP" type="int32" desc="法力上限" />
+	<entry name="Power" type="int64" desc="战斗力" />
+</struct>
+
+<struct name="MsgData_cReplyTeamDungeon" desc="客户端请求：队员回复是否同意加入组队副本 msgId:2037" dir="1">
+	<entry name="Reply" type="int32" desc="答复结果:1同意，0拒绝" />
+</struct>
+
+<struct name="MsgData_sDungeonTeamStatus" desc="附加玩家信息" dir="2">
+	<entry name="RoleID" type="int64" desc="角色ID" />
+	<entry name="Status" type="int32" desc="玩家状态 0:已同意，1:等待确认中，2:已拒绝" />
+</struct>
+
+<struct name="MsgData_sTeamDungeonUpdate" desc="服务器通知：更新组队副本确认的队员列表 msgId:7037" dir="2">
+	<entry name="DungeonId" type="int32" desc="副本ID" />
+	<entry name="Line" type="int32" desc="队长所在线" />
+	<entry name="RoleListCount" type="uint32" desc="玩家数量" />
+	<entry name="RoleList" type="MsgData_sDungeonTeamStatus" count="RoleListCount" desc="玩家列表" />
+</struct>
+
+<struct name="MsgData_cEnterDulpPrepare" desc="客户端请求：返回请求进入组队活动状态 msgId:2246" dir="1">
+	<entry name="Prepare" type="int32" desc="准备状态 0 true 1 false" />
+	<entry name="Type" type="int32" desc="邀请类型 0:正常组队 1:魔域深渊  2:奇遇 3:公会组队" />
+</struct>
+
+<struct name="MsgData_sUpdateTeamPreparte" desc="服务器通知：广播,队伍成员信息变化 msgId:7248" dir="2">
+	<entry name="RoleID" type="int64" desc="角色ID" />
+	<entry name="RoomType" type="int32" desc="准备状态 0 true 1 false" />
+	<entry name="Type" type="int32" desc="邀请类型 0:正常组队 1:魔域深渊  2:奇遇 3:公会组队" />
+</struct>
+
+<struct name="MsgData_cTeamSecreZhaoMu" desc="客户端请求：请求发布招募 msgId:2247" dir="1">
+</struct>
+
+<struct name="MsgData_cTargetTeamList" desc="客户端请求：目标队伍列表 msgId:2911" dir="1">
+	<entry name="TargetID" type="int32" desc="目标id" />
+</struct>
+
+<struct name="MsgData_sTargetTeamInfo" desc="服务器通知：目标队伍信息" dir="2">
+	<entry name="TeamID" type="int64" desc="队伍ID" />
+	<entry name="LeaderName"  type="buffer" count="32"  desc="队长名字"/>
+	<entry name="LeaderProf" type="int32" desc="队长职业" />
+	<entry name="TargetID" type="int32" desc="目标ID" />
+	<entry name="AverageLevel" type="int32" desc="平均等级" />
+	<entry name="AveragePower" type="int64" desc="平均战斗力" />
+	<entry name="RoleNum" type="int32" desc="成员数量" />
+</struct>
+
+<struct name="MsgData_sTargetTeamList" desc="服务器通知：目标队伍列表 msgId:7908" dir="2">
+	<entry name="TeamListCount" type="uint32" desc="队伍数量" />
+	<entry name="TeamList" type="MsgData_sTargetTeamInfo" count="TeamListCount" desc="队伍列表" />
+</struct>
+
+<struct name="MsgData_cSetAutoTeam" desc="客户端请求：设置自动组队标志 msgId:2912" dir="1">
+</struct>
+
+<struct name="MsgData_cAutoTeam" desc="客户端请求：自动匹配队伍 msgId:2913" dir="1">
+</struct>
+
+<struct name="MsgData_sAutoTeamSetting" desc="服务器通知：自动组队设置 msgId:7910" dir="2">
+	<entry name="Setting" type="int32" desc="自动组队状态" />
+</struct>
+
+<!-- 组队 end -->
+
+<!-- 好友 begin -->
+
+<struct name="MsgData_cAskRecommendList" desc="服务器通知：请求推荐好友列表 msgId：2030" dir="1">
+</struct>
+
+<struct name="MsgData_cFindFriend" desc="服务器通知：查找好友 msgId：2025" dir="1">
+	<entry name="RoleName"  type="buffer" count="32"  desc="角色名字"/>
+</struct>
+
+<struct name="MsgData_cAddFriendVO" desc="添加推荐好友信息" dir="1">
+	<entry name="RoleID" type="int64" desc="角色ID" />	
+</struct>
+
+<struct name="MsgData_cAddFriendRecommend" desc="服务器通知：添加推荐好友 msgId：2029" dir="1">
+	<entry name="AddFriendCount" type="uint32" desc="玩家数量" />
+	<entry name="AddFriendList" type="MsgData_cAddFriendVO" count="AddFriendCount" desc="玩家列表" />
+</struct>
+
+<struct name="MsgData_cFriendApproveVO" desc="目标添加好友反馈信息" dir="1">
+	<entry name="Agree" type="int32" desc="0-同意， 1-不同意" />
+	<entry name="RoleID" type="int64" desc="角色ID" />	
+</struct>
+
+<struct name="MsgData_cFriendApproveList" desc="服务器通知：目标添加好友反馈 msgId：2026" dir="1">
+	<entry name="ApproveCount" type="uint32" desc="玩家数量" />
+	<entry name="ApproveList" type="MsgData_cFriendApproveVO" count="ApproveCount" desc="玩家列表" />
+</struct>
+
+<struct name="MsgData_cAddBlackList" desc="客户端请求：添加到黑名单 msgId：2027" dir="1">
+	<entry name="RoleID" type="int64" desc="角色ID" />
+</struct>
+
+<struct name="MsgData_cRemoveRelation" desc="客户端请求：删除关系 msgId：2028" dir="1">
+	<entry name="RoleID" type="int64" desc="角色ID" />	
+	<entry name="RelationType" type="int32" desc="关系类型 好友1，仇人2，黑名单3，最近联系人4" />
+</struct>
+
+<struct name="MsgData_cRelationChangeList" desc="客户端请求：请求关系改变列表 msgId：2031" dir="1">
+</struct>
+
+<struct name="MsgData_cFriendRewardGet" desc="客户端请求：请求领取好友礼包 msgId：2146" dir="1">
+</struct>
+
+<struct name="MsgData_sFriendRecommendVO" desc="推荐好友信息" dir="2">
+	<entry name="RoleID" type="int64" desc="角色ID" />	
+	<entry name="RoleName"  type="buffer" count="32"  desc="角色名字"/>
+	<entry name="Level" type="int32" desc="等级" />
+	<entry name="Icon" type="int32" desc="头像" />	
+	<entry name="VIPLevel" type="int32" desc="VIP等级" />
+</struct>
+
+<struct name="MsgData_sFriendRecommendList" desc="服务器通知：返回推荐好友列表 msgId：7030" dir="2">
+	<entry name="RoleCount" type="uint32" desc="玩家数量" />
+	<entry name="RoleList" type="MsgData_sFriendRecommendVO" count="RoleCount" desc="玩家列表" />
+</struct>
+
+<struct name="MsgData_sFindFriendTarget" desc="服务器通知：查找好友请求返回 msgId：7027" dir="2">
+	<entry name="RoleID" type="int64" desc="角色ID" />	
+	<entry name="RoleName"  type="buffer" count="32"  desc="角色名字"/>
+	<entry name="Level" type="int32" desc="等级" />
+</struct>
+
+<struct name="MsgData_sRelationOnLineStatus" desc="服务器通知：更新在线状态 msgId：7031" dir="2">
+	<entry name="RoleID" type="int64" desc="角色ID" />
+	<entry name="LastLoginTime" type="int64" desc="0在线 不为0表示最后登录时间" />
+</struct>
+
+<struct name="MsgData_sFriendReward" desc="服务器通知：返回可领取好友礼包 msgId：7145" dir="2">
+	<entry name="RoleID" type="int64" desc="角色ID" />	
+	<entry name="RoleName"  type="buffer" count="32"  desc="角色名字"/>
+	<entry name="Level" type="int32" desc="等级" />
+</struct>
+
+<struct name="MsgData_sFriendRewardGet" desc="服务器通知：返回领取好友礼包 msgId：7146" dir="2">
+	<entry name="Result" type="int32" desc="结果：0成功" />
+</struct>
+
+<struct name="MsgData_sRemoveRelationVO" desc="移除玩家信息" dir="2">
+	<entry name="RoleID" type="int64" desc="角色ID" />
+	<entry name="RelationType" type="int8" desc="关系类型 好友1，仇人2，黑名单3，最近联系人4" />
+</struct>
+
+<struct name="MsgData_sRemoveRelation" desc="服务器通知：删除关系返回 msgId:7029" dir="2">
+	<entry name="RemoveCount" type="uint32" desc="玩家数量" />
+	<entry name="RemoveList" type="MsgData_sRemoveRelationVO" count="RemoveCount" desc="玩家列表" />
+</struct>
+
+<struct name="MsgData_sRelationVO" desc="玩家关系信息" dir="2">
+	<entry name="RoleID" type="int64" desc="角色ID" />
+	<entry name="Prof" type="int32" desc="职业" />
+	<entry name="RelationFlag" type="int8" desc="关系标识" />
+	<entry name="RoleName"  type="buffer" count="32"  desc="角色名字"/>	
+	<entry name="RelationDegree" type="int32" desc="亲密度" />
+	<entry name="BeKillNum" type="int32" desc="被杀次数" />
+	<entry name="Level" type="int32" desc="等级" />
+	<entry name="Icon" type="int32" desc="头像" />	
+	<entry name="VIPLevel" type="int32" desc="VIP等级" />
+	<entry name="OnlineStatus" type="int64" desc="在线状态 0不在线 1在线 2三天未登录" />
+	<entry name="TeamID" type="int64" desc="队伍ID" />
+	<entry name="GuildID" type="int64" desc="公会ID" />
+	<entry name="GuildPos" type="int8" desc="公会职务" />	
+	<entry name="RecentTime" type="int64" desc="最近联系时间" />
+	<entry name="KillTime" type="int64" desc="击杀时间" />
+	<entry name="Power" type="int64" desc="战斗力" />
+	<entry name="GloryLevel" type="int32" desc="修为等级" />
+	<entry name="TXHFlag" type="int32" desc="黄钻标识" />
+	<entry name="TXBFlag" type="int32" desc="蓝钻标识" />
+	<entry name="GuildName"  type="buffer" count="32"  desc="公会名字"/>	
+	<entry name="MapID" type="int32" desc="当前地图" />
+</struct>
+
+<struct name="MsgData_sRelationList" desc="服务器通知：关系列表 msgId:7028" dir="2">
+	<entry name="RelationCount" type="uint32" desc="玩家数量" />
+	<entry name="RelationList" type="MsgData_sRelationVO" count="RelationCount" desc="玩家列表" />
+</struct>
+
+<struct name="MsgData_sAddFriendApply" desc="服务器通知：添加好友申请 msgId:7332" dir="2">
+	<entry name="RoleID" type="int64" desc="角色ID" />	
+	<entry name="RoleName"  type="buffer" count="32"  desc="角色名字"/>
+	<entry name="Level" type="int32" desc="等级" />
+</struct>
+
+<!-- 好友 end -->
+
+<!-- 玩家详情 end -->
+
+<struct name="MsgData_cOtherHumanInfo" desc="客户端请求：查看其他人信息 msgId:3217" dir="1">
+	<entry name="RoleID" type="int64" desc="角色ID" />
+	<entry name="Type" type="int32" desc="查看类型 1:基本信息 2:详细信息 4:坐骑 8:武魂 16:装备宝石 32:卓越孔信息 64:身上道具 128:灵阵 256:神兵" />
+</struct>
+
+<struct name="MsgData_sOtherHumanInfoRet" desc="服务器通知：查看其他人信息结果 msgId:8217" dir="2">
+	<entry name="Result" type="int32" desc="结果: 0成功 1失败" />
+</struct>
+
+<struct name="MsgData_sShenwuSkill" desc="服务器通知：神武技能数据" dir="2">
+	<entry name="SkillID" type="int32" desc="神武技能id" />
+</struct>
+
+<struct name="MsgData_sOtherHumanItemEquipSuperVO" desc="服务器通知：物品装备信息卓越属性列表" dir="2">
+	<entry name="UID" type="int64" desc="属性uid" />
+	<entry name="ID" type="int32" desc="卓越id" />
+	<entry name="Val" type="int32" desc="值1" />
+</struct>
+
+<struct name="MsgData_sOtherHumanItemEquipNewSuperVO" desc="服务器通知：物品装备信息新卓越属性列表" dir="2">
+	<entry name="ID" type="int32" desc="新卓越id" />
+	<entry name="Wash" type="int32" desc="洗练值" />
+</struct>
+
+<struct name="MsgData_sOtherHumanItemEquipVO" desc="服务器通知：物品装备信息" dir="2">
+	<entry name="TID" type="int32" desc="装备tid" />
+	<entry name="Bind" type="int8" desc="0 未绑定，1 已绑定" />
+	<entry name="StrenLevel" type="int32" desc="强化等级" />
+	<entry name="StrenVal" type="int32" desc="强化值" />
+	<entry name="RefinLevel" type="int32" desc="炼化等级" />
+	<entry name="AttrAddLevel" type="int32" desc="追加属性等级" />
+	<entry name="GroupId" type="int32" desc="套装id" />
+	<entry name="GroupId2" type="int32" desc="套装id2" />
+	<entry name="GroupLevel" type="int32" desc="套装等级" />
+	<entry name="SuperNum" type="int32" desc="卓越数量" />
+	<entry name="GodLevel" type="int32" desc="神化等级" />
+	<entry name="BlessLevel" type="int32" desc="神偌等级" />
+	<entry name="SuperList"  type="MsgData_sOtherHumanItemEquipSuperVO" count="7"  desc="卓越属性列表"/>
+	<entry name="NewSuperList"  type="MsgData_sOtherHumanItemEquipNewSuperVO" count="6"  desc="新卓越属性列表"/>
+</struct>
+
+<struct name="MsgData_sOtherHumanBSInfoRet" desc="服务器通知：返回他人信息 msgId:8218" dir="2">
+	<entry name="ServerType" type="int32" desc="是否全服排行信息 1=是 其余都不是" />
+	<entry name="Type" type="int32" desc="1== 详细信息，2 == 排行榜详细信息" />
+	<entry name="RoleID" type="int64" desc="角色ID" />
+	<entry name="RoleName"  type="buffer" count="32"  desc="角色名字"/>
+	<entry name="Prof" type="int32" desc="职业" />
+	<entry name="Level" type="int32" desc="等级" />
+	<entry name="HP" type="int32" desc="当前血量" />	
+	<entry name="MaxHP" type="int32" desc="血量上限" />	
+	<entry name="MP" type="int32" desc="当前法力" />	
+	<entry name="MaxMP" type="int32" desc="法力上限" />	
+	<entry name="Power" type="int64" desc="战力" />
+	<entry name="GuildName"  type="buffer" count="32"  desc="公会名字"/>
+	<entry name="GuildPos" type="int32" desc="公会职业" />
+	<entry name="VIPLevel" type="int32" desc="VIP等级" />
+	<entry name="Sex" type="int8" desc="性别" />
+	<entry name="Dress" type="int32" desc="衣服" />
+	<entry name="Weapon" type="int32" desc="武器" />
+	<entry name="ShenBing" type="int32" desc="神兵" />
+	<entry name="FashionWing" type="int32" desc="时装翅膀" />
+	<entry name="FashionWeapon" type="int32" desc="时装武器" />
+	<entry name="FashionDress" type="int32" desc="时装衣服" />
+	<entry name="MountState" type="int32" desc="0未开启状态，1已开启状态" />
+	<entry name="WuhunState" type="int32" desc="0未开启状态，1已开启状态" />
+	<entry name="WuhunId" type="int32" desc="武魂id" />
+	<entry name="Wing" type="int32" desc="翅膀" />
+	<entry name="PifengLevel" type="int32" desc="披风使用等级" />
+	<entry name="SuitFlag" type="int32" desc="套装标识" />
+	<entry name="GuanZhi" type="int32" desc="官职" />
+	<entry name="Att" type="int32" desc="攻击" />
+	<entry name="Def" type="int32" desc="防御" />
+	<entry name="Hit" type="int32" desc="命中" />
+	<entry name="Crit" type="int32" desc="暴击" />
+	<entry name="Dodge" type="int32" desc="闪避" />
+	<entry name="DefCri" type="int32" desc="韧性" />
+	<entry name="AttSpeed" type="int32" desc="攻击速度" />
+	<entry name="MoveSpeed" type="int32" desc="移动速度" />
+	<entry name="HL" type="int32" desc="魂力" />
+	<entry name="TP" type="int32" desc="体魄" />
+	<entry name="SF" type="int32" desc="身法" />
+	<entry name="JS" type="int32" desc="精神" />
+	<entry name="LoveName"  type="buffer" count="32"  desc="配偶名字"/>
+	<entry name="BaoJiaLevel" type="int32" desc="宝甲等级" />
+	<entry name="TianGangLevel" type="int32" desc="天罡等级" />
+	<entry name="ZhanNuLevel" type="int32" desc="战弩等级" />
+	<entry name="MingLunLevel" type="int32" desc="命轮等级" />
+	<entry name="HunQiLevel" type="int32" desc="魂器等级" />
+	<entry name="ShengQiLevel" type="int32" desc="圣器等级" />
+	<entry name="ReincarnateType" type="int32" desc="0没有专职，1=1转" />
+	<entry name="Shenwu" type="int32" desc="神武等级 * 10000 + 神武星级" />
+	<entry name="Shenwuext" type="int32" desc="神武淬炼等级 * 10000 + 神武神武淬炼星级" />
+	<entry name="QilinbiLevel" type="int32" desc="麒麟臂等级" />
+	<entry name="JianyuLevel" type="int32" desc="剑域等级" />
+	<entry name="ShenwuSkills"  type="MsgData_sShenwuSkill" count="3"  desc="神武技能"/>
+	<entry name="ItemEquipCount" type="uint32" desc="装备物品数量" />
+	<entry name="ItemEquipList" type="MsgData_sOtherHumanItemEquipVO" count="ItemEquipCount" desc="装备物品列表" />
+</struct>
+
+<struct name="MsgData_sOtherHumanXXInfoRet" desc="服务器通知：返回其他人详细信息 msgId:8219" dir="2">
+	<entry name="RoleID" type="int64" desc="角色ID" />
+	<entry name="Dodge" type="int32" desc="闪避" />
+	<entry name="DefCri" type="int32" desc="韧性" />
+	<entry name="CriValue" type="int32" desc="爆伤*1000" />
+	<entry name="SubCri" type="int32" desc="免爆*1000" />
+	<entry name="AbsAtt" type="int32" desc="真实伤害" />
+	<entry name="Parry" type="int32" desc="格挡率*1000" />
+	<entry name="ParryValue" type="int32" desc="格挡值" />
+	<entry name="AddDamage" type="int32" desc="伤害增强*1000" />
+	<entry name="SubDamage" type="int32" desc="伤害减免*1000" />
+	<entry name="PKValue" type="int32" desc="pk值" />
+	<entry name="PKHonor" type="int32" desc="荣誉" />
+	<entry name="KillValue" type="int32" desc="杀戮值" />	
+	<entry name="SubDef" type="int32" desc="破防刺穿" />
+	<entry name="Super" type="double" desc="卓越一击几率" />
+	<entry name="SuperValue" type="double" desc="卓越一击伤害" />
+	<entry name="DefSuper" type="double" desc="抗卓越一击几率" />
+	<entry name="DefSuperValue" type="double" desc="抗卓越一击伤害" />
+	<entry name="Vertigo" type="double" desc="眩晕" />
+	<entry name="DefVertigo" type="double" desc="抗眩晕" />
+	<entry name="ShenWei" type="double" desc="神威" />
+</struct>
+
+<struct name="MsgData_sOtherMountItemEquipVO" desc="服务器通知：返回其他人坐骑装备信息" dir="2">
+	<entry name="ID" type="int32" desc="装备tid" />
+	<entry name="GroupID" type="int32" desc="套装id" />
+	<entry name="PillNum" type="int8" desc="0 未绑定，1 已绑定" />
+</struct>
+
+<struct name="MsgData_sOtherMountSkillVO" desc="服务器通知：返回其他人坐骑技能信息" dir="2">
+	<entry name="ID" type="int32" desc="技能编号" />
+	<entry name="Level" type="int32" desc="等级" />
+</struct>
+
+<struct name="MsgData_sOtherMountAttrVO" desc="服务器通知：返回其他人坐骑属性信息" dir="2">
+	<entry name="Type" type="int32" desc="属性" />
+	<entry name="ValX" type="double" desc="属性百分比" />
+</struct>
+
+<struct name="MsgData_sOtherMountInfoRet" desc="服务器通知：返回其他人坐骑信息 msgId:8220" dir="2">
+	<entry name="Type" type="int32" desc="1== 详细信息，2 == 排行榜详细信息" />
+	<entry name="RoleID" type="int64" desc="角色ID" />
+	<entry name="RideLevel" type="int32" desc="坐骑阶位" />
+	<entry name="StarProgress" type="int32" desc="星级进度" />
+	<entry name="RideSelect" type="int32" desc="选中坐骑" />
+	<entry name="PillNum" type="int32" desc="属性丹数量" />
+	<entry name="EquipList"  type="MsgData_sOtherMountItemEquipVO" count="4"  desc="坐骑装备"/>
+	<entry name="SkillList"  type="MsgData_sOtherMountSkillVO" count="6"  desc="坐骑装备"/>
+	<entry name="FightPower" type="double" desc="战斗力" />
+	<entry name="AttrCount" type="uint32" desc="属性数量" />
+	<entry name="AttrList" type="MsgData_sOtherMountAttrVO" count="AttrCount" desc="属性列表" />
+</struct>
+
+<struct name="MsgData_sOtherBodyToolVO" desc="服务器通知：返回其他人道具信息" dir="2">
+	<entry name="Wing" type="int32" desc="翅膀itemid" />
+	<entry name="WingState" type="int32" desc="绑定状态" />
+	<entry name="Val1" type="int32" desc="翅膀时代表过期时间" />
+	<entry name="Val2" type="int32" desc="翅膀时代表是否特殊属性" />
+</struct>
+
+<struct name="MsgData_sOtherBodyTool" desc="服务器通知：返回身上道具信息 msgId:8452" dir="2">
+	<entry name="ServerType" type="int32" desc="是否全服排行信息 1=是 其余都不是" />
+	<entry name="Type" type="int32" desc="1== 详细信息，2 == 排行榜详细信息" />
+	<entry name="RoleID" type="int64" desc="角色ID" />
+	<entry name="FightPower" type="double" desc="战斗力" />
+	<entry name="BodyToolCount" type="uint32" desc="属性数量" />
+	<entry name="BodyToolList" type="MsgData_sOtherBodyToolVO" count="BodyToolCount" desc="属性列表" />
+</struct>
+
+<!-- 玩家详情 end -->
+
+
+<!-- 公会 begin -->
+
+<struct name="MsgData_cQueryGuildList" desc="请求公会列表 msgId:2038" dir="1">
+	<entry name="Page" type="int32" desc="页数" />
+	<entry name="PageSize" type="int32" desc="每页数量" />
+	<entry name="OnlyAutoAgree" type="int32" desc="1 - 仅显示自动同意, 0 - 都显示" />
+</struct>
+
+<struct name="MsgData_cQueryMyGuildInfo" desc="请求自己公会信息 msgId:2039" dir="1">
+</struct>
+
+<struct name="MsgData_cQueryMyGuildMems" desc="请求自己公会成员列表 msgId:2040" dir="1">
+</struct>
+
+<struct name="MsgData_cQueryMyGuildEvent" desc="请求自己公会事件 msgId:2041" dir="1">
+</struct>
+
+<struct name="MsgData_cCreateGuild" desc="请求创建公会 msgId:2042" dir="1">
+	<entry name="Name" type="buffer" count="32" desc="公会名称" />
+	<entry name="Notice" type="buffer" count="128" desc="公会公告" />
+</struct>
+
+<struct name="MsgData_cQuitGuild" desc="退出公会 msgId:2043" dir="1">
+</struct>
+
+<struct name="MsgData_cDismissGuild" desc="解散公会 msgId:2044" dir="1">
+</struct>
+
+<struct name="MsgData_cLvUpGuild" desc="升级公会 msgId:2045" dir="1">
+</struct>
+
+<struct name="MsgData_cLvUpGuildSkill" desc="开启某组公会技能 msgId:2046" dir="1">
+	<entry name="GroupId" type="int32" desc="技能ID组" />
+</struct>
+
+<struct name="MsgData_cChangeGuildPos" desc="改变职位 msgId:2047" dir="1">
+	<entry name="MemGid" type="int64" desc="玩家ID" />
+	<entry name="Pos" type="int32" desc="职位" />
+</struct>
+
+<struct name="MsgData_cChangeGuildNotice" desc="改变公会公告 msgId:2048" dir="1">
+	<entry name="Notice" type="buffer"  count="128" desc="公告内容" />
+</struct>
+
+<struct name="MsgData_cReqGuildApplyVo" desc="审核申请" dir="1">
+	<entry name="MemGid" type="int64" desc="玩家ID" />
+</struct>
+
+<struct name="MsgData_cVerifyGuildApply" desc="审核申请 msgId:2049" dir="1">
+	<entry name="Verify" type="int32" desc="是否同意0 - 同意，1 - 拒绝" />
+	<entry name="Size" type="int32" desc="数组 size " />
+	<entry name="GuildApplyList" type="MsgData_cReqGuildApplyVo" count="Size" desc="数组 size " />
+</struct>
+
+<struct name="MsgData_cKickGuildMem" desc="踢出公会成员 msgId:2050" dir="1">
+	<entry name="MemGid" type="int64" desc="玩家ID" />
+</struct>
+
+<struct name="MsgData_cApplyGuild" desc="申请加入公会 msgId:2051" dir="1">
+	<entry name="GuildId" type="int64" desc="玩家ID" />
+	<entry name="Apply" type="int32" desc="0-取消， 1-申请" />
+</struct>
+
+<struct name="MsgData_cInviteToGuild" desc="邀请加入公会 msgId:2052" dir="1">
+	<entry name="RoleId" type="int64" desc="玩家ID" />
+</struct>
+
+<struct name="MsgData_cInviteToGuildResult" desc="同意拒绝邀请加入公会 msgId:2053" dir="1">
+	<entry name="InviterId" type="int64" desc="邀请人ID" />
+	<entry name="Result" type="int32" desc="结果 0 - 同意，1 - 不同意" />
+</struct>
+
+<struct name="MsgData_cSetAutoVerify" desc="设置自动申请审核 msgId:2055" dir="1">
+	<entry name="Auto" type="int32" desc="结果 0 - 不自动 1 - 自动" />
+	<entry name="Level" type="int32" desc="档数" />
+</struct>
+
+<struct name="MsgData_cQueryOtherGuildInfo" desc="请求其他公会信息 msgId:2056" dir="1">
+	<entry name="GuildId" type="int64" desc="公会id" />
+</struct>
+
+<struct name="MsgData_cQueryMyGuildApplys" desc="请求自己公会申请 msgId:2057" dir="1">
+</struct>
+
+<struct name="MsgData_cChangeLeader" desc="请求禅让帮主 msgId:2058" dir="1">
+	<entry name="MemGid" type="int64" desc="玩家id" />
+</struct>
+
+<struct name="MsgData_cGuildContribute" desc=" 请求捐献 msgId:2059" dir="1">
+	<entry name="ItemId" type="int32" desc="资源id" />
+	<entry name="Count" type="int32" desc="数量" />
+</struct>
+
+<struct name="MsgData_cLevelUpMyGuildSkill" desc="客户端请求：升级自身公会技能 msgId:2060" dir="1">
+	<entry name="GroupId" type="int32" desc="技能组ID" />
+</struct>
+
+<struct name="MsgData_cSearchGuild" desc="查找公会 msgId:2061" dir="1">
+	<entry name="Type" type="int32" desc=" 查找类型, (0 -公会名， 1- 帮主名)" />
+	<entry name="PageSize" type="int32" desc="每页数量" />
+	<entry name="Name" type="buffer" count="32" desc="名称" />
+</struct>
+
+<struct name="MsgData_cReqAidInfo" desc="客户端请求：请求加持属性 msgId:2071" dir="1">
+</struct>
+
+<struct name="MsgData_cReqUnionBapAid" desc="客户端请求：请求加持洗炼 msgId:2072" dir="1">
+</struct>
+
+<struct name="MsgData_cReqAidUpLevel" desc="客户端请求：请求加持升级 msgId:2073" dir="1">
+</struct>
+
+<struct name="MsgData_cReqClearBapAidInfo" desc="客户端请求：请求清除上次洗炼数据或保存本次 msgId:2069" dir="1">
+	<entry name="State" type="int32" desc="0 清除， 1 保存" />
+</struct>
+
+<struct name="MsgData_cReqGetUnionPray" desc="客户端请求：请求获得公会祈福信息 msgId:2139" dir="1">
+</struct>
+
+<struct name="MsgData_cReqUnionPray" desc="客户端请求：请求公会祈福 msgId:2141" dir="1">
+	<entry name="PrayID" type="int32" desc="祈福类型" />
+</struct>
+
+<struct name="MsgData_cCreateAlliance" desc="请求创建公会同盟 msgId:2064" dir="1">
+	<entry name="GuildId" type="int64" desc="公会ID" />
+</struct>
+
+<struct name="MsgData_cQueryGuildAllianceApplys" desc="请求公会同盟申请列表 msgId:2066" dir="1">
+</struct>
+
+<struct name="MsgData_cQueryAllianceGuildInfo" desc="请求公会同盟信息 msgId:2067" dir="1">
+</struct>
+
+<struct name="MsgData_cReqGuildAllianceApplyVo" desc="公会同盟列表" dir="1">
+	<entry name="GuildId" type="int64" desc="公会ID" />
+</struct>
+
+<struct name="MsgData_cGuildAllianceVerify" desc="审核公会同盟申请 msgId:2068" dir="1">
+	<entry name="Verify" type="int32" desc="是否同意0 - 同意，1 - 拒绝" />
+	<entry name="Size" type="int32" desc="Size" />
+	<entry name="GuildAllianceApplyList" type="MsgData_cReqGuildAllianceApplyVo" count="Size" desc="公会同盟列表" />
+</struct>
+
+<struct name="MsgData_sRespGuildVo" desc="公会数据" dir="2">
+	<entry name="GuildId" type="int64" desc="公会ID" />
+	<entry name="Rank" type="int32" desc="排名" />
+	<entry name="Level" type="int32" desc="公会等级" />
+	<entry name="MemeCnt" type="int32" desc="成员数量" />
+	<entry name="ExtendNum" type="int32" desc="扩展人数" />
+	<entry name="Power" type="int64" desc="战斗力" />
+	<entry name="AppleFlag" type="int8" desc="申请标识(1-已经申请,0-未申请)" />
+	<entry name="GuildName" type="buffer" count="32" desc="公会名称" />
+	<entry name="GuildMasterName" type="buffer" count="32" desc="帮主名称" />
+</struct>
+
+<struct name="MsgData_sGuildList" desc=" 返回公会列表 msgId:7038" dir="2">
+	<entry name="RecomendGuid" type="int64" desc="推荐公会ID" />
+	<entry name="Page" type="int32" desc="页数" />
+	<entry name="Size" type="uint32" desc="数量" />
+	<entry name="GuildAllianceApplyList" type="MsgData_sRespGuildVo" count="Size" desc="" />
+</struct>
+
+<struct name="MsgData_sRespGuildResVo" desc="公会资源列表" dir="2">
+	<entry name="ItemId" type="int32" desc="资源ID" />
+	<entry name="Count" type="int32" desc="数量" />
+</struct>
+
+<struct name="MsgData_sRespGuildSkillVo" desc="公会技能列表" dir="2">
+	<entry name="SkillId" type="int32" desc="技能ID" />
+	<entry name="OpenFlag" type="int32" desc="是否开启(1 - 开启， 0 - 未开启)" />
+</struct>
+
+<struct name="MsgData_sQueryMyGuildInfo" desc="公会信息返回 msgId:7039" dir="2">
+	<entry name="GuidId" type="int64" desc="公会ID" />
+	<entry name="AllianceGuildId" type="int64" desc="同盟公会ID" />
+	<entry name="Rank" type="int32" desc="排名" />
+	<entry name="Level" type="int32" desc="公会等级" />
+	<entry name="MemCnt" type="int32" desc="成员数量" />
+	<entry name="ExtendNum" type="int32" desc="扩展人数" />
+	<entry name="Captial" type="double" desc="公会资金" />
+	<entry name="Liveness" type="int32" desc="公会活跃度" />
+	<entry name="Pos" type="int8" desc="职位" />
+	<entry name="Autoagree" type="int8" desc="0-不自动， 自动档位" />
+	<entry name="Contribution" type="int32" desc="当前贡献" />
+	<entry name="TotalContribution" type="int32" desc="累计贡献" />
+	<entry name="Loyalty" type="int32" desc="忠诚度" />
+	<entry name="Power" type="int64" desc="战斗力" />	
+	<entry name="GuildName" type="buffer" count="32" desc="公会名称" />
+	<entry name="ApplyNum" type="int32" desc="申请数量" />
+	<entry name="GuildMasterName" type="buffer" count="32" desc="帮主名称" />
+	<entry name="GuildNotice" type="buffer" count="128" desc="帮会公告" />
+	<entry name="GuildResList" type="MsgData_sRespGuildResVo" count="3" desc="帮会资源" />
+	<entry name="GuildSkillList" type="MsgData_sRespGuildSkillVo" count="8" desc="帮会技能" />
+</struct>
+
+<struct name="MsgData_sRespGuildMemsVo" desc="公会成员数据" dir="2">
+	<entry name="Gid" type="int64" desc="角色gid" />
+	<entry name="Name" type="buffer" count="32" desc="名称" />
+	<entry name="Time" type="int64" desc="最后登陆时间" />
+	<entry name="Jointime" type="int64" desc="加入公会时间" />
+	<entry name="Level" type="int32" desc="等级" />
+	<entry name="VipLevel" type="int32" desc="VIP等级" />
+	<entry name="Contribute" type="int32" desc="当前贡献" />
+	<entry name="AllContribute" type="int32" desc="累积贡献" />
+	<entry name="Loyalty" type="int32" desc="忠诚度" />
+	<entry name="Power" type="int64" desc="战斗力" />
+	<entry name="Pos" type="int8" desc="职位" />
+	<entry name="Online" type="int8" desc="1-在线，0-不在线" />
+	<entry name="Prof" type="int32" desc="玩家职业" />
+	<entry name="VFlag" type="int32" desc="V计划" />
+	<entry name="MapID" type="int32" desc="地图ID" />
+	<entry name="LineId" type="int32" desc="线" />
+	<entry name="GloryLevel" type="int32" desc="修为等级" />
+	<entry name="TxhFlag" type="int32" desc="黄钻标识" />
+	<entry name="TxbFlag" type="int32" desc="蓝钻标识" />
+</struct>
+
+<struct name="MsgData_sQueryMyGuildMems" desc="返回公会成员列表 msgId:7040" dir="2">
+	<entry name="TimeNow" type="int64" desc="当前时间" />
+	<entry name="Size" type="int32" desc="数组大小" />
+	<entry name="GuildMemList" type="MsgData_sRespGuildMemsVo" count="Size" desc="当前时间" />
+</struct>
+
+<struct name="MsgData_sRespGuildEventVo" desc="公会事件列表" dir="2">
+	<entry name="Id" type="int32" desc="时间ID" />
+	<entry name="Time" type="int64" desc="时间" />
+	<entry name="Param" type="buffer" count="64" desc="参数" />
+</struct>
+
+<struct name="MsgData_sQueryMyGuildEvent" desc="返回公会事件 msgId:7041" dir="2">
+	<entry name="Size" type="int32" desc=" size " />
+	<entry name="GuildEventList" type="MsgData_sRespGuildEventVo" count="Size" desc="数组大小" />
+</struct>
+
+<struct name="MsgData_sCreateGuildRet" desc="创建公会返回 msgId:7042" dir="2">
+	<entry name="Result" type="int8" desc=" 创建公会返回结果 0- 成功 1-失败 " />
+</struct>
+
+<struct name="MsgData_sUpdateGuildInfo" desc="更新公会信息 msgId:7043" dir="2">
+	<entry name="GuildId" type="int64" desc="公会id" />
+	<entry name="AllianceGuildId" type="int64" desc="同盟公会id" />
+	<entry name="Rank" type="int32" desc="排名" />
+	<entry name="Level" type="int32" desc="公会等级" />
+	<entry name="MemCnt" type="int32" desc="成员数量" />
+	<entry name="ExtendNum" type="int32" desc="扩展人数" />
+	<entry name="Captial" type="double" desc="公会资金" />
+	<entry name="Liveness" type="int32" desc="公会活跃度" />
+	<entry name="Power" type="int64" desc="战斗力" />
+	<entry name="GuildResList" type="MsgData_sRespGuildResVo"  count="3" desc="帮会资源" />
+</struct>
+
+<struct name="MsgData_sUpdateGuildMasterName" desc="更新公会帮主 msgId:7044" dir="2">
+	<entry name="GuildMasterName" type="buffer" count="32" desc="帮主名称" />
+</struct>
+
+<struct name="MsgData_sUpdateGuildNotice" desc="更新公会公告 msgId:7045" dir="2">
+	<entry name="GuildNotice" type="buffer" count="128" desc="帮主名称" />
+</struct>
+
+<struct name="MsgData_sNotifyBeInvitedGuild" desc="通知公会邀请 msgId:7046" dir="2">
+	<entry name="Name" type="buffer" count="32" desc="邀请人名称" />
+	<entry name="InviterId" type="int64"  desc="邀请人ID" />
+	<entry name="GuildName" type="buffer" count="32" desc="公会名称" />
+</struct>
+
+<struct name="MsgData_sQueryOtherGuildInfo" desc="返回其他公会信息 msgId:7047" dir="2">
+	<entry name="GuildId" type="int64" desc="公会id" />
+	<entry name="Rank" type="int32"  desc="排名" />
+	<entry name="Level" type="int32" desc="公会等级" />
+	<entry name="MemCnt" type="int32"  desc="成员数量" />
+	<entry name="ExtendNum" type="int32"  desc="扩展人数" />
+	<entry name="Captial" type="int64"  desc="公会资金" />
+	<entry name="Power" type="int64" desc="战斗力" />
+	<entry name="GuildName" type="buffer" count="32" desc="公会名称" />
+	<entry name="GuildMasterName" type="buffer" count="32" desc="帮主名称" />
+	<entry name="GuildNotice" type="buffer" count="128" desc="公会公告" />
+</struct>
+
+<struct name="MsgData_sRespGuildApplysVo" desc="公会申请列表" dir="2">
+	<entry name="Gid" type="int64" desc="角色ID" />
+	<entry name="Name" type="buffer" count="32" desc="名称" />
+	<entry name="Time" type="int64" desc="申请时间" />
+	<entry name="Level" type="int32" desc="等级" />
+	<entry name="Power" type="int64" desc="战斗力" />
+</struct>
+
+<struct name="MsgData_sQueryMyGuildApplys" desc="返回公会申请列表 msgId:7048" dir="2">
+	<entry name="Size" type="int32" desc="数量" />
+	<entry name="GuildApplysList" type="MsgData_sRespGuildApplysVo" count="Size" desc="公会成员列表" />
+</struct>
+
+<struct name="MsgData_sGuildReplyCountTip" desc="公会申请人数 msgId:7149" dir="2">
+	<entry name="ReplyNum" type="int32" desc="公会申请人数" />
+</struct>
+
+<struct name="MsgData_sApplyGuild" desc="申请加入返回公会 msgId:7049" dir="2">
+	<entry name="GuildId" type="int64" desc="公会id" />
+	<entry name="Apply" type="int8"  desc="0-取消， 1-申请" />
+	<entry name="ApplyFlag" type="int8"  desc="申请标识(1-已经申请,0-未申请)" />
+</struct>
+
+<struct name="MsgData_sRespGuildApplyVo" desc="公会成员列表" dir="2">
+	<entry name="MemGid" type="int64" desc="玩家ID" />
+	<entry name="Result" type="int8" desc=" 0-成功，1失败" />
+</struct>
+
+<struct name="MsgData_sVerifyGuildApply" desc="审核申请返回 msgId:7050" dir="2">
+	<entry name="Verify" type="int32" desc="是否同意0 - 同意，1 - 拒绝" />
+	<entry name="Size" type="int32" desc="数量" />
+	<entry name="GuildApplyList" type="MsgData_sRespGuildApplyVo"   count="Size" desc="公会成员列表" />
+</struct>
+
+<struct name="MsgData_sQuitGuild" desc="返回退出公会 msgId:7051" dir="2">
+	<entry name="Result" type="int32" desc="0-成功，-1失败" />
+</struct>
+
+<struct name="MsgData_sDismissGuild" desc="返回解散公会 msgId:7052" dir="2">
+	<entry name="Result" type="int32" desc="0-成功，-1失败" />
+</struct>
+
+<struct name="MsgData_sLevelUpGuild" desc="返回升级公会 msgId:7053" dir="2">
+	<entry name="Level" type="int32" desc="公会等级" />
+	<entry name="Result" type="int32" desc="0-成功，-1失败" />
+</struct>
+
+<struct name="MsgData_sLvUpGuildSkill" desc="返回开启某组公会技能 msgId:7054" dir="2">
+	<entry name="GroupId" type="int32" desc="技能组ID" />
+	<entry name="Result" type="int32" desc="0-成功，-1失败" />
+</struct>
+
+<struct name="MsgData_sChangeGuildPos" desc="返回改变职位 msgId:7055" dir="2">
+	<entry name="MemGid" type="int64" desc="玩家ID" />
+	<entry name="Pos" type="int8" desc="职位" />
+	<entry name="Result" type="int32" desc="0-成功，-1失败" />
+</struct>
+
+<struct name="MsgData_sKickGuildMemeber" desc="返回踢出公会成员 msgId:7056" dir="2">
+	<entry name="MemGid" type="int64" desc="玩家ID" />
+	<entry name="Result" type="int32" desc="0-成功，-1失败" />
+</struct>
+
+<struct name="MsgData_sChangeLeader" desc="返回禅让帮主 msgId:7057" dir="2">
+	<entry name="OldId" type="int64" desc="老帮主ID" />
+	<entry name="NewId" type="int64" desc="新帮主ID" />
+	<entry name="Pos" type="int8" desc="老帮主职位" />
+	<entry name="Result" type="int32" desc="0-成功，-1失败" />
+</struct>
+
+<struct name="MsgData_sGuildContribute" desc="返回公会捐献 msgId:7058" dir="2">
+	<entry name="Captial" type="double" desc="公会资金" />
+	<entry name="Contribute" type="int32" desc="当前贡献" />
+	<entry name="GuildResList" type="MsgData_sRespGuildResVo" count="3" desc="公会资源列表" />
+</struct>
+
+<struct name="MsgData_sLevelUpMyGuildSkill" desc="服务器返回：返回升级自身公会技能 msgId:7059" dir="2">
+	<entry name="Id" type="int32" desc="技能组ID" />
+	<entry name="Result" type="int32" desc="0-成功，-1失败" />
+</struct>
+
+<struct name="MsgData_sBackAidInfo" desc="服务器返回：返回加持属性 msgId:7071" dir="2">
+	<entry name="AidLevel" type="int32" desc="加持等级" />
+	<entry name="Att" type="int32" desc="加持攻击" />
+	<entry name="Def" type="int32" desc="加持防御" />
+	<entry name="MaxHP" type="int32" desc="加持生命" />
+	<entry name="SubDef" type="int32" desc="加持破防" />
+</struct>
+
+<struct name="MsgData_sBackAidBapInfo" desc="服务器返回：返回洗炼属性 msgId:7072" dir="2">
+	<entry name="Att" type="int32" desc="加持攻击" />
+	<entry name="Def" type="int32" desc="加持防御" />
+	<entry name="MaxHP" type="int32" desc="加持生命" />
+	<entry name="SubDef" type="int32" desc="加持破防" />
+</struct>
+
+<struct name="MsgData_sBackAidUpLevelInfo" desc="服务器返回：返回加持升级 msgId:7073" dir="2">
+	<entry name="Result" type="int32" desc="0 成功， 1 失败" />
+</struct>
+
+<struct name="MsgData_sUpdateMyGuildMemInfo" desc="更新自己公会信息 msgId:7074" dir="2">
+	<entry name="Pos" type="int8" desc="职位" />
+	<entry name="Con" type="int32" desc="当前贡献" />
+	<entry name="TotalCon" type="int32" desc="累计贡献" />
+	<entry name="Loyalty" type="int32" desc="忠诚度" />
+</struct>
+
+<struct name="MsgData_sPrayVo" desc="祈福信息" dir="2">
+	<entry name="Time" type="int64" desc="祈福时间" />
+		<entry name="Name" type="buffer" count="32" desc="名称" />
+	<entry name="PrayID" type="int32" desc="祈福类型" />
+</struct>
+
+<struct name="MsgData_sGetUnionPray" desc="获得公会祈福信息 msgId:7139" dir="2">
+	<entry name="Pray1" type="int32" desc="普通祈福 0未祈福，1已祈福" />
+	<entry name="Pray2" type="int32" desc="高级祈福 0未祈福，1已祈福" />
+	<entry name="Pray3" type="int32" desc="至尊祈福 0未祈福，1已祈福" />
+	<entry name="PrayCount" type="int32" desc="祈福数量" />
+	<entry name="PrayList" type="MsgData_sPrayVo" count="PrayCount" desc="祈福列表" />
+</struct>
+
+<struct name="MsgData_sUnionPray" desc="服务器返回：公会祈福结果 msgId:7141" dir="2">
+	<entry name="Result" type="int8" desc="0:成功(成功获得),1:失败" />
+	<entry name="PrayID" type="int32" desc="祈福类型" />
+</struct>
+
+<struct name="MsgData_sCreateAlliance" desc="返回创建公会同盟 msgId:7066" dir="2">
+	<entry name="GuildId" type="int32" desc="公会id" />
+	<entry name="Result" type="int32" desc="0-成功，-1失败" />
+</struct>
+
+<struct name="MsgData_sDismissGuildAlliance" desc="返回解散公会同盟 msgId:7067" dir="2">
+	<entry name="GuildId" type="int32" desc="公会id" />
+</struct>
+
+<struct name="MsgData_sRespGuildAllianceApplysVo" desc="返回公会同盟申请列表 msgId:7068" dir="2">
+	<entry name="Id" type="int64" desc="公会Id" />
+	<entry name="Name" type="buffer" count="32" desc="公会名称" />
+	<entry name="Time" type="int64" desc="申请时间" />
+	<entry name="Power" type="int64" desc="战斗力" />
+	<entry name="Level" type="int32" desc="等级" />
+	<entry name="MemCnt" type="int32" desc="成员数量" />
+	<entry name="ExtendNum" type="int32" desc="扩展人数" />
+</struct>
+
+<struct name="MsgData_sQueryGuildAllianceApplys" desc="返回公会同盟申请列表 msgId:7068" dir="2">
+	<entry name="Size" type="int32" desc="数组" />
+	<entry name="GuildAllianceApplysList" type="MsgData_sRespGuildAllianceApplysVo" count="Size" desc="同盟 公会列表" />
+</struct>
+
+<struct name="MsgData_sRespAllianceGuildMemsVo" desc="公会成员列表" dir="2">
+	<entry name="Gid" type="int32" desc="Gid" />
+	<entry name="Name" type="buffer" count="32" desc="名称" />
+	<entry name="Time" type="int64" desc="最后登录时间" />
+	<entry name="Level" type="int32" desc="等级" />
+	<entry name="Power" type="int64" desc="战斗力" />
+	<entry name="Pos" type="int8" desc="职位" />
+	<entry name="Online" type="int8" desc="1-在线，0-不在线" />
+</struct>
+
+<struct name="MsgData_sQueryAllianceGuildInfo" desc="返回公会同盟信息 msgId:7069" dir="2">
+	<entry name="Rank" type="int32" desc="排名" />
+	<entry name="Level" type="int32"  desc="公会等级" />
+	<entry name="MemCnt" type="int32"  desc="成员数量" />
+	<entry name="ExtendNum" type="int64"  desc="扩展人数" />
+	<entry name="Power" type="int32" desc="战斗力" />
+	<entry name="GuildName" type="buffer" count="32" desc="公会名称" />
+	<entry name="Size" type="int32" desc="数量" />
+	<entry name="GuildMemList" type="MsgData_sRespAllianceGuildMemsVo" count="Size" desc="公会成员列表" />
+</struct>
+
+<struct name="MsgData_sReqGuildAllianceApplyVo" desc="公会同盟数据" dir="2">
+	<entry name="GuildId" type="int64" desc="公会ID" />
+	<entry name="Result" type="int8"  desc="0-成功，1失败" />
+</struct>
+
+<struct name="MsgData_sGuildAllianceVerify" desc="审核公会同盟返回 msgId:7070" dir="2">
+	<entry name="Verify" type="int32" desc="是否同意0 - 同意，1 - 拒绝" />
+	<entry name="Size" type="int32"  desc="公会同盟列表 数量" />
+	<entry name="GuildAllianceApplyList" type="MsgData_sReqGuildAllianceApplyVo" count="Size"  desc="公会同盟列表" />
+</struct>
+
+<!-- 公会 end -->
+
+<struct name="MsgData_cRevive" desc="请求复活 msgId:3077" dir="1">
+	<entry name="ReviveType" type="int32" desc="复活类型" />
+	<entry name="MoneyType" type="int32" desc="物品不足时使用的元宝类型,1元宝,2绑定元宝" />
+</struct>
+
+<struct name="MsgData_sRevive" desc="复活信息 msgId:8077" dir="2">
+	<entry name="Result" type="int32" desc="复活结果, 0:成功 -1:5s限制时间 -2:其他错误,人没死等 -3:道具不足 -4:元宝不足 -5:红名不可原地复活" />
+	<entry name="RoleID" type="int64" desc="角色id" />
+	<entry name="ReviveType" type="int32" desc="复活类型" />
+	<entry name="PosX" type="double" desc="复活位置坐标x" />
+	<entry name="PosY" type="double" desc="复活位置坐标y" />
+</struct>
+
+<struct name="MsgData_cQueryQuest" desc="客户端请求任务列表 msgid:3059" dir="1">
+	
+</struct>
+
+<struct name="MsgData_cQuestClick" desc="客户端点击计数(如功能指引任务) msgid:3061" dir="1">
+	<entry name="questId" type="int32" desc="任务Id" />
+</struct>
+
+<struct name="MsgData_cAcceptQuest" desc="客户端请求接取任务 msgid:3062" dir="1">
+	<entry name="questId" type="int32" desc="任务Id" />
+</struct>
+
+<struct name="MsgData_cGiveUpQuest" desc="客户端请求放弃任务 msgid:3063" dir="1">
+	<entry name="questId" type="int32" desc="任务Id" />
+</struct>
+
+<struct name="MsgData_cFinishQuest" desc="客户端请求完成任务 msgid:3064" dir="1">
+	<entry name="questId" type="int32" desc="任务Id" />
+	<entry name="multipIndex" type="int32" desc="1.免费领1倍，2.银两领双倍，3.元宝领三倍" />
+</struct>
+
+<struct name="MsgData_sQuestGoalInfo" desc="任务目标列表成员信息" dir="2">
+	<entry name="goalId" type="int32" desc="目标id" />
+	<entry name="curCount" type="int32" desc="当前任务计数" />
+</struct>
+
+<struct name="MsgData_sQuestInfo" desc="任务列表成员信息" dir="2">
+	<entry name="id" type="int32" desc="任务id" />
+	<entry name="state" type="int32" desc="任务状态 0未接 1进行中 2可交" />
+	<entry name="flag" type="int32" desc="日环任务时，高16位环数 中8位星级 低8位倍率" />
+	<!--entry name="goalListCount" type="int32" desc="目标列表成员个数" / -->
+	<entry name="goalsList" type="MsgData_sQuestGoalInfo" count = "3" desc="目标列表" />
+</struct>
+
+<struct name="MsgData_sQueryQuestResult" desc="服务端任务列表反馈 msgid:8059" dir="2">
+	<entry name="questListCount" type="uint32" desc="表成员个数" />
+	<entry name="questList" type="MsgData_sQuestInfo" count = "questListCount"  desc="任务列表" />	
+</struct>
+
+<struct name="MsgData_sQueryAdd" desc="服务端增加一个任务 msgid:8060" dir="2">
+	<entry name="id" type="uint32" desc="任务id" />
+	<entry name="state" type="int32" desc="任务状态 0未接 1进行中 2可交" />
+	<entry name="flag" type="int32" desc="日环任务时，高16位环数 中8位星级 低8位倍率" />
+	<entry name="goalListCount" type="int32" desc="目标列表成员个数" />
+	<entry name="goalsList" type="MsgData_sQuestGoalInfo" count = "goalListCount" desc="目标列表" />
+</struct>
+
+<struct name="MsgData_sQueryUpdate" desc="服务端任务更新 msgid:8061" dir="2">
+	<entry name="id" type="uint32" desc="任务id" />
+	<entry name="state" type="int32" desc="任务状态 0未接 1进行中 2可交" />
+	<entry name="flag" type="int32" desc="日环任务时，高16位环数 中8位星级 低8位倍率" />
+	<entry name="goalListCount" type="int32" desc="目标列表成员个数" />
+	<entry name="goalsList" type="MsgData_sQuestGoalInfo" count = "goalListCount" desc="目标列表" />
+</struct>
+
+<struct name="MsgData_sAcceptQuestResult" desc="服务端接受任务反馈 msgid:8062" dir="2">
+	<entry name="result" type="uint32" desc="0:成功" />
+</struct>
+
+<struct name="MsgData_sGiveupQuestResult" desc="服务端放弃任务反馈 msgid:8063" dir="2">
+	<entry name="result" type="uint32" desc="0:成功" />
+	<entry name="id" type="uint32" desc="任务id" />
+</struct>
+
+<struct name="MsgData_sFinishQuestResult" desc="服务端完成任务反馈 msgid:8064" dir="2">
+	<entry name="result" type="uint32" desc="0:成功" />
+	<entry name="id" type="uint32" desc="任务id" />
+</struct>
+
+
+<struct name="MsgData_sQuestDele" desc="服务端任务删除 msgid:8065" dir="2">
+	<entry name="id" type="uint32" desc="任务id" />
+</struct>
+
+<struct name="MsgData_sItemInfo" desc="物品信息" dir="2">
+	<entry name="UID" type="int64" desc="唯一编号" />
+	<entry name="ID" type="int32" desc="物品编号" />
+	<entry name="Count" type="int32" desc="物品数量" />
+	<entry name="Bag" type="int32" desc="所属背包" />
+	<entry name="Pos" type="int32" desc="格子位置" />
+	<entry name="UseCount" type="int32" desc="当前使用次数PS:可能是总使用次数。" />
+	<entry name="TodayUse" type="int32" desc="当天使用次数" />
+	<entry name="CanUseVal" type="int64" desc="可使用的值" />
+	<entry name="Flag" type="int64" desc="标志位 第1位:绑定, 第2位:交易绑定" />
+</struct>
+
+<struct name="MsgData_sQueryItemResult" desc="服务端通知: 下发物品列表 msgId:8019" dir="2">
+	<entry name="ID" type="int64" desc="编号" />
+	<entry name="Bag" type="int32" desc="背包类型" />
+	<entry name="Size" type="int32" desc="已开格子数" />
+	<entry name="OpenLastTime" type="int32" desc="自动开启下一格子剩余时间秒" />
+	<entry name="ItemCount" type="uint32" desc="物品数量" />
+	<entry name="ItemInfoList" type="MsgData_sItemInfo" count="ItemCount" desc="物品列表" />
+</struct>
+
+<struct name="MsgData_sPackItemResult" desc="服务端通知: 整理背包反馈 msgId:8024" dir="2">
+	<entry name="Result" type="int32" desc="整理结果 0成功" />
+	<entry name="BagType" type="int32" desc="背包类型" />
+</struct>
+
+<struct name="MsgData_cPackItem" desc="客户端请求: 整理背包 msgId:3024" dir="1">
+	<entry name="BagType" type="int32" desc="背包类型" />
+</struct>
+
+<struct name="MsgData_cQueryItem" desc="客户端请求: 获取物品列表 msgId:3019" dir="1">
+	<entry name="RoleID" type="int64" desc="角色编号" />
+	<entry name="BagType" type="int32" desc="背包类型" />
+</struct>
+
+<struct name="MsgData_sItemAdd" desc="服务端通知: 加物品 msgId:8014" dir="2">
+	<entry name="UID" type="int64" desc="唯一编号" />
+	<entry name="ID" type="int32" desc="物品编号" />
+	<entry name="Count" type="int32" desc="物品数量" />
+	<entry name="Bag" type="int32" desc="所属背包" />
+	<entry name="Pos" type="int32" desc="格子位置" />
+	<entry name="UseCount" type="int32" desc="当前使用次数PS:可能是总使用次数。" />
+	<entry name="TodayUse" type="int32" desc="当天使用次数" />
+	<entry name="CanUseVal" type="int64" desc="可使用的值" />
+	<entry name="Flag" type="int64" desc="标志位 第1位:绑定, 第2位:交易绑定" />
+</struct>
+
+<struct name="MsgData_sItemDel" desc="服务端通知: 删除物品 msgId:8015" dir="2">
+	<entry name="Bag" type="int32" desc="所属背包" />
+	<entry name="Pos" type="int32" desc="格子位置" />
+</struct>
+
+<struct name="MsgData_sItemUpdate" desc="服务端通知: 更新物品 msgId:8016" dir="2">
+	<entry name="UID" type="int64" desc="唯一编号" />
+	<entry name="ID" type="int32" desc="物品编号" />
+	<entry name="Count" type="int32" desc="物品数量" />
+	<entry name="Bag" type="int32" desc="所属背包" />
+	<entry name="Pos" type="int32" desc="格子位置" />
+	<entry name="UseCount" type="int32" desc="当前使用次数PS:可能是总使用次数。" />
+	<entry name="TodayUse" type="int32" desc="当天使用次数" />
+	<entry name="CanUseVal" type="int64" desc="可使用的值" />
+	<entry name="Flag" type="int64" desc="标志位 第1位:绑定, 第2位:交易绑定" />
+</struct>
+
+<struct name="MsgData_cDiscardItem" desc="客户端请求: 丢弃一件物品 msgId:3020" dir="1">
+	<entry name="Bag" type="int32" desc="所属背包" />
+	<entry name="Pos" type="int32" desc="格子位置" />
+</struct>
+
+<struct name="MsgData_sDiscardItemResult" desc="服务端通知: 丢弃物品反馈 msgId:8020" dir="2">
+	<entry name="Result" type="int32" desc="结果 0:成功" />
+	<entry name="Bag" type="int32" desc="所属背包" />
+	<entry name="Pos" type="int32" desc="格子位置" />
+</struct>
+
+<struct name="MsgData_sExpandBagTips" desc="服务端通知: 背包可扩充 msgId:8098" dir="2">
+	<entry name="Bag" type="int32" desc="背包类型" />
+</struct>
+
+<struct name="MsgData_sExpandBagResult" desc="服务端通知: 背包扩充反馈 msgId:8025" dir="2">
+	<entry name="Result" type="int32" desc="结果 0:成功" />
+	<entry name="Bag" type="int32" desc="所属背包" />
+	<entry name="NewSize" type="int32" desc="新格子数" />
+</struct>
+
+<struct name="MsgData_cExpandBag" desc="客户端请求: 背包容量扩充 msgId:3025" dir="1">
+	<entry name="Bag" type="int32" desc="所属背包" />
+	<entry name="NewSize" type="int32" desc="新格子数" />
+	<entry name="MoneyType" type="int32" desc="物品不足时使用的元宝类型,1元宝,2绑定元宝" />
+</struct>
+
+<struct name="MsgData_sSwapItemResult" desc="服务端通知: 交换物品反馈 msgId:8021" dir="2">
+	<entry name="Result" type="int32" desc="结果 0:成功" />
+	<entry name="SrcBag" type="int32" desc="源背包" />
+	<entry name="DstBag" type="int32" desc="目标背包" />
+	<entry name="SrcPos" type="int32" desc="源格子" />
+	<entry name="DstPos" type="int32" desc="目标格子" />
+</struct>
+
+<struct name="MsgData_cSwapItem" desc="客户端请求: 交换两个物品 msgId:3021" dir="1">
+	<entry name="SrcBag" type="int32" desc="源背包" />
+	<entry name="DstBag" type="int32" desc="目标背包" />
+	<entry name="SrcPos" type="int32" desc="源格子" />
+	<entry name="DstPos" type="int32" desc="目标格子" />
+</struct>
+
+<struct name="MsgData_sSellItemResult" desc="服务端通知: 出售物品反馈 msgId:8023" dir="2">
+	<entry name="Result" type="int32" desc="结果 0:成功" />
+	<entry name="UID" type="int64" desc="唯一编号" />
+	<entry name="ID" type="int32" desc="物品编号" />
+	<entry name="Count" type="int32" desc="物品数量" />
+	<entry name="Flag" type="int64" desc="标志位 第1位:绑定, 第2位:交易绑定" />
+</struct>
+
+<struct name="MsgData_cSellItem" desc="客户端请求: 出售背包物品 msgId:3023" dir="1">
+	<entry name="Bag" type="int32" desc="所属背包" />
+	<entry name="Pos" type="int32" desc="格子位置" />
+</struct>
+
+<struct name="MsgData_sUseItemResult" desc="服务端通知: 使用物品反馈 msgId:8022" dir="2">
+	<entry name="Result" type="int32" desc="结果 0:成功" />
+	<entry name="Bag" type="int32" desc="所属背包" />
+	<entry name="Pos" type="int32" desc="格子位置" />
+	<entry name="Count" type="int32" desc="使用数量" />
+	<entry name="ID" type="int32" desc="物品ID PS:黑人问号???" />
+</struct>
+
+<struct name="MsgData_cUseItem" desc="客户端请求: 使用一个物品 msgId:3022" dir="1">
+	<entry name="Bag" type="int32" desc="所属背包" />
+	<entry name="Pos" type="int32" desc="格子位置" />
+	<entry name="Count" type="int32" desc="使用数量" />
+	<entry name="XuanZiID" type="int32" desc="选择的物品Id:礼包中物品ID PS:黑人问号???" />
+</struct>
+
+<struct name="MsgData_sSplitItemResult" desc="服务端通知: 拆分物品反馈 msgId:8026" dir="2">
+	<entry name="Result" type="int32" desc="结果 0:成功 -1:不可拆分" />
+</struct>
+
+<struct name="MsgData_cSplitItem" desc="客户端请求: 拆分一个物品 msgId:3026" dir="1">
+	<entry name="Bag" type="int32" desc="所属背包" />
+	<entry name="Pos" type="int32" desc="格子位置" />
+	<entry name="Count" type="int32" desc="拆分数量" />
+</struct>
+
+<struct name="MsgData_cSellItemList" desc="客户端请求: 批量出售背包物品 msgId:4931" dir="1">
+	<entry name="Bag" type="int32" desc="所属背包" />
+	<entry name="Count" type="int32" desc="出售数量" />
+	<entry name="PosList" type="int32" count="Count" desc="格子位置列表" />
+</struct>
+
+<struct name="MsgData_sSellItemListResult" desc="服务端通知: 批量出售物品反馈 msgId:9931" dir="2">
+	<entry name="Count" type="int32" desc="出售数量" />
+	<entry name="ResultList" type="MsgData_sSellItemResult" count="Count" desc="格子位置列表" />
+</struct>
+
+<!--
+
+<struct name="MsgData_cShopping" desc="客户端请求: 商店购物 msgId:3116" dir="1">
+	<entry name="ID" type="int32" desc="商品id" />
+	<entry name="Number" type="int32" desc="购买数量" />
+</struct>
+
+<struct name="MsgData_sShoppingResult" desc="服务端通知: 商品购买返回结果 msgId:8116" dir="2">
+	<entry name="Result" type="int32" desc="0=成功 1=失败" />
+	<entry name="ID" type="int32" desc="商品id" />
+	<entry name="Number" type="int32" desc="购买数量" />
+</struct>
+
+<struct name="MsgData_cBuyBack" desc="客户端请求: 回购 msgId:3125" dir="1">
+	<entry name="CID" type="int64" desc="回购物品cid" />
+</struct>
+
+<struct name="MsgData_sBuyBackResult" desc="服务端通知: 返回回购结果 msgId:8125" dir="2">
+	<entry name="Result" type="int32" desc="0=成功 1=失败" />
+	<entry name="CID" type="int64" desc="回购物品cid" />
+</struct>
+
+<struct name="MsgData_cExchangeShop" desc="客户端请求: 商店道具兑换 msgId:3572" dir="1">
+	<entry name="ID" type="int32" desc="商品id" />
+	<entry name="Number" type="int32" desc="购买数量" />
+</struct>
+
+<struct name="MsgData_sExchangeShopResult" desc="服务端通知: 商店道具兑换返回结果 msgId:8572" dir="2">
+	<entry name="Result" type="int32" desc="0=成功 1=失败" />
+	<entry name="ID" type="int32" desc="商品id" />
+	<entry name="Number" type="int32" desc="购买数量" />
+</struct>
+
+<struct name="MsgData_sShopHasBuyInfo" desc="服务端通知: 已购的限购物品信息" dir="2">
+	<entry name="ID" type="int32" desc="商品id" />
+	<entry name="Number" type="int32" desc="已购买数量" />
+	<entry name="WeeklyCount" type="int32" desc="周已购买数量" />
+	<entry name="ForeverNumber" type="int32" desc="永久数量" />
+</struct>
+
+<struct name="MsgData_sShopHasBuyList" desc="服务端通知: 已购的限购物品列表，登陆、购买限购商品时推送 msgId:8304" dir="2">
+	<entry name="ListCount" type="uint32" desc="列表数量" />
+	<entry name="ShopHasBuyList" type="MsgData_sShopHasBuyInfo" count="ListCount" desc="物品列表" />
+</struct>
+
+-->
+
+<struct name="MsgData_cTeleport" desc="客户端请求: 请求传送 msgId:3200" dir="1">
+	<entry name="Type" type="int32" desc="1世界地图传送 2日环传送 3剧情传送 4悬赏传送 5世界boss传送 6主线传送 7远距离主线任务免费传送(根据任务表配的teleportMap地图id)" />
+	<entry name="MapID" type="int32" desc="地图id" />
+	<entry name="X" type="int32" desc="地图X坐标" />
+	<entry name="Y" type="int32" desc="地图Y坐标" />
+</struct>
+
+<struct name="MsgData_sTeleportResult" desc="服务端通知: 返回传送结果 msgId:8200" dir="2">
+	<entry name="Type" type="int8" desc="1世界地图传送 2日环传送 3剧情传送 4悬赏传送 5世界boss传送 6主线传送 7远距离主线任务免费传送(根据任务表配的teleportMap地图id)" />
+	<entry name="Result" type="int8" desc="结果 0:成功,1:ID错误 2:当前场景错误 3:目标地图错误 4:等级 5:PKing 6:同地图 7:钱不够 8:修为等级 9:待定义" />
+</struct>
+
+<struct name="MsgData_cSkillList" desc="客户端请求: 请求技能列表 msgId:3028" dir="1">
+</struct>
+
+<struct name="MsgData_cSkillLearn" desc="客户端请求: 请求学习技能 msgId:3029" dir="1">
+	<entry name="ID" type="int32" desc="技能id" />
+</struct>
+
+<struct name="MsgData_cSkillLevelUp" desc="客户端请求: 请求升级技能 msgId:3030" dir="1">
+	<entry name="ID" type="int32" desc="技能id" />
+</struct>
+
+<struct name="MsgData_sSkillInfo" desc="技能信息" dir="2">
+	<entry name="ID" type="int32" desc="技能编号" />
+</struct>
+
+<struct name="MsgData_sSkillListResult" desc="服务端通知: 返回技能列表 msgId:8028" dir="2">
+	<entry name="Count" type="uint32" desc="技能数量" />
+	<entry name="Skills" type="MsgData_sSkillInfo" count="Count" desc="技能信息列表" />
+</struct>
+
+<struct name="MsgData_sSkillLearnResult" desc="服务端通知: 返回学习技能 msgId:8029" dir="2">
+	<entry name="Result" type="int32" desc="反馈结果,0成功,1失败" />
+	<entry name="ID" type="int32" desc="技能id" />
+</struct>
+
+<struct name="MsgData_sSkillLevelUp" desc="服务端通知: 返回升级技能 msgId:8031" dir="2">
+	<entry name="Result" type="int32" desc="反馈结果,0成功,1失败" />
+	<entry name="OldID" type="int32" desc="学习前技能id" />
+	<entry name="NewID" type="int32" desc="学习后技能id" />
+</struct>
+
+<struct name="MsgData_sSkillAdd" desc="服务端通知: 增加一个技能(特殊技能，如武魂技能) msgId:8033" dir="2">
+	<entry name="ID" type="int32" desc="技能id" />
+</struct>
+
+<struct name="MsgData_sSkillRemove" desc="服务端通知: 删除一个技能(特殊技能，如武魂技能) msgId:8034" dir="2">
+	<entry name="ID" type="int32" desc="技能id" />
+</struct>
+
+<struct name="MsgData_sSkillCDListVO" desc= "技能list" dir="2">
+	<entry name="skillID" type="int32" desc="技能ID" />
+	<entry name="cdTime" type="int32" desc="冷却时间" />
+</struct>
+
+<struct name="MsgData_sSkillCDList" desc= "登录同步技能CD msgId:8451" dir="2">
+	<entry name="count" type="uint32" desc="数量" />
+	<entry name="items" type="MsgData_sSkillCDListVO" count="count" desc="技能list" />
+</struct>
+
+<struct name="MsgData_cPickUpItem" desc="拾取 msgId:3076" dir="1">
+	<entry name="DataSize" type="uint32" desc="数据长度" />
+	<entry name="IDs" type="int64" count="DataSize" desc="物品ID" />
+</struct>
+
+<struct name="PickUpItem_Result" desc="拾取结果 msgId:8076" dir="2">
+	<entry name="Result" type="int32" desc="结果 0:成功 -1:物品不存在 -2:不属于该玩家 -3:背包已满;" />
+	<entry name="ID" type="int64" desc="ID" />
+</struct>
+
+<struct name="MsgData_sPickUpItem" desc="拾取结果 msgId:8076" dir="2">
+	<entry name="DataSize" type="uint32" desc="数据长度" />
+	<entry name="Data" type="PickUpItem_Result" count="DataSize" desc="返回结果" />
+</struct>
+
+<struct name="MsgData_cEquipPosLevelUp" desc="客户端请求：装备位升级 msgId:3690" dir="1">
+	<entry name="pos" type="int32" desc="装备位" />
+	<entry name="keepLvl" type="int32" desc="是否使用升星符：1使用 0不用" />
+	<entry name="autobuy" type="int32" desc="自动购买:0自动,非零不自动" />
+</struct>
+
+
+ <struct name="MsgData_sEquipPosLevelUp" desc="服务器返回:装备位升级 msgId:8690" dir="2">
+	<entry name="result" type="int8" desc="结果:0-成功, 1-失败" />
+	<entry name="pos" type="int32" desc="装备位" />
+	<entry name="level" type="int32" desc="等级" />
+	<entry name="exp" type="int32" desc="经验" />
+</struct>
+ 
+<struct name="MsgData_sEquipData" desc="单个装备信息" dir="2">
+	<entry name="pos" type="int32" desc="装备位" />
+	<entry name="level" type="int32" desc="等级" />
+	<entry name="exp" type="int32" desc="经验" />
+</struct>
+ 
+<struct name="MsgData_sEquipPosInfo" desc="服务器返回:装备位信息 msgId:8691" dir="2">
+	<entry name="count"  type="uint32"  desc="数量"/>
+	<entry name="items"  type="MsgData_sEquipData" count="count" desc="装备位列表"/>
+</struct>
+  
+<struct name="MsgData_sOtherEquipPos" desc="返回装备位信息 msgId:8692;" dir="2">
+	<entry name="serverType" type="int32" desc="是否全服排行信息 1=是 其余都不是" />
+	<entry name="type" type="int32" desc="1== 详细信息，2 == 排行榜详细信息" />
+	<entry name="roleID" type="int64" desc="角色ID" />
+	<entry name="count"  type="uint32"  desc="数量"/>
+	<entry name="items"  type="MsgData_sEquipData" count="count" desc="装备位列表"/>
+</struct>
+
+
+<struct name="MsgData_cDressFashion" desc="客户端请求：穿戴时装 msgId:3226" dir="1">
+	<entry name="ID" type="int32" desc="时装id" />
+	<entry name="OP" type="int32" desc="操作类型 1:穿 0:脱" />
+</struct>
+
+<struct name="MsgData_sDressFashion" desc="服务器返回：返回穿戴时装结果 msgId:8226;" dir="2">
+	<entry name="Result" type="int32" desc="结果 0 - 成功，1 - 失败" />
+	<entry name="ID" type="int32" desc="时装id" />
+	<entry name="OP" type="int32" desc="操作类型 1:穿 0:脱" />
+</struct>
+
+<struct name="MsgData_sFashionVO" desc="时装信息" dir="2">
+	<entry name="ID" type="int32" desc="时装id" />
+	<entry name="Time" type="int32" desc="时装剩余时间" />
+</struct>
+
+<struct name="MsgData_sFashionsInfo" desc="服务器返回:返回时装列表 msgId:8225" dir="2">
+	<entry name="Count"  type="uint32"  desc="数量"/>
+	<entry name="Fashions"  type="MsgData_sFashionVO" count="Count" desc="时装列表"/>
+</struct>
+
+<struct name="MsgData_cUpdateFashionState" desc="客户端请求：设置时装状态 msgId:4938" dir="1">
+	<entry name="State" type="int32" desc="0 显示 1隐藏" />
+</struct>
+
+
+<struct name="MsgData_cStructDef" desc="客户端请求:触发静物 msgId:3070;" dir="1">
+	<entry name="cID" type="int64" desc="静物id" />	
+</struct>
+
+<struct name="MsgData_sStructDefResult" desc="服务端通知:触发静物反馈 msgId:8070;" dir="2">
+	<entry name="result" type="int32" desc="范围结果，0成功，1失败，2等级不足， 3境界不足，5其他人正在采集该物品，6本次活动已用完" />	
+	<entry name="cID" type="int64" desc="静物id" />	
+</struct>
+
+<struct name="MsgData_cEquipData" desc="等待分解的装备" dir="1">
+ <entry name="guid" type="int64" desc="装备guid" />
+</struct>
+
+<struct name="MsgData_cEquipDecompose" desc="请求分解装备 msgId:3388" dir="1">
+	<entry name="count"  type="uint32"  desc="数量"/>
+	<entry name="items"  type="MsgData_cEquipData" count="count" desc="等待分解的装备list"/>
+</struct>
+
+<struct name="MsgData_sEquipChip" desc="分解的装备碎片" dir="2">
+ <entry name="num" type="int32" desc="碎片数量" />
+ <entry name="cid" type="int32" desc="物品id" />
+</struct>
+
+<struct name="MsgData_sEquipDecompose" desc="返回分解结果 msgId:8388;" dir="2">
+	<entry name="result" type="int32" desc="结果  0:成功" />
+	<entry name="count"  type="uint32"  desc="数量"/>
+	<entry name="items"  type="MsgData_sEquipChip" count="count" desc="分解的碎片list"/>
+</struct>
+
+<struct name="MsgData_sItemTipsVO" desc="获得失去提示物品" dir="2">
+ <entry name="type" type="int8" desc="类型,1:获得,0失去" />
+ <entry name="id" type="int32" desc="物品id" />
+ <entry name="count" type="int32" desc="物品数量" />
+</struct>
+
+<struct name="MsgData_sItemTips" desc="物品获得失去提示 msgId:8142;" dir="2">
+	<entry name="count"  type="uint32"  desc="数量"/>
+	<entry name="items"  type="MsgData_sItemTipsVO" count="count" desc="获得失去提示物品"/>
+</struct>
+
+<struct name="MsgData_sSuperVO" desc="卓越属性列表" dir="2">
+ <entry name="uid" type="int64" desc="属性uid" />
+ <entry name="id" type="int32" desc="卓越id" />
+ <entry name="val" type="int32" desc="值1" />
+</struct>
+
+<struct name="MsgData_sNewSuperVO" desc="新卓越属性列表;" dir="2"> 
+ <entry name="id" type="int32" desc="新卓越id;" />
+ <entry name="wash" type="int32" desc="// 洗练值;" />
+</struct>
+
+<struct name="MsgData_sEquipAdd" desc="返回添加装备附加信息 msgId:8149" dir="2">
+	<entry name="uid" type="int64" desc="装备cid;" />
+	<entry name="strenLvl" type="int32" desc="强化等级;" />
+	<entry name="strenVal" type="int32" desc="强化值" />
+	<entry name="attrAddLvl" type="int32" desc="追加属性等级;" />
+	<entry name="groupId" type="int32" desc="套装id;" />
+	<entry name="groupId2" type="int32" desc="套装id2;" />
+	<entry name="groupId2Bind" type="int32" desc=" 套装id2绑定状态0 未绑定，1 已绑定" />
+	<entry name="group2Level" type="int32" desc="套装等级" />
+	<entry name="superNum" type="int32" desc="卓越数量" />
+	<entry name="isyuangu" type="int32" desc="是否远古" />
+	<entry name="godLevel" type="int32" desc="神化等级" />
+	<entry name="blessLevel" type="int32" desc="神佑等级" /> 
+	
+	<entry name="Superitems"  type="MsgData_sSuperVO" count="7" desc="卓越属性列表"/> 
+	<entry name="NewSuperitems"  type="MsgData_sNewSuperVO" count="6" desc="新卓越属性列表"/>
+</struct>
+ 
+
+<struct name="MsgData_sEquipSuperListVO" desc="装备list" dir="2">
+ <entry name="uid" type="int64" desc="装备cid" />
+ <entry name="superNum" type="int32" desc="卓越数量" />
+ <entry name="count"  type="uint32"  desc="数量"/> 
+ <entry name="items"  type="MsgData_sSuperVO" count="count" desc="卓越属性列表"/>
+</struct> 
+<struct name="MsgData_sEquipSuper" desc="返回装备卓越信息 msgId:8239" dir="2">
+ <entry name="count"  type="uint32"  desc="数量"/> 
+ <entry name="items"  type="MsgData_sEquipSuperListVO" count="count" desc="装备list"/>
+</struct> 
+
+<struct name="MsgData_sEquipExtraVO" desc="列表;" dir="2"> 
+ <entry name="uid" type="int64" desc="装备cid" />
+ <entry name="level" type="int32" desc="追加属性等级" />
+</struct>
+ 
+<struct name="MsgData_sEquipExtra" desc="返回装备追加属性信息 msgId:8246;" dir="2"> 
+ <entry name="count"  type="uint32"  desc="数量"/> 
+ <entry name="items"  type="MsgData_sEquipExtraVO" count="count" desc="装备list"/>
+</struct>
+ 
+
+<struct name="MsgData_sEquipNewSuperListVO" desc="装备list" dir="2">
+ <entry name="uid" type="int64" desc="装备cid" />  
+ <entry name="items"  type="MsgData_sNewSuperVO" count="6" desc="卓越属性列表"/>
+</struct> 
+<struct name="MsgData_sEquipNewSuper" desc="返回装备新卓越信息 msgId:8447" dir="2">
+ <entry name="count"  type="uint32"  desc="数量"/> 
+ <entry name="items"  type="MsgData_sEquipNewSuperListVO" count="count" desc="新卓越属性列表;"/>
+</struct> 
+
+
+<struct name="MsgData_sItemEquipVO" desc=" 装备附加信息 装备list;" dir="2">
+	<entry name="uid" type="int64" desc="装备cid;" />
+	<entry name="strenLvl" type="int32" desc="强化等级;" />
+	<entry name="strenVal" type="int32" desc="强化值" />
+	<entry name="groupId" type="int32" desc="套装id;" />
+	<entry name="groupId2" type="int32" desc="套装id2;" />
+	<entry name="groupId2Bind" type="int32" desc=" 套装id2绑定状态0 未绑定，1 已绑定" />
+	<entry name="group2Level" type="int32" desc="套装等级" />
+	<entry name="godLevel" type="int32" desc="神化等级" />
+	<entry name="blessLevel" type="int32" desc="神佑等级" /> 
+</struct>
+
+
+<struct name="MsgData_sEquipInfo" desc=" 返回装备附加信息 msgId:8131" dir="2">
+ <entry name="count"  type="uint32"  desc="数量"/> 
+ <entry name="items"  type="MsgData_sItemEquipVO" count="count" desc="装备附加信息 装备list"/>
+</struct>
+
+
+<struct name="MsgData_cHunLingXianYuInfo" desc="客户端请求:灵兽墓地信息 msgId:3743;" dir="1">
+
+</struct>
+
+<struct name="MsgData_cResetHunLingXianYu" desc="客户端请求:重置灵兽墓地 msgId:3744;" dir="1">
+
+</struct>
+
+<struct name="MsgData_cChallHunLingXianYu" desc="客户端请求:挑战灵兽墓地 msgId:3745;" dir="1">
+	<entry name="layer" type="int32" desc="挑战层数" />	
+</struct>
+
+<struct name="MsgData_cCanHunLingXianYu" desc="客户端请求:扫荡灵兽墓地 msgId:3747;" dir="1">
+
+</struct>
+
+<struct name="MsgData_cHunLingXianYuQuit" desc="客户端请求:退出灵兽墓地 msgId:3748;" dir="1">
+
+</struct>
+
+<struct name="MsgData_cLicaiInfoGetAward" desc="客户端请求:获得奖励 msgId:3749;" dir="1">
+
+</struct>
+
+<struct name="MsgData_sHunLingXianYuInfo" desc= "服务器通知:灵兽墓地信息 msgId:8743;" dir="2">
+	<entry name="finishLayer" type="int32" desc="已通关的层数" />
+	<entry name="mymaxlayer"  type="int32"  desc="我的最好层数"/>
+	<entry name="resetNum"  type="int32"  desc="重置次数"/>
+	<entry name="firstRoleName"  type="buffer" count="32"  desc="第一名角色名字"/>
+	<entry name="firsttheadId"  type="int32"   desc="头像id"/>
+	<entry name="firstLayer"  type="int32" desc="第一名最高层数"/>
+</struct>
+
+<struct name="MsgData_sResetHunLingXianYu" desc= "返回重置灵兽墓地结果 msgId:8744;" dir="2">
+	<entry name="result" type="int8" desc="0成功，1失败" />
+	<entry name="finishLayer" type="int32" desc="已通关的层数" />	
+	<entry name="resetNum"  type="int32"  desc="重置次数"/>
+</struct>
+
+<struct name="MsgData_sChallHunLingXianYu" desc= "返回进入灵兽墓地结果 msgId:8745;" dir="2">
+	<entry name="result" type="int8" desc="0成功，1失败" />
+	<entry name="mLayer"  type="int32"  desc="挑战层数"/>
+</struct>
+
+<struct name="MsgData_sChallHunLingXianYuResult" desc= "挑战灵兽墓地结果 msgId:8746;" dir="2">
+	<entry name="result" type="int8" desc="0成功，1失败" />
+</struct>
+
+<struct name="MsgData_sCanHunLingXianYuResult" desc= "扫荡灵兽墓地结果 msgId:8747;" dir="2">
+	<entry name="result" type="int8" desc="0成功，1失败" />
+</struct>
+
+<struct name="MsgData_sHunLingXianYuQuit" desc= "退出灵兽墓地结果 msgId:8748;" dir="2">
+	<entry name="result" type="int8" desc="0成功，1失败" />
+</struct>
+
+<struct name="MsgData_sHunLingXianYuGetAward" desc= "获得灵兽墓地结果 msgId:8749;" dir="2">
+	<entry name="result" type="int8" desc="0成功，1失败" />
+</struct>
+
+<struct name="MsgData_sHunLingXianYuMonsterInfo" desc= "灵兽墓地怪物波数信息 msgId:8750;" dir="2">
+	<entry name="index" type="int32" desc="怪物波数" />
+	<entry name="monId" type="int32" desc="怪物Id" />
+	<entry name="monNum" type="int32" desc="怪物个数" />
+</struct>
+
+<struct name="MsgData_cLingShouMuDiInfo" desc="客户端请求:灵兽墓地信息 msgId:3421;" dir="1">
+
+</struct>
+
+<struct name="MsgData_cResetLingShouMuDi" desc="客户端请求:重置灵兽墓地 msgId:3422;" dir="1">
+
+</struct>
+
+<struct name="MsgData_cChallLingShouMuDi" desc="客户端请求:挑战灵兽墓地 msgId:3423;" dir="1">
+	<entry name="layer" type="int32" desc="挑战层数" />	
+</struct>
+
+<struct name="MsgData_cCanLingShouMuDi" desc="客户端请求:扫荡灵兽墓地 msgId:3424;" dir="1">
+
+</struct>
+
+<struct name="MsgData_cLingShouMuDiGetAward" desc="客户端请求:获得奖励 msgId:3425;" dir="1">
+
+</struct>
+
+<struct name="MsgData_cLingShouMuDiQuit" desc="客户端请求:退出灵兽墓地 msgId:3432;" dir="1">
+
+</struct>
+
+<struct name="MsgData_sLingShouMuDiInfoTop" desc=" 灵兽墓地信息前3排名;" dir="2">
+	<entry name="name" type="buffer"  count="32" desc="角色名字;" />
+	<entry name="maxLayer" type="int32" desc="最高层数" />
+</struct>
+
+<struct name="MsgData_sLingShouMuDiInfo" desc= "服务器通知:灵兽墓地信息 msgId:8421;" dir="2">
+	<entry name="finishLayer" type="int32" desc="已通关的层数" />
+	<entry name="mymaxlayer"  type="int32"  desc="我的最好层数"/>
+	<entry name="resetNum"  type="int32"  desc="重置次数"/>
+	<entry name="topList"  type="MsgData_sLingShouMuDiInfoTop" count="3" desc="前3排名信息"/> 
+</struct>
+
+<struct name="MsgData_sResetLingShouMuDi" desc= "返回重置灵兽墓地结果 msgId:8423;" dir="2">
+	<entry name="result" type="int8" desc="0成功，1失败" />
+	<entry name="finishLayer" type="int32" desc="已通关的层数" />	
+	<entry name="resetNum"  type="int32"  desc="重置次数"/>
+</struct>
+
+<struct name="MsgData_sChallLingShouMuDi" desc= "返回进入灵兽墓地结果 msgId:8422;" dir="2">
+	<entry name="result" type="int8" desc="0成功，1失败" />
+	<entry name="mLayer"  type="int32"  desc="挑战层数"/>
+</struct>
+
+<struct name="MsgData_sChallLingShouMuDiResult" desc= "挑战灵兽墓地结果 msgId:8424;" dir="2">
+	<entry name="result" type="int8" desc="0成功，1失败" />
+</struct>
+
+<struct name="MsgData_sCanLingShouMuDiResult" desc= "扫荡灵兽墓地结果 msgId:8425;" dir="2">
+	<entry name="result" type="int8" desc="0成功，1失败" />
+</struct>
+
+<struct name="MsgData_sLingShouMuDiQuit" desc= "退出灵兽墓地结果 msgId:8432;" dir="2">
+	<entry name="result" type="int8" desc="0成功，1失败" />
+</struct>
+
+<struct name="MsgData_sLingShouMuDiGetAward" desc= "获得灵兽墓地结果 msgId:8426;" dir="2">
+	<entry name="result" type="int8" desc="0成功，1失败" />
+</struct>
+
+<struct name="MsgData_sLingShouMuDiMonsterInfo" desc= "灵兽墓地怪物波数信息 msgId:8650;" dir="2">
+	<entry name="index" type="int32" desc="怪物波数" />
+	<entry name="monId" type="int32" desc="怪物Id" />
+	<entry name="monNum" type="int32" desc="怪物个数" />
+</struct>
+
+
+<struct name="MsgData_cDianfengInfo" desc= "查看荣耀等级面板数据 msgId:3646;" dir="1">
+</struct>
+
+<struct name="DianfengInfo_Attr" desc="返回荣耀点数分配列表" dir="3">
+	<entry name="ID" type="int32" desc="荣耀等级表节点ID" />
+	<entry name="Num" type="int32" desc="分配的点数" />
+</struct>
+
+<struct name="MsgData_sDianfengInfo" desc= "返回荣耀等级面板结果 msgId:8646;" dir="2">
+	<entry name="ListSize" type="uint32" desc="数据长度" />
+	<entry name="Data" type="DianfengInfo_Attr" count="ListSize" desc="荣耀点数分配列表" />
+</struct>
+
+<struct name="MsgData_cDianfengSave" desc="保存荣耀点数 msgId:3644;" dir="1">
+	<entry name="ListSize" type="uint32" desc="数据长度" />
+	<entry name="Data" type="DianfengInfo_Attr" count="ListSize" desc="荣耀点数分配列表" />
+</struct>
+
+<struct name="MsgData_sDianfengSave" desc= "返回保存结果 msgId:8644;" dir="2">
+	<entry name="Result" type="int32" desc="0成功 1失败" />
+</struct>
+
+<struct name="MsgData_cDianfengReset" desc="重置荣耀点数 msgId:3645;" dir="1">
+	<entry name="Type" type="int32" desc="属性类型" />
+</struct>
+
+<struct name="MsgData_sDianfengReset" desc= "返回重置结果 msgId:8645;" dir="2">
+	<entry name="Result" type="int32" desc="0成功 1失败" />
+</struct>
+
+<struct name="MsgData_cWingHeChengItemList" desc="提高翅膀合成成功率的道具list" dir="1">
+	<entry name="id" type="int32" desc="道具id" />
+</struct> 
+
+<struct name="MsgData_cWingHeCheng" desc="客户端请求:翅膀合成 msgId:3464;" dir="1">
+	<entry name="wingId" type="int32" desc="翅膀id" />
+	<entry name="listCount" type="uint32" desc="成员个数" />
+	<entry name="wingList" type="MsgData_cWingHeChengItemList" count = "listCount" desc="提高翅膀合成成功率的道具list" />
+</struct>
+
+<struct name="MsgData_cUseWingOrginal" desc="客户端请求:使用原始翅膀 msgId:3698;" dir="1">
+	<entry name="type" type="int32" desc="1翅膀 2皮肤" />
+</struct>
+
+<struct name="MsgData_cActivateSkin" desc="客户端请求:激活皮肤 msgId:3699;" dir="1">
+	<entry name="wingId" type="int32" desc="皮肤Id" />
+</struct>
+
+<struct name="MsgData_cUseSkin" desc="客户端请求:使用皮肤 msgId:3700;" dir="1">
+	<entry name="wingId" type="int32" desc="皮肤Id" />
+</struct>
+
+<struct name="MsgData_cWingExtActive" desc="客户端请求:翅膀扩展激活 msgId:3978;" dir="1">
+	<entry name="id" type="int32" desc="id" />
+</struct>
+
+<struct name="MsgData_sWingInfoVO" desc="翅膀list" dir="2">
+ <entry name="id" type="int64" desc="道具cid" />
+ <entry name="time" type="int64" desc="到期时间, -1无限" />
+ <entry name="attrFlag"  type="int8"  desc="是否有特殊属性，1有"/> 
+</struct> 
+
+<struct name="MsgData_sWingInfo" desc= "返回翅膀信息 msgId:8527;" dir="2">
+	<entry name="listCount" type="uint32" desc="成员个数" />
+	<entry name="wingList" type="MsgData_sWingInfoVO" count = "listCount" desc="翅膀list" />
+</struct>
+
+<struct name="MsgData_sWingHeCheng" desc= "返回翅膀合成结果 msgId:8464;" dir="2">
+	<entry name="result" type="int8" desc="0成功，1错误，2 材料不足 3银两不足 4背包已满" />
+</struct>
+
+<struct name="MsgData_sUseWingOrginal" desc= "使用原始翅膀 msgId:8698;" dir="2">
+	<entry name="wingId" type="int32" desc="翅膀id" />
+	<entry name="result" type="int32" desc="0成功，1失败" />
+</struct>
+
+<struct name="MsgData_sActivateSkin" desc= "激活翅膀(皮肤) msgId:8699;" dir="2">
+	<entry name="wingId" type="int32" desc="翅膀id" />
+	<entry name="result" type="int32" desc="0成功，1失败" />
+</struct>
+
+<struct name="MsgData_sUseSkin" desc= "使用皮肤 msgId:8700;" dir="2">
+	<entry name="wingId" type="int32" desc="皮肤id" />
+	<entry name="result" type="int32" desc="0成功，1失败" />
+</struct>
+
+<struct name="MsgData_sSkinList" desc= "激活的皮肤列表" dir="2">
+	<entry name="id" type="int32" desc="皮肤id" />
+</struct>
+
+<struct name="MsgData_sWinAndSkinInfo" desc= "获取翅膀(皮肤)相关信息 msgId:8701;" dir="2">
+	<entry name="listCount" type="uint32" desc="成员个数" />
+	<entry name="wingList" type="MsgData_sSkinList" count = "listCount" desc="激活的皮肤列表" />
+</struct>
+
+<struct name="MsgData_sWingExtActive" desc= "返回：翅膀扩展激活 msgId:8978;" dir="2">
+	<entry name="result" type="int32" desc="0成功，1其他， 2条件不足" />
+	<entry name="id" type="int32" desc="id" />
+</struct>
+
+<struct name="MsgData_sWinExtActiveList" desc= "激活的翅膀扩展列表" dir="2">
+	<entry name="id" type="int32" desc="id" />
+	<entry name="isActive" type="int32" desc="1激活, 非1没激活" />
+</struct>
+
+<struct name="MsgData_sWingExtActiveInfo" desc= "返回 翅膀扩展激活列表 msgId:8979;" dir="2">
+	<entry name="listCount" type="uint32" desc="成员个数" />
+	<entry name="wingList" type="MsgData_sWinExtActiveList" count = "listCount" desc="翅膀扩展激活list" />
+</struct>
+
+<struct name="MsgData_sWinExtCountList" desc= "计数的翅膀扩展列表" dir="2">
+	<entry name="id" type="int32" desc="id" />
+	<entry name="type" type="int32" desc="type" />
+	<entry name="num" type="int32" desc="数量" />
+</struct>
+
+<struct name="MsgData_sWingExtCountInfo" desc= "返回 翅膀扩展计数列表 msgId:8980;" dir="2">
+	<entry name="listCount" type="uint32" desc="成员个数" />
+	<entry name="wingList" type="MsgData_sWinExtCountList" count = "listCount" desc="翅膀扩展计数list" />
+</struct>
+
+<struct name="MsgData_cChat" desc="客户端请求:发送聊天 msgId:2002;" dir="1">
+	<entry name="Channel" type="int32" desc="频道,1全部,2世界,3区域,3军团,4阵营,5公会,6组队,7喇叭,8私聊" />
+	<entry name="ToID" type="int64" desc="私聊时,接受者的ID" />
+	<entry name="TextSize"  type="uint32"  desc="内容长度"/>
+	<entry name="Text"  type="buffer" count="TextSize" desc="内容"/>
+</struct>
+
+<struct name="MsgData_cSetPrivateChatState" desc="客户端请求:设置是否接收对方的私聊信息 msgId:2004;" dir="1">
+	<entry name="RoleID" type="int64" desc="对方ID" />
+	<entry name="State"  type="int32"  desc="私聊状态,1接受对方私聊,0关闭私聊"/>
+</struct>
+
+<struct name="MsgData_sChat" desc= "服务器通知:收到聊天 msgId:7002;" dir="2">
+	<entry name="SenderID" type="int64" desc="发送者ID" />
+	<entry name="SenderName"  type="buffer" count="32" desc="发送者名字"/>
+	<entry name="SenderTeamID" type="int64" desc="发送者队伍id" />
+	<entry name="SenderGuildID" type="int64" desc="发送者公会id" />
+	<entry name="SenderGuildPos" type="int8" desc="发送者公会职务" />
+	<entry name="SenderVIP" type="int32" desc="发送者VIP信息，按位存，前三位依次表示钻石、黄金、白银VIP是否开通，后29位存vip等级" />
+	<entry name="SenderLevel" type="int32" desc="发送者等级" />
+	<entry name="SenderIcon" type="int8" desc="发送者头像" />
+	<entry name="SenderFlag" type="int32" desc="发送者标示" />
+	<entry name="SenderCityPos" type="int8" desc="发送者王城职位" />
+	<entry name="SenderVFlag" type="int32" desc="发送者V计划标示" />
+	<entry name="SenderTxhFlag" type="int32" desc="黄钻标识" />
+	<entry name="SenderTxbFlag" type="int32" desc="蓝钻标识" />
+	<entry name="SenderIsGM" type="int8" desc="是否GM标示" />
+	<entry name="SenderCamp" type="int8" desc="跨服场景时，发送者阵营" />
+	<entry name="SenderTime" type="int64" desc="发送时间" />
+	<entry name="HornID" type="int32" desc="喇叭时,喇叭id" />
+	<entry name="Channel" type="int32" desc="频道" />
+	<entry name="APP" type="int8" desc="app" />
+	<entry name="TextSize"  type="uint32"  desc="内容长度"/>
+	<entry name="Text"  type="buffer" count="TextSize" desc="内容"/>
+</struct>
+
+<struct name="MsgData_sPrivateChatNotice" desc= "服务器通知:收到私聊通知 msgId:7003;" dir="2">
+	<entry name="SenderID" type="int64" desc="发送者ID" />
+	<entry name="SenderName"  type="buffer" count="32" desc="发送者名字"/>
+	<entry name="Num" type="int32" desc="未读私聊数量" />
+	<entry name="SenderVIP" type="int8" desc="发送者VIP等级" />
+	<entry name="SenderLevel" type="int32" desc="发送者等级" />
+	<entry name="SenderIcon" type="int8" desc="发送者头像" />
+</struct>
+
+<struct name="MsgData_sChatSysNotice" desc= "服务器通知:聊天,系统通知 msgId:7005;" dir="2">
+	<entry name="ID" type="int32" desc="通知ID" />
+	<entry name="ParamSize"  type="uint32"  desc="内容长度"/>
+	<entry name="Param"  type="buffer" count="ParamSize" desc="内容"/>
+</struct>
+
+<struct name="MsgData_sNotice" desc= "服务器通知:公告 msgId:7006;" dir="2">
+	<entry name="ID" type="int32" desc="通知ID" />
+	<entry name="ParamSize"  type="uint32"  desc="内容长度"/>
+	<entry name="Param"  type="buffer" count="ParamSize" desc="内容"/>
+</struct>
+
+<struct name="MsgData_sObjDeadInfo" desc= "对象死亡通知 msgId:8075;" dir="2">
+	<entry name="ID" type="int64" desc="死亡对象id" />
+	<entry name="KillerName"  type="buffer"  count="32" desc="击杀者名字"/>
+	<entry name="KillerLevel"  type="int32" desc="击杀者等级"/>
+	<entry name="KillerType"  type="int32" desc="击杀者类型"/>
+	<entry name="ObjectType"  type="int8" desc="对象类型"/>
+	<entry name="KillerID" type="int64" desc="击杀者id" />
+	<entry name="KillerSkillID"  type="int32" desc="击杀者技能id"/>
+</struct>
+
+<struct name="MsgData_sAchievementVO" desc= "成就列表:UI显示的阶段ID及进度" dir="2">
+	<entry name="type" type="int32" desc="类型" />
+	<entry name="value" type="int8" desc="值" />
+	<entry name="state" type="int8" desc="领取状态" />
+</struct>
+
+<struct name="MsgData_sBackAchievementInfo" desc= "返回 成就信息 msgId:8372;" dir="2">
+	<entry name="poingIndex" type="int8" desc="点数阶段" />
+	<entry name="listCount" type="uint32" desc="成员个数" />
+	<entry name="list" type="MsgData_sAchievementVO" count = "listCount" desc="成就列表:UI显示的阶段ID及进度" />
+</struct>
+
+<struct name="MsgData_sAchievementUpData" desc= "刷新成就进度 msgId:8479;" dir="2">
+	<entry name="type" type="int32" desc="类型" />
+	<entry name="value" type="int32" desc="值" />
+	<entry name="state" type="int8" desc="领取状态" />
+</struct>
+
+<struct name="MsgData_sChangePos" desc= "刷新成就进度 传送信息 msgId:8096" dir="2">
+	<entry name="RoleID" type="int64" desc="玩家guid" />
+	<entry name="PosX" type="double" desc="传送位置坐标x" />
+	<entry name="PosY" type="double" desc="传送位置坐标y" />
+</struct>
+
+<struct name="MsgData_sSkillTargetList" desc= "服务器通知:技能目标列表 msgId:9932;" dir="2">
+	<entry name="CasterID" type="int64" desc="施法者ID" />
+	<entry name="SkillID"  type="int32"  desc="技能ID"/>
+	<entry name="TargetCount"  type="int8" desc="目标个数"/>
+	<entry name="Targets"  type="int64" count="TargetCount" desc="目标列表"/>
+</struct>
+ 
+<struct name="MsgData_cMagicKey" desc="分解法宝列表" dir="1">
+	<entry name="id" type="int64" desc="法宝ID" />
+</struct> 
+
+<struct name="MsgData_cResMagicKeyDecompose" desc="请求法宝分解 msgId:3655" dir="1">
+	<entry name="count" type="uint32" desc="数量" />
+	<entry name="items" type="MsgData_cMagicKey" count = "count" desc="分解列表" />
+</struct>
+<struct name="MsgData_sResMagicKeyDecompose" desc="返回法宝分解结果 msgId:8667" dir="2">
+	<entry name="result" type="int32" desc=" 0成功，-1功能未开启，-2法宝不存在，-3，-4无该法宝配置，-5装备中，-6扣法宝失败" />
+</struct>  
+  
+ <struct name="MsgData_sMagickeyinfo" desc="法宝信息" dir="2">
+	<entry name="guid" type="int64" desc="物品实例id" /> 
+	<entry name="magickeyID" type="int32" desc="法宝配置ID" /> 
+	<entry name="wuxing" type="int32" desc="悟性值" /> 
+	<entry name="level" type="int32" desc="等级" /> 
+	<entry name="totalExp" type="double" desc="总经验值" /> 
+	<entry name="starCount"  type="int32"  desc="法宝星级" /> 
+	<entry name="starProgress"  type="int32"  desc="法宝星级进度" /> 
+ 	<entry name="passiveskill1"  type="int32"  desc="被动技能1" /> 
+ 	<entry name="passiveskill2"  type="int32"  desc="被动技能2" /> 
+ 	<entry name="passiveskill3"  type="int32"  desc="被动技能3" /> 
+ 	<entry name="passiveskill4"  type="int32"  desc="被动技能4" /> 
+ 	<entry name="passiveskill5"  type="int32"  desc="被动技能5" /> 
+ 	<entry name="passiveskill6"  type="int32"  desc="被动技能6" /> 
+ 	<entry name="passiveskill7"  type="int32"  desc="被动技能7" /> 
+ 	<entry name="passiveskill8"  type="int32"  desc="被动技能8" /> 
+ 	<entry name="passiveskill9"  type="int32"  desc="被动技能9" /> 
+ 	<entry name="passiveskill10"  type="int32"  desc="被动技能10" /> 
+ 	<entry name="passiveskill11"  type="int32"  desc="被动技能11" /> 
+ 	<entry name="passiveskill12"  type="int32"  desc="被动技能12" /> 
+ 	<entry name="awakeCount"  type="int32"  desc="觉醒次数 0、未觉醒 1、觉醒一次 2、觉醒二次" /> 
+ 	<entry name="feisheng"  type="int32"  desc="飞升等级" /> 
+ 	<entry name="feishengext"  type="int32"  desc="当前飞升经验" /> 
+	<entry name="FightPower"  type="int32"  desc="战斗力" /> 
+	<entry name="AttrType"  type="int32" count= '3' desc="属性类型" /> 
+	<entry name="AttrValue"  type="int32"  count = '3' desc="属性值" /> 
+</struct>
+  
+ <struct name="MsgData_sUpdateMagicKeyInfo" desc="更新法宝信息 msgId:8628" dir="2">
+	<entry name="count" type="uint32" desc="数量" />
+	<entry name="items" type="MsgData_sMagickeyinfo" count = "count" desc="法宝信息例表" />
+</struct>
+
+
+ <struct name="MsgData_sTrainMagicKey" desc="返回法宝培养结果 msgId:8633" dir="2">
+	<entry name="result" type="int32" desc="法宝培养结果0成功，-1功能未开启，-2没有该法宝，-3已达最高级，-4道具不足，-5扣道具失败，-6配置表中无该法宝" />
+</struct>
+ <struct name="MsgData_sMakeresult" desc="法宝打造结果" dir="2">
+	<entry name="guid" type="int64" desc="物品实例id" /> 
+</struct>	
+ 
+ 
+<struct name="MsgData_sMakeMagicKey" desc="返回法宝打造结果 msgId:8627" dir="2">
+	<entry name="result" type="int32" desc="法宝打造结果" />
+	<entry name="count" type="uint32" desc="数量" />
+	<entry name="items" type="MsgData_sMakeresult" count = "count" desc="法宝打造信息例表" />
+</struct>
+
+ <struct name="MsgData_sWashMakeresult" desc="法宝祝福值列表" dir="2">
+	<entry name="MagicKeyMakeOrder" type="int32" desc="打造的等阶ID" /> 
+	<entry name="MagicKeyWashValue" type="int32" desc="现有的打造祝福值" /> 
+	<entry name="MagicKeyMaxWashValue" type="int32" desc="最大的打造祝福值;" /> 
+</struct>	
+ 
+ <struct name="MsgData_sMagicKeyWashInfo" desc=" 返回法宝祝福值信息 msgId:8818;" dir="2">
+	<entry name="count" type="uint32" desc="数量" />
+	<entry name="items" type="MsgData_sWashMakeresult" count = "count" desc=" 法宝祝福值列表;" />
+</struct>
+  
+ <struct name="MsgData_sGodInfosList" desc="仙灵列表" dir="2">
+	<entry name="guid" type="int64" desc="物品实例id" /> 
+	<entry name="wuxing" type="int32" desc="悟性值" /> 
+	<entry name="id" type="int32" desc="配置ID" /> 
+	<entry name="magicGuid" type="int64" desc="法宝实例ID" /> 
+</struct>	
+
+<struct name="MsgData_sReturnMagicKeyGodInfos" desc="返回法宝仙灵列表 msgId:8697" dir="2">
+	<entry name="count" type="uint32" desc="数量" />
+	<entry name="items" type="MsgData_sGodInfosList" count = "count" desc="仙灵列表" />
+</struct>
+
+ <struct name="MsgData_sResMaigcKeyGodInset" desc="返回仙灵穿戴结果 msgId:8709" dir="2">
+	<entry name="guid" type="int64" desc="物品实例id" /> 
+	<entry name="magicGuid" type="int64" desc="法宝实例ID" /> 
+</struct>	
+ 
+
+ 
+  <struct name="MsgData_sPassSkill" desc="被动技能列表" dir="2"> 
+	<entry name="skillID" type="int32" desc="被动技能" />  
+</struct>	
+
+<struct name="MsgData_sMagicKeyInsetSkill" desc="返回法宝技能 msgId:8736" dir="2">
+	<entry name="guid" type="int64" desc="法宝实例ID" /> 
+	<entry name="count" type="uint32" desc="数量" />
+	<entry name="items" type="MsgData_sPassSkill" count = "count" desc="法宝实例列表" />
+</struct>
+ 
+
+ <struct name="MsgData_sMagicKeyFeiSheng" desc="返回:法宝飞升升经验 msgId:9037" dir="2">
+	<entry name="result" type="int32" desc=" 0成功 1材料不足" />
+	<entry name="guid" type="int64" desc="法宝实例ID" /> 
+	<entry name="feishengId" type="int32" desc="飞升Id" />
+	<entry name="feishengext" type="int32" desc="飞升经验" />
+</struct>
+ 
+ 
+ <struct name="MsgData_sReturnMagickeySKillLingwu" desc="返回法宝被动技能领悟 msgId:8879" dir="2">
+	<entry name="result" type="int8" desc=" 结果,0成功;" />
+	<entry name="chengeIndex" type="int8" desc="变化的槽位" /> 
+</struct>
+
+ <struct name="MsgData_cMagicKeyStarLevelUp" desc="客户端请求：法宝升星 msgId:3735" dir="1">
+	<entry name="guid" type="int64" desc="法宝实例ID" />
+</struct>
+ 
+ <struct name="MsgData_cTrainMagicKeyItem" desc="损失矿石" dir="1">
+	<entry name="TrainDanguid" type="int64" desc="法宝培养丹ID" />
+	<entry name="TrainDanNum" type="int32" desc="法宝培养丹数量" />
+</struct>
+  
+ <struct name="MsgData_cTrainMagicKey" desc="请求法宝培养 msgId:3626;" dir="1">
+	<entry name="guid" type="int64" desc="法宝的GUID" />
+	<entry name="count" type="uint32" desc="数量" />
+	<entry name="items" type="MsgData_cTrainMagicKeyItem" count = "count" desc="损失矿石列表" />	
+</struct>
+ 
+ <struct name="MsgData_cMakeMagicKey" desc="请求法宝打造 msgId:3623" dir="1">
+	<entry name="MakeOrder" type="int32" desc="法宝打造品阶" />
+	<entry name="MakeCount" type="int32" desc="法宝打造数量" />
+	<entry name="bindFlag" type="int32" desc="材料绑定标志 1 只使用绑定 2 只使用非绑定 3 两者都用，优先绑定" />
+	<entry name="IsVIP" type="int32" desc="1VIP打造, 0普通打造 2 领取法宝" />
+</struct>
+
+<struct name="MsgData_cSuoList" desc="已锁住的技能槽位" dir="1"> 
+	<entry name="indexNum" type="int32" desc="id" />
+</struct>
+
+<struct name="MsgData_cRequestMagickeySkillLingwu" desc="请求法宝被动技能领悟 msgId:3879" dir="1">
+	<entry name="magickId" type="int64" desc="ID" />
+	<entry name="itemID" type="int64" desc="道具ID" />
+	<entry name="count" type="uint32" desc="数量" />
+	<entry name="items" type="MsgData_cSuoList" count = "count" desc="已锁住的技能槽位" />	
+</struct>
+ 
+<struct name="MsgData_cReqMaigcKeyGodInset" desc="客户端请求：法宝仙灵穿戴 msgId:3708;" dir="1"> 
+	<entry name="guid" type="int64" desc="实例ID" />
+	<entry name="magicGuid" type="int64" desc="法宝实例ID" />
+	<entry name="type" type="int32" desc=" 0、穿上  1、卸下" />
+</struct>
+
+
+ <struct name="MsgData_sMagicKeyStarLevelUp" desc="返回升星结果 msgId:8735" dir="2">
+	<entry name="progressNum" type="int32" desc="法宝星级每次进度数量" />
+	<entry name="result" type="int32" desc="结果 0-成功 1-失败" />
+</struct>
+  
+<struct name="MsgData_cReqGemOpenInfo" desc="客户端请求：宝石孔位信息 msgId:3738;" dir="1">
+</struct>
+
+<struct name="MsgData_sGemOpenItem" desc="孔位信息" dir="2">
+	<entry name="Pos" type="int32" desc="空位" />
+	<entry name="IsOpen" type="int32" desc="是否开启1开启" />
+</struct>
+
+<struct name="MsgData_sGemOpenInfo" desc="服务器返回: 宝石孔位信息 msgId:8738" dir="2">
+	<entry name="Size" type="uint32" desc="Size" />
+	<entry name="Data" type="MsgData_sGemOpenItem" count = "Size" desc="Data" />
+</struct>
+
+<struct name="MsgData_cReqGemSlotOpen" desc="客户端请求：开启宝石孔位 msgId:3739;" dir="1">
+	<entry name="Pos" type="int32" desc="空位" />
+</struct>
+
+<struct name="MsgData_sReqGemSlotOpen" desc="服务器返回: 开启宝石孔位信息 msgId:8739;" dir="2">
+	<entry name="Result" type="int32" desc="结果" />
+	<entry name="Pos" type="int32" desc="位置" />
+</struct>
+
+<struct name="MsgData_cReqEquipGemInset" desc="请求装备宝石操作 msgId:3610;" dir="1">
+	<entry name="Pos" type="int32" desc="空位" />
+	<entry name="Guid" type="int64" desc="Guid" />
+	<entry name="Type" type="int32" desc="操作类型 1镶嵌, 2卸下 3 一键镶嵌;" />
+</struct>
+
+<struct name="MsgData_sGemInsetItem" desc="宝石镶嵌信息" dir="2">
+	<entry name="Pos" type="int32" desc="空位" />
+	<entry name="Guid" type="int64" desc="Guid" />
+</struct>
+
+<struct name="MsgData_sReqEquipGemInset" desc="返回装备宝石操作 msgId:8611;" dir="2">
+	<entry name="Size" type="uint32" desc="Size" />
+	<entry name="Data" type="MsgData_sGemInsetItem" count = "Size" desc="Data" />
+</struct>
+
+<struct name="MsgData_cEquipGemUpLevel" desc="装备宝石升级 msgId:3157;" dir="1">
+	<entry name="ID" type="int32" desc="ID" />
+	<entry name="AutoBuy" type="int32" desc="是否自动购买0=true;" />
+</struct>
+
+<struct name="MsgData_sEquipGemUpLevel" desc="返回宝石升级信息 msgId:8157;" dir="2">
+	<entry name="Result" type="int32" desc="Result" />
+	<entry name="ID" type="int32" desc="ID" />
+	<entry name="Level" type="int32" desc="Level" />
+</struct>
+
+<struct name="MsgData_sTeleportFreeTime" desc="服务器通知:免费传送次数 msgId:8412" dir="2">
+	<entry name="Time" type="int32" desc="免费传送次数(玩家初始有n次, 低于n后每小时恢复1次,最大累积n次,每日0点重置为n次.n在常量表配置)" />
+</struct>
+
+<struct name="MsgData_cDungeonNpcTalkEnd" desc="请求剧情副本NPC对话结束 msgId:3101;" dir="1"> 
+	<entry name="id" type="int32" desc="剧情副本stepid, 1 = 任务" />
+</struct>
+
+<struct name="MsgData_cEnterDungeon" desc="请求进入剧情副本 msgId:3102;" dir="1"> 
+	<entry name="flag" type="int32" desc="1.重新开始，  2.延续上一次中途退出的副本" />
+	<entry name="id" type="int32" desc="副本id" />
+</struct>
+
+<struct name="MsgData_cLeaveDungeon" desc="请求退出剧情副本 msgId:3103;" dir="1"> 
+	<entry name="id" type="int32" desc="副本id" />
+</struct>
+
+<struct name="MsgData_cStoryEnd" desc="剧情播放完成 msgId:3104;" dir="1"> 
+	<entry name="type" type="int32" desc="1.对话框   2.任务：其他是剧情" />
+	<entry name="id" type="int32" desc="剧情id" />
+</struct>
+
+<struct name="MsgData_cDungeonGrup" desc="请求副本组列表 msgId:3137;" dir="1"> 
+  
+</struct>
+
+<struct name="MsgData_cDungeonAbstain" desc="放弃副本(副本进行中退出后倒计时,点击确定放弃) msgId:3140;" dir="1"> 
+  	<entry name="id" type="int32" desc="副本ID" />
+</struct>
+
+<struct name="MsgData_cDungeonGetAward" desc="领取奖励 msgId:3141;" dir="1"> 
+  
+</struct>
+		
+<struct name="MsgData_sEnterDungeonResult" desc="进入副本返回结果 msgId:8102" dir="2">
+	<entry name="result" type="int32" desc="0成功，1错误，2副本已关闭， 3不在同一线， 4当前场景不对" />
+	<entry name="id" type="int32" desc="副本id" />
+	<entry name="stepId" type="int32" desc="步骤id" />
+	<entry name="time" type="int32" desc="副本进行时间" />
+	<entry name="bossId" type="int32" desc="boss变异id" />
+	<entry name="bossStar" type="int32" desc="boss星级" />
+</struct>	
+
+<struct name="MsgData_sLeaveDungeonResult" desc="离开副本返回结果 msgId:8103" dir="2"> 
+	<entry name="result" type="int32" desc="0成功" />	
+</struct>	
+
+<struct name="MsgData_sStoryEndResult" desc="剧情完成返回结果 msgId:8104" dir="2"> 
+	<entry name="result" type="int32" desc="0成功" />	
+</struct>	
+
+<struct name="MsgData_sStoryStep" desc="副本剧情步骤 msgId:8105" dir="2"> 
+	<entry name="stepId" type="int32" desc="步骤id" />	
+	<entry name="id" type="int32" desc="副本id" />	
+</struct>	
+
+<struct name="MsgData_sDungeonDifficulty" desc="副本组各难度得分" dir="2"> 
+	<entry name="time" type="int32" desc="通关最快时间" />	
+</struct>	
+
+<struct name="MsgData_sDungeonGroupList" desc="副本组列表" dir="2"> 
+	<entry name="group" type="int32" desc="副本组:各个难度组成一组" />
+	<entry name="useTimes" type="int8" desc="已用次数" />
+	<entry name="usePayTimese" type="int8" desc="已用付费次数" />
+	<entry name="curDiff" type="int8" desc="对应5个难度:1,2,3,4,5" />
+	<entry name="sourceList" type="MsgData_sDungeonDifficulty" count = "5" desc="副本组各难度得分" />
+</struct>
+	
+<struct name="MsgData_sDungeonGroupUpdate" desc="副本组列表更新 msgId:8137" dir="2">
+	<entry name="listCount" type="int32" desc="成员个数" />
+	<entry name="groupList" type="MsgData_sDungeonGroupList" count = "listCount" desc="副本组列表" />	
+</struct>	
+		
+<struct name="MsgData_sDungeonCountDown" desc="开始副本关闭倒计时 msgId:8140" dir="2">
+	<entry name="id" type="int32" desc="副本id" />
+	<entry name="line" type="int32" desc="线" />
+	<entry name="time" type="int32" desc="倒计时时间" />
+</struct>	
+
+<struct name="MsgData_sDungeonPassResult" desc="副本过关结果 msgId:8141" dir="2">
+	<entry name="id" type="int32" desc="副本id" />
+	<entry name="result" type="int32" desc="1.胜利   0失败" />
+</struct>	
+
+<struct name="MsgData_cDungeonQuestEnter" desc="请求进入任务副本 msgId:4933;" dir="1"> 
+  
+</struct>	
+		
+<struct name="MsgData_cDungeonQuestQuit" desc="请求退出任务副本 msgId:4934;" dir="1"> 
+	
+</struct>	
+				
+<struct name="MsgData_sDungeonQuestStateUpdate" desc="任务副本状态更新 msgId:9935;" dir="2"> 
+	<entry name="id" type="uint32" desc="副本ID" />
+	<entry name="state" type="uint8" desc="副本状态 0成功，1失败， 2 正在进行中" />
+	<entry name="index" type="uint8" desc="怪物波数" />
+	<entry name="num" type="uint8" desc="死亡怪物个数" />	
+</struct>
+
+<struct name="MsgData_cDailyQuestStar" desc="日环任务升到5星 msgId:3152;" dir="1"> 
+	<entry name="id" type="int32" desc="任务ID" />
+</struct>	
+
+<struct name="MsgData_cDailyQuestFinish" desc="日环任务一键完成 msgId:3153;" dir="1"> 
+	<entry name="type" type="int32" desc="1.免费领一倍   2.元宝领" />
+</struct>	
+
+<struct name="MsgData_cDailyQuestResult" desc="请求日环任务结果 msgId:3154;" dir="1"> 
+	
+</struct>	
+
+<struct name="MsgData_cDailyDraw" desc="日环任务抽奖 msgId:3155;" dir="1"> 
+	
+</struct>	
+
+<struct name="MsgData_cDailyDrawConfirm" desc="日环任务抽奖确认 msgId:3156;" dir="1"> 
+	
+</struct>	
+
+<struct name="MsgData_cAgainstQuestStar" desc="讨伐日环任务升到5星 msgId:3702;" dir="1"> 
+	<entry name="id" type="int32" desc="任务ID" />
+</struct>	
+
+<struct name="MsgData_cAgainstQuestFinish" desc="讨伐任务一键完成 msgId:3703;" dir="1"> 
+	
+</struct>	
+
+<struct name="MsgData_cAgainstQuestResult" desc="请求讨伐任务结果 msgId:3704;" dir="1"> 
+	
+</struct>	
+
+<struct name="MsgData_cAgainstDraw" desc="讨伐任务抽奖 msgId:3705;" dir="1"> 
+	
+</struct>	
+
+<struct name="MsgData_cGetAgainstDraw" desc="讨伐跳环领奖 msgId:3706;" dir="1"> 
+	<entry name="type" type="int32" desc="1.免费领一倍   2.银两领双倍  3.元宝领三倍" />
+</struct>	
+
+
+<struct name="MsgData_cDAgainstDrawConfirm" desc="讨伐任务抽奖确认 msgId:3709;" dir="1"> 
+	
+</struct>	
+
+<struct name="MsgData_sDailyQuestStar" desc="日环任务升5星结果 msgId:8152" dir="2">
+	<entry name="result" type="int8" desc="0成功 1钱不够  2目标任务不存在" />
+</struct>	
+
+ <struct name="MsgData_sDailyQuestRewardlist" desc="日环抽奖列表" dir="2">
+	<entry name="id" type="int32" desc="物品id" /> 
+	<entry name="num" type="int32" desc="数量" /> 
+</struct>	
+
+
+ <struct name="MsgData_sDailyQuestList" desc="一键完成的日环任务列表" dir="2">
+	<entry name="id" type="int32" desc="任务id" /> 
+	<entry name="star" type="int32" desc="星级" /> 
+	<entry name="num" type="int32" desc="倍率" /> 
+</struct>	
+
+<struct name="MsgData_sDailyQuestFinish" desc="返回日环任务一键完成奖励信息 msgId:8153" dir="2">
+	<entry name="result" type="int8" desc="0成功 1钱不够  2VIP等级不够  3等级不足" />
+	<entry name="level" type="int32" desc="每日完成奖励等级" />
+	<entry name="rewardList" type="MsgData_sDailyQuestRewardlist" count = "4" desc="日环抽奖列表" />
+	<entry name="count" type="uint32" desc="完成的日环任务列表个数" />
+	<entry name="questList" type="MsgData_sDailyQuestList" count="count" desc="一键完成的日环任务列表" />
+</struct>	
+
+<struct name="MsgData_sDailyQuestResult" desc="返回日环任务结果 msgId:8154" dir="2">
+	<entry name="questList" type="MsgData_sDailyQuestList" count = "20" desc="日环任务列表" />
+	<entry name="rewardList" type="MsgData_sDailyQuestRewardlist" count = "4" desc="日环抽奖列表" />
+</struct>		
+
+<struct name="MsgData_sDailyDraw" desc="返回日环任务抽奖 msgId:8155" dir="2">
+	<entry name="rewardIndex" type="int32" desc="奖励索引" />
+	<entry name="doubleIndex" type="int32" desc="倍数索引" />
+</struct>	
+		
+<struct name="MsgData_sAgainstQuestStar" desc="讨伐任务升5星结果 msgId:8702" dir="2">
+	<entry name="result" type="int8" desc="0成功 1钱不够  2目标任务不存在" />
+</struct>	
+	
+	
+ <struct name="MsgData_sAgainstQuestList" desc="一键完成的讨伐任务列表" dir="2">
+	<entry name="id" type="int32" desc="任务id" /> 
+</struct>	
+
+<struct name="MsgData_sAgainstQuestFinish" desc="返回讨伐任务一键完成奖励信息 msgId:8703" dir="2">
+	<entry name="result" type="int8" desc="0成功 1钱不够  2VIP等级不够  3等级不足" />
+	<entry name="level" type="int32" desc="每日完成奖励等级" />
+	<entry name="count" type="uint32" desc="完成的日讨伐任务列表个数" />
+	<entry name="questList" type="MsgData_sAgainstQuestList" count="count" desc="一键完成的讨伐任务列表" />
+</struct>	
+	
+<struct name="MsgData_sAgainstQuestResult" desc="返回讨伐任务结果 msgId:8704" dir="2">
+	<entry name="questList" type="MsgData_sDailyQuestList" count = "20" desc="日环任务列表" />
+	<entry name="rewardList" type="MsgData_sDailyQuestRewardlist" count = "4" desc="日环抽奖列表" />
+</struct>	
+
+<struct name="MsgData_sAgainstQuestDraw" desc="返回讨伐任务抽奖 msgId:8705" dir="2">
+	<entry name="rewardIndex" type="int32" desc="奖励索引" />
+	<entry name="doubleIndex" type="int32" desc="倍数索引" />
+</struct>		
+
+<struct name="MsgData_sAgainstQSkipReward" desc="服务端通知:讨伐跳环领奖 msgId:8706" dir="2">
+	<entry name="result" type="int8" desc="日环跳环领取结果:0 成功" />
+</struct>			
+		
+<struct name="MsgData_sAgainstQuestSkipResult" desc="服务端返回跳环结果 msgId:8707" dir="2">
+	<entry name="rount" type="int32" desc="跳到第几环" />
+	<entry name="count" type="uint32" desc="列表数量" />
+	<entry name="AgainstQuestList" type="MsgData_sDailyQuestList" count="count" desc="跳过的任务列表，跳环均以5星结算" />
+</struct>			
+
+<struct name="MsgData_sAgainstQDrawNotice" desc="服务端通知是否抽奖，每环结束都要发 msgId:8708" dir="2">
+	<entry name="result" type="int8" desc="0抽奖， 1不抽奖" />
+</struct>	
+
+	
+ <struct name="MsgData_sQuestReward" desc="服务端通知：任务下发的扫荡奖励信息" dir="2">
+	<entry name="itemId" type="int64" desc="物品id" /> 
+	<entry name="count" type="int32" desc="物品数量" /> 
+</struct>	
+
+<struct name="MsgData_sQuestRewardResult" desc="服务端通知：任务下发的扫荡奖励 msgId:9940" dir="2">
+	<entry name="type" type="int32" desc="2.跑环奖励   3讨伐奖励   4 通缉奖励" />
+	<entry name="exp" type="int64" desc="经验奖励" />
+	<entry name="money" type="int32" desc="金币奖励" />
+	<entry name="zhiqi" type="int32" desc="灵气奖励" />
+	<entry name="count" type="int32" desc="完成的奖励列表个数" />
+	<entry name="itemList" type="MsgData_sQuestReward" count="count" desc="物品奖励列表" />
+</struct>	
+							
+
+<struct name="MsgData_cItemCompose" desc="请求合成道具 msgId:3204;" dir="1"> 
+	<entry name="ID" type="int32" desc="合成分解的道具Id;" />
+	<entry name="Type" type="int32" desc="合成分解类型 1:合成 2:分解;" />
+	<entry name="Count" type="int32" desc="合成分解的道具数量;" />
+</struct>
+
+<struct name="MsgData_sItemCompose" desc="服务端通知:返回道具合成信息 msgId:8204;" dir="2"> 
+	<entry name="Result" type="int32" desc="返回结果;" />
+	<entry name="ID" type="int32" desc="合成分解的道具Id;" />
+	<entry name="Type" type="int32" desc="合成分解类型 1:合成 2:分解;" />
+</struct>
+
+<struct name="MsgData_sChangeBegin" desc="服务端广播通知:  开始变身 msgid: 9936" dir="2"> 
+	<entry name="ID" type="int64" desc="ID" />
+	<entry name="ChangeID" type="uint32" desc="" />
+</struct>
+
+<struct name="MsgData_sChangeEnd" desc="服务端广播通知:  结束变身 msgid: 9937" dir="2"> 
+	<entry name="ID" type="int64" desc="ID" />
+	<entry name="ChangeID" type="uint32" desc="" />
+</struct>
+
+<struct name="MsgData_cHongyanAct" desc="客户端请求：红颜操作 msgId:3754;" dir="1"> 
+	<entry name="ID" type="int32" desc="红颜ID" />
+	<entry name="Type" type="int32" desc="1好感度，2升级, 3自动购买升星升阶;" />
+</struct>
+
+<struct name="MsgData_sHongyanAct" desc="服务器返回：激活返回结果 msgId:8756;" dir="2"> 
+	<entry name="ID" type="int32" desc="红颜ID" />
+	<entry name="Result" type="int32" desc="请求激活结果 0:成功" />
+	<entry name="State" type="int32" desc="激活类型 0-未激活 1-激活;" />
+	<entry name="Jiedian" type="int32" desc="当前节点" />
+	<entry name="JiedianLevel" type="int32" desc="节点对应的等级" />
+</struct>
+
+<struct name="MsgData_cHongyanFight" desc="客户端请求：红颜出战类型变化 msgId:3755;" dir="1"> 
+	<entry name="ID" type="int32" desc="红颜ID" />
+	<entry name="State" type="int32" desc="1 -未出战 2-已出战" />
+</struct>
+
+<struct name="MsgData_sHongyanFight" desc="服务器返回：红颜出战类型变化 msgId:8758;" dir="2"> 
+	<entry name="Result" type="int32" desc="出战状态改变 0-成功 -1-失败" />
+	<entry name="ID" type="int32" desc="红颜ID" />
+	<entry name="State" type="int32" desc="1 -未出战 2-已出战" />
+</struct>
+  
+<struct name="MsgData_cBeautyWomanUseAtt" desc="请求:红颜使用属性丹 msgId:3804;" dir="1"> 
+	<entry name="ID" type="int32" desc="红颜ID" />
+</struct>
+<struct name="MsgData_sBeautyWomanLevelUp" desc="服务器返回：升阶返回结果 msgId:8757" dir="2"> 
+	<entry name="ID" type="int32" desc="红颜ID" />
+	<entry name="result" type="int32" desc="请求升阶结果 0:成功" />
+	<entry name="State" type="int32" desc="升阶类型 0-升星 1-升阶" />
+	<entry name="starNum" type="int32" desc="星数" />
+	<entry name="currentExp" type="int32" desc="星数经验" />
+	<entry name="gradeNum" type="int32" desc="等阶" />
+	<entry name="radExp" type="int32" desc="祝福值" />
+</struct>
+
+<struct name="MsgData_sBeautyWomanVo" desc="美人信息" dir="2"> 
+	<entry name="ID" type="int32" desc="红颜ID" />
+	<entry name="actState" type="int32" desc="激活类型 0-未激活 1-已激活 2-已出战" />
+	<entry name="jiedian" type="int32" desc="当前节点" />
+	<entry name="jiedianlevel" type="int32" desc="节点对应的等级" />
+	<entry name="gradeState" type="int32" desc="升阶类型 0-升星 1-升阶" />
+	<entry name="gradeNum" type="int32" desc="等阶" />
+	<entry name="starNum" type="int32" desc="星数" />
+	<entry name="currentExp" type="int32" desc="星数经验" />
+	<entry name="gradExp" type="int32" desc="祝福值" />
+	<entry name="count" type="int32" desc="已使用的数量" />
+	<entry name="fighting" type="int32" desc="战斗力" />
+</struct>
+<struct name="MsgData_sBeautyWomanFightingUpdate" desc="更新红颜战斗力信息  msgid: 9941" dir="2"> 
+	<entry name="ID" type="int32" desc="红颜ID" />
+	<entry name="fighting" type="int32" desc="红颜战斗力" />
+</struct>
+
+ <struct name="MsgData_sBeautyWomanInfo" desc="服务器通知:红颜信息(玩家登陆;每天更新) msgId:8755" dir="2"> 
+	<entry name="ID" type="int32" desc="红颜ID" />
+	<entry name="count" type="uint32" desc="列表数量" />
+	<entry name="items" type="MsgData_sBeautyWomanVo" count="count" desc="美人信息列表" />	
+</struct>
+
+
+ <struct name="MsgData_sBeautyWomanUseAtt" desc="返回: 修为等级信息 msgId:8804;" dir="2"> 
+	<entry name="result" type="int32" desc="使用结果 0-成功" />
+	<entry name="ID" type="int32" desc="红颜ID" />
+	<entry name="count" type="int32"  desc="已使用的数量" />	
+</struct>
+ 
+ <struct name="MsgData_cMagicWeaponLevelUp" desc="请求:神兵进阶 msgId:3250;" dir="1"> 
+	<entry name="autobuy" type="int32" desc="道具不足时是否自动购买，0自动购买" />
+</struct>
+
+<struct name="MsgData_cMagicWeaponChangeModel" desc="请求:神兵换模型 msgId:3456;" dir="1"> 
+	<entry name="level" type="int32" desc="请求更换模型的等阶(即配表ID)" />
+</struct>
+
+ <struct name="MsgData_sMagicWeaponInfo" desc="服务器通知:神兵信息 msgId:8248" dir="2"> 
+	<entry name="level" type="int32" desc="神兵等阶" />
+	<entry name="modelLevel" type="int32" desc="神兵使用模型的等阶(神兵等阶)" />
+	<entry name="proficiency" type="int32" desc="神兵熟练度" />
+	<entry name="lvlProficiency" type="int32" desc="熟练度等级" />
+	<entry name="pillNum" type="int32" desc="属性丹数量" />
+	<entry name="pillNumPercent" type="int32" desc="资质丹数量" />
+	<entry name="uplevelNum" type="int32" desc="疲劳值" />		
+</struct>
+
+ <struct name="MsgData_sMagicWeaponProficiency" desc="服务器通知:神兵熟练度 msgId:8249" dir="2"> 
+	<entry name="proficiency" type="int32" desc="神兵熟练度" />
+</struct>
+
+ <struct name="MsgData_sMagicWeaponLevelUp" desc="服务器通知:神兵进阶 msgId:8250" dir="2"> 
+	<entry name="result" type="int8" desc="0 成功，2 神兵未解锁，3已达到等级上限，4熟练度不够，5金币不够，6道具数量不足" />
+	<entry name="proficiency" type="int32" desc="神兵熟练度" />
+	<entry name="lvlProficiency" type="int32" desc="熟练度等级" />
+	<entry name="uplevelNum" type="int32" desc="疲劳值" />			
+</struct>
+
+ <struct name="MsgData_sMagicWeaponChangeModel" desc="服务器通知:神兵换模型结果 msgId:8456" dir="2"> 
+	<entry name="level" type="int32" desc="成功时:更换后的模型等阶   失败时:-1等级不够，-2其他" />
+</struct>
+
+
+
+<struct name="MsgData_cDominateRoute" desc="请求UI信息 msgId:3390;" dir="1"> 
+</struct>
+
+<struct name="MsgData_cDominateRouteChallenge" desc="请求挑战 msgId:3392;" dir="1"> 
+	<entry name="id" type="int32" desc="挑战ID" />
+</struct>
+
+<struct name="MsgData_cDominateRouteQuit" desc="请求退出 msgId:3393;" dir="1"> 
+</struct>
+
+ <struct name="MsgData_cDominateRouteRequestReward" desc="领取宝箱 msgId:3394;" dir="1"> 
+	<entry name="id" type="int32" desc="挑战ID" />
+</struct> 
+
+<struct name="MsgData_cDominateRouteWipe" desc="请求扫荡 msgId:3395" dir="1"> 
+	<entry name="id" type="int32" desc="扫荡ID" />
+	<entry name="num" type="int32" desc="扫荡次数" />
+</struct> 
+ 
+
+ <struct name="MsgData_sDominateRouteData" desc="返回UI信息 msgId:8390" dir="2"> 
+	<entry name="enterNum" type="int32" desc="剩余挑战次数" />
+	<entry name="veillist" type="MsgData_sVeilvo" count = "11" desc="剩余挑战次数" />
+	<entry name="count" type="uint32" desc="数量" />
+	<entry name="items" type="MsgData_sStagevo" count = "count" desc="数量" />
+</struct>
+ 
+  <struct name="MsgData_sDominateRouteUpDate" desc="刷新 msgId:8391" dir="2"> 
+	<entry name="num" type="int32" desc="剩余次数" />
+	<entry name="state" type="int32" desc="0 没扫荡 1在扫荡" />
+	<entry name="time" type="int64" desc="扫荡剩余时间0 待领取倒计时" />
+	<entry name="id" type="int32" desc="id" />
+	<entry name="rewardType" type="int32" desc="0:未开启1：可领取2：已领取" />	
+</struct>
+ 
+<struct name="MsgData_sBackDominateRouteChallenge" desc="返回挑战 msgId:8392" dir="2"> 
+	<entry name="result" type="int32" desc="进入结果返回: 0失败 1成功" />
+	<entry name="id" type="int32" desc="返回进入挑战" />
+</struct>
+ 
+<struct name="MsgData_sBackDominateRouteQuit" desc="返回退出 msgId:8393;" dir="2"> 
+	<entry name="result" type="int32" desc="进入结果返回: 0失败 1成功" />
+</struct>
+
+<struct name="MsgData_sBackDominateRouteInfo" desc="返回追踪信息 msgId:8394;" dir="2"> 
+	<entry name="num" type="int32" desc="待定~~~" />
+</struct>
+  
+<struct name="MsgData_sBackDominateRouteWipe" desc="返回扫荡 msgId:8395" dir="2"> 
+	<entry name="result" type="int32" desc="进入结果返回: 0失败 1成功" />
+	<entry name="id" type="int32" desc="返回进入挑战" />
+	<entry name="num" type="int32" desc="待定返回扫荡次数"/>
+</struct>
+
+<struct name="MsgData_sBackDominateRouteVigor" desc="返回购买精力 msgId:8396;" dir="2"> 
+	<entry name="result" type="int32" desc="进入结果返回: 0失败 1成功" />
+</struct>
+ 
+<struct name="MsgData_sBackDominateRouteBoxReward" desc="返回领取宝箱奖励 msgId:8397;" dir="2"> 
+	<entry name="result" type="int32" desc="购买领取结果: 0失败 1成功" />
+	<entry name="id" type="int32" desc="返回领取id" />
+</struct>
+ <struct name="MsgData_sBackDominateRouteEnd" desc="返回通关 msgId:8398;" dir="2"> 
+	<entry name="level" type="int32" desc="评定" />
+	<entry name="result" type="int32" desc="购买领取结果: 0失败 1成功" />
+</struct>
+
+ <struct name="MsgData_sBackDominateRouteMopupEnd" desc="返回扫荡结束 msgId:8399" dir="2"> 
+	<entry name="id" type="int32" desc="扫荡完成的ID" />
+	<entry name="result" type="int32" desc="扫荡结果" />
+	<entry name="num" type="int32" desc="扫荡次数" />
+</struct>
+
+
+ <struct name="MsgData_cPiFengLevelUp" desc="请求:圣盾进阶 msgId:3724;" dir="1"> 
+	<entry name="autobuy" type="int32" desc="道具不足时是否自动购买，0自动购买" />
+	<entry name="uptype" type="int32" desc=" 1激活，2升级;" />
+</struct>
+
+<struct name="MsgData_cPiFengChangeModel" desc="请求:圣盾换模型 msgId:3725;" dir="1"> 
+	<entry name="level" type="int32" desc="请求更换圣盾等阶(即配表ID)" />
+</struct>
+
+ <struct name="MsgData_sPiFengInfo" desc="服务器通知:圣盾信息 msgId:8723" dir="2"> 
+	<entry name="level" type="int32" desc="圣盾等阶" />
+	<entry name="wish" type="int32" desc="祝福值" />
+	<entry name="useLevel" type="int32" desc="使用圣盾" />
+	<entry name="pillNum" type="int32" desc="属性丹数量" />
+	<entry name="pillNumPercent" type="int32" desc="属性丹数量(加百分比)" />
+	<entry name="star" type="int32" desc="等阶星数" />		
+</struct>
+
+ <struct name="MsgData_sPiFengLevelUp" desc="服务器通知:圣盾进阶 msgId:8724" dir="2"> 
+	<entry name="result" type="int32" desc="0 0:成功(成功获得祝福值),1:其他错误, 2:圣盾未解锁, 3:已达等级上限, 4:金币不够, 5:道具数量不足，8:自动购买失败，9:道具扣除失败，10:金币扣除失败" />
+	<entry name="level" type="int32" desc="圣盾等阶" />
+	<entry name="wish" type="int32" desc="祝福值" />
+	<entry name="star" type="int32" desc="星数" />			
+</struct>
+
+ <struct name="MsgData_sPiFengChangeModel" desc="服务器通知:圣盾换模型结果 msgId:8725" dir="2"> 
+	<entry name="result" type="int32" desc="0:成功 1:失败" />
+	<entry name="level" type="int32" desc="圣盾等阶" />
+</struct>
+	
+<struct name="MsgData_cReqCrownInfo" desc="请求:拥有王冠信息 msgId:4936;" dir="1">
+</struct>
+
+ <struct name="MsgData_sCrownInfo" desc="返回:王冠数据" dir="2">
+	<entry name="ID" type="int32" desc="王冠ID" /> 
+	<entry name="SkillID" type="int32" desc="技能ID" /> 
+</struct>
+
+<struct name="MsgData_sResCrownInfo" desc="返回:拥有王冠信息 msgId:9942;" dir="2">
+	<entry name="Size" type="int16" desc="数据长度" /> 
+	<entry name="List" type="MsgData_sCrownInfo" count="Size" desc="数据" /> 
+</struct>
+
+<struct name="MsgData_cReqCrownSkillUp" desc="请求:王冠技能升级 msgId:4937;" dir="1">
+	<entry name="ID" type="int32" desc="王冠ID" /> 
+	<entry name="SkillID" type="int32" desc="技能ID" /> 
+</struct>
+
+<struct name="MsgData_sResCrownSkillUp" desc="返回:王冠技能升级 msgId:9943" dir="2">
+	<entry name="Result" type="int16" desc="升级结果反馈：0成功，其它失败" /> 
+	<entry name="ID" type="int32" desc="王冠ID" /> 
+	<entry name="SkillID" type="int32" desc="技能ID" /> 
+</struct>
+
+<struct name="MsgData_sResCrownActive" desc="返回:王冠激活 msgId:9944" dir="2">
+	<entry name="ID" type="int32" desc="王冠ID" /> 
+	<entry name="SkillID" type="int32" desc="技能ID" /> 
+</struct>
+
+<struct name="MsgData_cReqCrownFight" desc="客户端请求进入王冠副本 msgId:4946" dir="1">
+	<entry name="id" type="int32" desc="crownID" /> 
+</struct>
+
+<struct name="MsgData_cReqCrownFightLeave" desc="客户端请求离开王冠副本 msgId:4947" dir="1">
+</struct>
+
+<struct name="MsgData_cEnterPersonalBoss" desc="客户端请求进入个人BOSS副本 msgId:3561" dir="1">
+	<entry name="id" type="int32" desc="bossID" /> 
+</struct>
+ 
+
+ 
+ <struct name="MsgData_sPersonalBossVO" desc="BOSS信息" dir="2"> 
+	<entry name="id" type="int32" desc="BOSSID" />
+	<entry name="num" type="int32" desc="已进入次数" />
+	<entry name="isfirst" type="int32" desc="是否已每日首通 0已首通" />
+	<entry name="remainTime" type="int32" desc="大于0剩余秒数 等于0到期 -1错误" />
+</struct> 
+ 
+
+ <struct name="MsgData_sPersonalBossList" desc="服务器返回BOSS挑战列表 msgId:8560" dir="2"> 
+	<entry name="itemEnterNum" type="int32" desc="道具进入次数(已进入次数)" />
+	<entry name="count" type="uint32" desc="数量" />
+	<entry name="items" type="MsgData_sPersonalBossVO" count = "count" desc="数量" />
+</struct>
+ 
+ <struct name="MsgData_sBackEnterResultPersonalBoss" desc="服务器返回进入个人BOSS结果 msgId:8561" dir="2"> 
+	<entry name="result" type="int32" desc="结果 0 成功 -1等级不足 -2次数不足 -3非VIP -4组队 -5异常 -6时间没到" />
+	<entry name="id" type="int32" desc=" id 进入的ID" />
+	<entry name="type" type="int32" desc=" 进入形式 是否是道具 0是道具进入" />
+	<entry name="num" type="int32" desc="已进入免费次数" />
+	<entry name="itemEnterNum" type="int32" desc="已进入道具次数" />
+</struct>  
+
+ <struct name="MsgData_sBackQuitPersonalBoss" desc="服务器:退出个人BOSS结果 msgId:8562" dir="2"> 
+	<entry name="result" type="int32" desc="结果 0 成功 -1失败" />
+</struct>  
+ 
+<struct name="MsgData_sPersonalBossResult" desc="服务器:挑战个人BOSS结果 msgId:8563" dir="2"> 
+	<entry name="result" type="int32" desc="结果 0 成功 -1失败" />
+	<entry name="isfirst" type="int32" desc="结果 0 是" />
+</struct>  
+
+<struct name="MsgData_cTongJiInfo" desc="客户端请求通缉列表 msgId:3164" dir="1">
+
+</struct>
+ 
+ <struct name="MsgData_cTongJiLvlRefresh" desc="难度刷新 msgId:3165;" dir="1">
+	<entry name="type" type="int32" desc=" 刷新类型 0:客户端申请列表 1:银两 2:元宝;" /> 
+</struct>
+ 
+ <struct name="MsgData_cAcceptTongJi" desc="接受通缉任务 msgId:3166;" dir="1">
+	<entry name="id" type="int32" desc=" 通缉id;" /> 
+</struct>
+  
+ <struct name="MsgData_cGetTongJiReward" desc="领取通缉奖励 msgId:3168;" dir="1">
+	<entry name="id" type="int32" desc=" 通缉id;" /> 
+	<entry name="type" type="int32" desc=" 类型 0、普通，1、银两，2、元宝;" /> 
+</struct>
+ 
+ <struct name="MsgData_cGiveupTongJi" desc="放弃通缉 msgId:3169;" dir="1">
+	<entry name="id" type="int32" desc=" 通缉id;" /> 
+</struct>
+ 
+ <struct name="MsgData_cGetTongJiBox" desc="获取通缉宝箱奖励 msgId:3171;" dir="1">
+	<entry name="boxId" type="int32" desc=" 宝箱等级" /> 
+</struct>  
+
+ <struct name="MsgData_cTongJiRefreshState" desc="刷新悬赏状态 msgId:3522;" dir="1">
+	
+</struct>  
+  
+ <struct name="MsgData_sScoreBoxVO" desc="已领奖宝箱列表" dir="2"> 
+	<entry name="boxId" type="int32" desc="宝箱id;" />
+</struct>   
+   
+  <struct name="MsgData_sTongJiInfo" desc="服务端通知:返回通缉信息 msgId:8164;" dir="2"> 
+	<entry name="Group" type="int32" desc=" 当前选择的通缉组id;" />
+	<entry name="id" type="int32" desc=" 当前可选择的通缉id;" />
+	<entry name="state" type="int32" desc=" 活动状态 0:未接受,1已接受,2可领奖,3已领奖;" />
+	<entry name="finishCount" type="int32" desc=" 今日完成次数;" />
+	<entry name="curScore" type="int32" desc=" 当前积分;" />
+	<entry name="coolTime" type="int32" desc=" 剩余冷却时间;" />
+	<entry name="count" type="uint32" desc="列表数量" />
+	<entry name="boxList" type="MsgData_sScoreBoxVO" count="count" desc="已领奖宝箱列表" />			
+</struct>  
+ 
+<struct name="MsgData_sTongJiLvlRefreshResult" desc="服务器通知：返回难度刷新 msgId:8165;" dir="2"> 
+	<entry name="result" type="int32" desc="结果 0 成功 -1失败" />
+	<entry name="id" type="int32" desc="当前可选择的通缉id;" />
+</struct>    
+   
+ <struct name="MsgData_sAcceptTongJiResult" desc="服务器通知：返回接受通缉任务 msgId:8166;" dir="2"> 
+	<entry name="id" type="int32" desc="通缉id;" />
+</struct>    
+ 
+<struct name="MsgData_sFinishTongJi" desc="服务器通知：通缉活动可领奖 msgId:8167;" dir="2"> 
+	<entry name="id" type="int32" desc="通缉id;" />
+</struct>    
+  
+ <struct name="MsgData_sGetTongJiReward" desc="服务器返回结果：返回领取通缉奖励结果 msgId:8168;" dir="2"> 
+	<entry name="result" type="int32" desc="结果 0 成功 1银两不足  2元宝不足" />
+	<entry name="curScore" type="int32" desc="当前积分;" />
+	<entry name="id" type="int32" desc="通缉id" />
+</struct>   
+  
+ <struct name="MsgData_sGiveupTongJiResult" desc="服务器通知：返回放弃通缉结果 msgId:8169;" dir="2"> 
+	<entry name="result" type="int32" desc="结果 0 成功" />
+	<entry name="id" type="int32" desc="通缉id" />
+</struct>     
+
+ <struct name="MsgData_sRefreshTongJiList" desc="服务器通知：自动刷新通缉列表 msgId:8170;" dir="2"> 
+	<entry name="Group" type="int32" desc="当前选择的通缉组id;" />
+	<entry name="id" type="int32" desc="当前可选择的通缉id" />
+</struct>     
+         
+ <struct name="MsgData_sGetTongJiBoxResult" desc="服务器通知：返回获取通缉宝箱结果 msgId:8171;" dir="2"> 
+	<entry name="result" type="int32" desc="结果 0 成功" />
+	<entry name="boxId" type="int32" desc="宝箱id" />
+</struct>     
+
+ <struct name="MsgData_sTongJiRefreshState" desc="服务器通知：刷新悬赏状态结果 msgId:8522;" dir="2"> 
+	<entry name="result" type="int32" desc="结果 0.成功  1.玩家等级/vip等级不足  2.通缉任务状态错误,  3.元宝不足" />
+</struct>    
+
+
+<struct name="MsgData_cOpenMail" desc="请求打开邮件 msgId:2033;" dir="1">
+	<entry name="id" type="int64" desc=" 邮件id" /> 
+</struct>  
+
+<struct name="MsgData_cMailReqItemVo" desc="邮件id" dir="1">
+	<entry name="id" type="int64" desc=" 邮件id" /> 
+</struct>  
+
+<struct name="MsgData_cGetMailItem" desc="请求领取附件 msgId:2034" dir="1">
+	<entry name="count" type="uint32" desc="数量" /> 
+	<entry name="items" type="MsgData_cMailReqItemVo" count="count" desc="列表" /> 
+</struct>   
+
+
+<struct name="MsgData_cReqMailDelVo" desc="邮件id" dir="1">
+	<entry name="id" type="int64" desc=" 邮件id" /> 
+</struct>  
+
+<struct name="MsgData_cDelMail" desc="请求删除邮件 msgId:2035;" dir="1">
+	<entry name="count" type="uint32" desc="数量" /> 
+	<entry name="items" type="MsgData_cReqMailDelVo" count="count" desc="列表" /> 
+</struct>    
+ 
+ 
+ <struct name="MsgData_sMailVo" desc="邮件信息" dir="2"> 
+	<entry name="id" type="int64" desc="邮件id" /> 
+	<entry name="read" type="int8" desc="是否读过 0 - 未读， 1 - 已读" /> 
+	<entry name="item" type="int8" desc="是否领取过附件0 - 没有附件， 1 - 未领取附件， 2 - 已领取附件" /> 
+	<entry name="sendTime" type="int64" desc="发件时间" /> 
+	<entry name="leftTime" type="int64" desc="剩余时间" /> 
+	<entry name="mailtitle" type="buffer" count="50"  desc="邮件标题" /> 
+	<entry name="mailTxtId" type="int32" desc="配表id" /> 
+</struct>    
+<struct name="MsgData_sGetMailResult" desc="返回邮件列表 msgId:7032" dir="2"> 
+	<entry name="count" type="uint32" desc="列表数量" />
+	<entry name="items" type="MsgData_sMailVo" count="count" desc="邮件列表" />			
+</struct>  
+ 
+ <struct name="MsgData_sMailItemVo" desc="物品列表" dir="2"> 
+	<entry name="itemid" type="int32" desc="附件物品id" /> 
+	<entry name="itemcount" type="int64" desc="附件物品数量" /> 
+</struct> 
+<struct name="MsgData_sOpenMailResult" desc="返回打开邮件 msgId:7033" dir="2"> 
+	<entry name="id" type="int64" desc="邮件id" /> 
+ 	<entry name="item" type="int8" desc="是否领取过附件0 - 没有附件， 1 - 未领取附件， 2 - 已领取附件" /> 
+	<entry name="contnet" type="buffer" count="512"  desc="邮件内容 type=1 'param1:type1,param2:type2" /> 
+	<entry name="items" type="MsgData_sMailItemVo" count="8" desc="邮件列表" />			
+</struct>  
+
+ <struct name="MsgData_sMailRespItemVo" desc=" " dir="2"> 
+	<entry name="id" type="int64" desc="邮件id" /> 
+	<entry name="result" type="int8" desc="领取邮件附件结果 0- 成功 1-失败" /> 
+</struct> 
+<struct name="MsgData_sGetMailItemResult" desc="请求领取附件返回 msgId:7034" dir="2"> 
+	<entry name="count" type="uint32" desc="列表数量" />
+	<entry name="items" type="MsgData_sMailRespItemVo" count="count" desc="附件列表" />			
+</struct>  
+ 
+ <struct name="MsgData_sRespMailDelVo" desc=" " dir="2"> 
+	<entry name="id" type="int64" desc="邮件id" /> 
+</struct> 
+
+<struct name="MsgData_sDelMail" desc="请求删除邮件返回 msgId:7035" dir="2"> 
+	<entry name="count" type="uint32" desc="列表数量" />
+	<entry name="items" type="MsgData_sRespMailDelVo" count="count" desc="列表" />			
+</struct>  
+
+<struct name="MsgData_sNotifyMail" desc="邮件提醒 msgId:7036" dir="2"> 
+	<entry name="count" type="int32" desc="邮件数量" /> 
+</struct>  
+
+<struct name="MsgData_sFramePacketDesc" desc="消息包描述" dir="2"> 
+	<entry name="cmd" type="uint16" desc="命令码" />	
+	<entry name="len" type="uint16" desc="body长度" />	
+	<entry name="body" type="buffer" count="len" desc="body" />	
+</struct>        	  
+<struct name="MsgData_sFrameMsg" desc="scene server每帧消息包 msgId:9945" dir="2"> 
+	<entry name="len" type="uint16" desc="数据长度" />	
+	<entry name="packet_count" type="uint16" desc="数据长度" />
+	<entry name="content" type="buffer" count="len"  desc="内容" />
+</struct>
+
+<struct name="MsgData_cReqExitArena" desc="请求退出竞技场 msgId:3192;" dir="1">
+</struct>
+
+<struct name="MsgData_sResArenaMemVo" desc="竞技场玩家" dir="2"> 
+	<entry name="RoleID" type="int64" desc="玩家id" />
+	<entry name="Name" type="buffer" count="32" desc="角色名字" /> 
+	<entry name="Power" type="int64" desc="战斗力" /> 
+	<entry name="Level" type="int32" desc="玩家等级" />
+	<entry name="Job" type="int32" desc="职业" />
+	<entry name="Dress" type="int32" desc="衣服" />
+	<entry name="Weapon" type="int32" desc="武器" />
+	<entry name="FashionHead" type="int32" desc="时装头" />
+	<entry name="FashionWeapon" type="int32" desc="时装武器" />
+	<entry name="FashionDress" type="int32" desc="时装衣服" />
+	<entry name="WuHunID" type="int32" desc="灵兽ID" />
+	<entry name="ShenBing" type="int32" desc="神兵ID" />
+	<entry name="Gender" type="int32" desc="性别" />
+	<entry name="Icon" type="int32" desc="头像" />
+	<entry name="Wing" type="int32" desc="翅膀" />
+	<entry name="SuitFlag" type="int32" desc="套装标识" />
+	<entry name="Atk" type="double" desc="atk" />
+	<entry name="HP" type="double" desc="hp" />
+	<entry name="SubDef" type="double" desc="subdef" />
+	<entry name="Def" type="double" desc="def" />
+	<entry name="Cri" type="double" desc="cri" />
+	<entry name="CriValue" type="double" desc="crivalue" />
+	<entry name="AbsAtk" type="double" desc="absatk" />
+	<entry name="DefCri" type="double" desc="defcri" />
+	<entry name="SubCri" type="double" desc="subcri" />
+	<entry name="DmgSub" type="double" desc="dmgsub" />
+	<entry name="DmgAdd" type="double" desc="dmgadd" />
+	<entry name="SkillIDs" type="int32" count="10" desc="技能" />
+</struct> 
+
+<struct name="MsgData_sResEnterArena" desc="服务器通知进入竞技场 msgId:8192;" dir="2">
+	<entry name="Result" type="int32" desc="结果0 - 成功， 1 - 失败" />
+	<entry name="List" type="MsgData_sResArenaMemVo" count="2" desc="玩家列表" />
+</struct>
+
+<struct name="MsgData_cReqMeArenaInfo" desc="请求当前角色竞技场信息 msgId:2100;" dir="1">
+</struct>
+
+<struct name="MsgData_sResMeArenaInfo" desc="服务器返回当前角色竞技场信息 msgId:7100;" dir="2">
+	<entry name="Rank" type="int32" desc="排名"/>
+	<entry name="RankAt0" type="int32" desc="0点排名"/>
+	<entry name="ChallengeTimes" type="int32" desc="挑战次数"/>
+	<entry name="CD" type="int32" desc="冷却时间"/>
+	<entry name="IsRewarded" type="int32" desc="1未领取，1领取"/>
+	<entry name="WinTimes" type="int32" desc="连胜次数"/>
+	<entry name="TotalMoney" type="int32" desc="整点在线累计奖励金币"/>
+	<entry name="TotalHonor" type="int32" desc="整点在线累计奖励荣誉"/>
+	<entry name="MaxChallengeTimes" type="int32" desc="挑战最大次数"/>
+	<entry name="RewardTime" type="int64" desc="领取奖励时间"/>
+</struct>
+
+<struct name="MsgData_cReqArenaList" desc="请求挑战列表 msgId:2101;" dir="1">
+	<entry name="Type" type="int32" desc="类型，0-123名，1-挑战对象"/>
+</struct>
+
+<struct name="MsgData_sResArenaRoleVo" desc="竞技场玩家" dir="2"> 
+	<entry name="RoleID" type="int64" desc="玩家id" />
+	<entry name="Name" type="buffer" count="32" desc="角色名字" /> 
+	<entry name="Power" type="int64" desc="战斗力" /> 
+	<entry name="Rank" type="int32" desc="玩家排行" />
+	<entry name="Job" type="int32" desc="职业" />
+	<entry name="Weapon" type="int32" desc="衣服" />
+	<entry name="Dress" type="int32" desc="武器" />
+	<entry name="FashionHead" type="int32" desc="时装头" />
+	<entry name="FashionWeapon" type="int32" desc="时装武器" />
+	<entry name="FashionDress" type="int32" desc="时装衣服" />
+	<entry name="WuHunID" type="int32" desc="灵兽ID" />
+	<entry name="Wing" type="int32" desc="翅膀" />
+	<entry name="SuitFlag" type="int32" desc="套装标识" />
+</struct>
+
+<struct name="MsgData_sResArenaList" desc="返回挑战列表 msgId:7101;" dir="2">
+	<entry name="Type" type="int32" desc="类型，0-123名，1-挑战对象"/>
+	<entry name="Size" type="uint32" desc="长度"/>
+	<entry name="List" type="MsgData_sResArenaRoleVo" count="Size" desc="列表"/>
+</struct>
+
+<struct name="MsgData_cReqArenaChallenge" desc="请求挑战 msgId:2102;" dir="1">
+	<entry name="Rank" type="int32" desc="挑战排名"/>
+</struct>
+
+<struct name="MsgData_sResArenaChallenge" desc="返回挑战 msgId:7102;" dir="2">
+	<entry name="Result" type="int32" desc="0成功，1失败"/>
+	<entry name="Rank" type="int32" desc="挑战排名"/>
+	<entry name="Exp" type="int32" desc="经验获得"/>
+	<entry name="Honor" type="int32" desc="荣誉获得"/>
+	<entry name="Diamond" type="int32" desc="钻石获得"/>
+</struct>
+
+<struct name="MsgData_cReqArenaReward" desc="请求领取奖励 msgId:2103;" dir="1">
+</struct>
+
+<struct name="MsgData_sResArenaReward" desc="返回领取奖励 msgId:7103;" dir="2">
+	<entry name="Result" type="int32" desc="0成功，1失败"/>
+</struct>
+
+<struct name="MsgData_cReqArenaRecord" desc="请求竞技场战报 msgId:2104;" dir="1">
+</struct>
+
+<struct name="MsgData_sResArenaRecordItem" desc="战报信息" dir="2">
+	<entry name="ID" type="int32" desc="ID"/>
+	<entry name="Time" type="int64" desc="时间"/>
+	<entry name="Param" type="buffer" count="64" desc="参数"/>
+</struct>
+
+<struct name="MsgData_sResArenaRecord" desc="返回竞技场战报 msgId:7104;" dir="2">
+	<entry name="Size" type="uint32" desc="长度"/>
+	<entry name="List" type="MsgData_sResArenaRecordItem" count="Size" desc="列表"/>
+</struct>
+
+<struct name="MsgData_cReqBuyArenaTimes" desc="请求购买竞技场次数 msgId:2105;" dir="1">
+</struct>
+
+<struct name="MsgData_sResBuyArenaTimes" desc="返回购买竞技场次数 msgId:7105;" dir="2">
+	<entry name="Result" type="int32" desc="0成功，1失败,2购买上限"/>
+	<entry name="Times" type="int32" desc="次数"/>
+</struct>
+
+<struct name="MsgData_cReqBuyArenaCD" desc="请求购买竞技场CD msgId:2106;" dir="1">
+</struct>
+
+<struct name="MsgData_sResBuyArenaCD" desc="返回购买竞技场CD msgId:7106;" dir="2">
+	<entry name="Result" type="int32" desc="0成功，1失败"/>
+	<entry name="CD" type="int32" desc="CD"/>
+</struct>
+
+<struct name="MsgData_sResArenaRankChange" desc="返回竞技场排名变化CD msgId:7909;" dir="2">
+	<entry name="Flag" type="int32" desc="0排名改变, 其它:未变化"/>
+</struct>
+
+<struct name="MsgData_cSkillTargets" desc="客户端发送对象列表给服务器 msgId:4935;" dir="1">
+	<entry name="SkillID" type="int32" desc="skill id"/>
+	<entry name="EffectID" type="int32" desc="effect id"/>
+	<entry name="TargetCount" type="uint8" desc="effect id"/>
+	<entry name="TargetList" type="int64"  count="10" desc="effect id"/>
+</struct>
+
+
+
+<struct name="MsgData_cGuanZhiLevelUp" desc=" 客户端请求：官职升级 msgId:3688;" dir="1">
+	<entry name="type" type="int32" desc="1上报，2升级"/>
+</struct>
+
+<struct name="MsgData_cGuanZhiInfo" desc=" 客户端请求：官职信息 msgId:3689;" dir="1">
+	
+</struct>
+
+<struct name="MsgData_cInterServiceContValue" desc="  请求服务器功勋 msgId:3810;" dir="1">
+	
+</struct>
+
+<struct name="MsgData_sGuanZhiLevelUp" desc="服务器返回:官职升级 msgId:8688;" dir="2">
+	<entry name="result" type="int8" desc="0成功，1失败"/>
+	<entry name="id" type="int32" desc="官职ID;;"/>>
+	<entry name="val" type="int32" desc="已上报功勋值;"/>
+</struct>
+
+<struct name="MsgData_sGuanZhiInfo" desc="服务器返回:官职信息 msgId:8689;" dir="2">
+	<entry name="id" type="int32" desc="官职ID;;"/>
+	<entry name="val" type="int32" desc="已上报功勋值;"/>
+</struct>
+
+<struct name="MsgData_sInterServiceContValue" desc="返回服务器功勋 msgId:8810;" dir="2">
+	<entry name="contValue" type="int32" desc="功勋数量;"/>
+</struct>
+
+<struct name="MsgData_cHuoYueReward" desc=" 客户端请求：活跃奖励 msgId:3262;" dir="1">
+	<entry name="id" type="int32" desc="活跃奖励id;"/>
+</struct>
+
+<struct name="MsgData_sHuoYueReward" desc="返回获取活跃奖励结果 msgId:8262;" dir="2">
+	<entry name="result" type="int32" desc="0成功，1失败"/>
+	<entry name="id" type="int32" desc="活跃任务id;"/>
+</struct>
+
+<struct name="MsgData_sHuoYueDuFinish" desc="返回活跃度任务完成一次 msgId:8261;" dir="2">
+	<entry name="id" type="int32" desc="活跃任务id;"/>
+	<entry name="num" type="int32" desc="该活跃任务完成总数量;"/>
+	<entry name="vitality" type="int32" desc="当天活跃度总数;"/>
+</struct>
+
+<struct name="MsgData_sHuoYueDuRewardVo" desc="已领取活跃度奖励列表" dir="2"> 
+	<entry name="id" type="int32" desc="已领取奖励id "/>
+</struct>
+
+<struct name="MsgData_sHuoYueDuTaskVo" desc="已领取活跃度奖励列表" dir="2"> 
+	<entry name="id" type="int32" desc="活跃任务id "/>
+	<entry name="num" type="int32" desc="活跃度完成数 "/>
+</struct>
+
+<struct name="MsgData_sHuoYueDu" desc="返回活跃度信息 msgId:8260;" dir="2">
+	<entry name="vitality" type="int32" desc="总功勋值;"/>
+	<entry name="rewardList" type="MsgData_sHuoYueDuRewardVo" count="10" desc="已领取活跃度奖励列表"/>
+	<entry name="count" type="uint32" desc="长度"/>
+	<entry name="list" type="MsgData_sHuoYueDuTaskVo" count="count" desc="活跃度列表"/>
+</struct>
+
+<struct name="MsgData_sWaterDungeonEnterResult" desc="服务器返回:进入流水副本结果 msgId:8439" dir="2">
+	<entry name="result" type="int8" desc="0:成功 1:功能未开启 2: 副本次数已用完;"/>
+	<entry name="rightTime" type="int32" desc="任务剩余时间（秒）"/>
+</struct>
+<struct name="MsgData_sWaterDungeonExitResult" desc="服务器返回:退出流水副本结果 msgId:8440" dir="2">
+	<entry name="result" type="int8" desc="0:成功  "/>
+</struct>
+<struct name="MsgData_sWaterDungeonInfo" desc="服务器返回:流水副本信息 msgId:8434" dir="2">
+	<entry name="wave" type="int32" desc="我的最佳波数"/>
+	<entry name="exp" type="double" desc="我的最高经验"/>
+	<entry name="time" type="int8" desc="已用次数"/>
+	<entry name="monster" type="int32" desc="我的最多杀怪"/>
+	<entry name="moreExp" type="double" desc="今天可额外领取的经验"/>
+	<entry name="moreReward" type="int8" desc="0不可以额外领取,1可以额外领取"/>
+</struct>
+ <struct name="MsgData_sWaterDungeonProgress" desc="服务器返回:流水副本进度 msgId:8436" dir="2">
+	<entry name="wave" type="int32" desc="当前波数"/>
+	<entry name="monster" type="int32" desc="当前波杀怪数"/>
+	<entry name="exp" type="double" desc="累计获得经验"/>
+</struct>
+
+ <struct name="MsgData_sWaterDungeonResult" desc="服务器返回:流水副本结算 msgId:8437" dir="2">
+	<entry name="wave" type="int32" desc="累计波数"/>
+	<entry name="exp" type="double" desc="累计获得经验"/>
+	<entry name="result" type="int32" desc="刷副本结果: 0成功 1时间到失败 2主动离开"/>
+</struct> 
+ 
+
+ 
+ <struct name="MsgData_cOpenNode" desc=" 客户端请求：冲穴 msgId：3666;" dir="1">
+	<entry name="id" type="int32" desc="经脉ID"/>
+</struct>
+
+
+ <struct name="MsgData_sOpenNode" desc="服务器返回：冲穴结果 msgId：8666" dir="2">
+	<entry name="result" type="int8" desc="结果 0成功 1失败 2道具不足"/>
+	<entry name="id" type="int32" desc="经脉的ID"/>
+	<entry name="NodeId" type="int32" desc="最后冲穴成功的穴位ID"/>
+	<entry name="Level" type="int32" desc="穴位当前的等级"/>
+</struct>
+<struct name="MsgData_sNeiGonginset" desc="穴位列表" dir="2"> 
+	<entry name="id" type="int32" desc="经脉的ID； "/>
+	<entry name="NodeId" type="int32" desc="最后冲穴成功的穴位ID "/>
+	<entry name="Level" type="int32" desc="穴位当前的等级"/>
+</struct>
+<struct name="MsgData_sNeiGongInfo" desc="返回活跃度信息 msgId:8260;" dir="2">
+	<entry name="count" type="uint32" desc="数量"/>
+	<entry name="Items" type="MsgData_sNeiGonginset" count="count" desc="活跃度列表"/>
+</struct> 
+
+<struct name="MsgData_sFunctionOpen" desc="开启新功能 msgId:8110;" dir="2">	
+	<entry name="functionID" type="uint16" desc="功能id ,对应funcopen表里的id"/>	
+</struct>
+
+<struct name="MsgData_sFunctionList" desc="功能开启列表 msgId:8111;" dir="2">	
+	<entry name="count" type="uint16" desc="功能个数" />	
+	<entry name="functionList" type="uint16" count="count" desc="功能列表" />
+</struct>
+
+
+
+ <struct name="MsgData_cReqEnterSimpleSecrectDupl" desc=" 请求进入单人秘境副本 msgId:3628;" dir="1">
+	<entry name="id" type="int32" desc="副本ID"/>
+	<entry name="itemId" type="int32" desc="钥匙ID"/>
+	<entry name="enterType" type="int32" desc="进入类型 1、请求进入 2、请求开始进入"/>
+</struct>  
+
+ <struct name="MsgData_cReqBuySecrectDuplTili" desc=" 请求购买组队或次数 msgId:3642;" dir="1">
+	<entry name="type" type="int32" desc="类型 1组队购买次数 3个人购买次数"/>
+</struct>  
+ <struct name="MsgData_cReqJiHuoSecrectDupl" desc=" 请求激活 msgId:3643;" dir="1">
+	<entry name="stepid" type="int32" desc="阶数"/>
+	<entry name="id" type="int32" desc="套装ID"/>	
+</struct>  
+   
+ <struct name="MsgData_cSecretDungeonSweep" desc="请求:个人秘境副本扫荡 msgId:3967;" dir="1">
+	<entry name="id" type="int32" desc="层数id"/>	
+	<entry name="num" type="int32" desc="扫荡次数"/>
+</struct>  
+ <struct name="MsgData_cSecretDungeonSweepReward" desc="请求:个人秘境副本扫荡领奖励 msgId:3968;" dir="1">
+	<entry name="id" type="int32" desc="层数id"/>	 
+</struct>   
+
+<struct name="MsgData_sResSimpleSecrectDuplInfo" desc="返回单人秘境副本面板信息 msgId:8637;" dir="2">	
+	<entry name="tili" type="int32" desc="组队剩余进入次数" />	
+	<entry name="counts" type="int32" desc="剩余进入次数" />
+	<entry name="vlaTag" type="int32" desc="个人已购买次数" />
+	<entry name="vlaTagTeam" type="int32" desc="组队已购买次数" />
+	<entry name="simpleMaxLayerCount" type="int32" desc="单人秘境最高层数" />
+</struct>
+  
+ <struct name="MsgData_sResMakeresult" desc="秘境副本刷怪区域ID" dir="2">	
+	<entry name="id" type="int32" desc="区域ID" />	
+</struct>
+ <struct name="MsgData_sResEnterSimpleSecrectDupl" desc="返回进入单人秘境副本 msgId:8638" dir="2">	
+	<entry name="result" type="int32" desc="-的是错误结果 0、请求进入成功 1、请求开始进入成功" />	
+	<entry name="id" type="int32" desc="进入副本ID" />	
+	<entry name="type" type="int32" desc="进入类型 0、个人 1、组队 2、跨服" />	
+	<entry name="count" type="uint32" desc="列表数量" />
+	<entry name="items" type="MsgData_sResMakeresult" count="count" desc="秘境副本刷怪区域ID列表" />			
+</struct>
+ 
+ <struct name="MsgData_sSimpleSecrectDuplTrace" desc="秘境副本追踪面饭信息 msgId:8639;" dir="2">
+	<entry name="num" type="int32" desc="已击杀数量"/>
+	<entry name="value" type="int32" desc="当前产生的值"/>	
+	<entry name="id" type="int32" desc="区域ID"/>	
+</struct>  
+
+ <struct name="MsgData_sSimpleSecrectDuplCom" desc="单人秘境副本结算 msgId:8640" dir="2">	
+	<entry name="result" type="int32" desc="0成功 1失败" />	 	
+</struct> 
+
+ <struct name="MsgData_sResExitSimpleSecrectDupl" desc="返回退出单人秘境副本 msgId:8641" dir="2">	
+</struct> 
+ 
+  <struct name="MsgData_sUpdateSecrectDuplTili" desc="更新组队或次数 msgId:8642" dir="2">	
+ 	<entry name="type" type="int32" desc="类型 1组队购买次数 3个人购买次数" />	 	
+ 	<entry name="param" type="int32" desc="参数" />	 	
+ 	<entry name="vlaTag" type="int32" desc="已购买次数" />	 	
+</struct> 
+
+
+<struct name="MsgData_sJiHuoMakeresult" desc="激活列表" dir="2">	
+ 	<entry name="taozhuangID" type="int32" desc="套装ID" />	 	
+ 	<entry name="equipID" type="int32" desc=" 装备ID" />	 	 
+</struct> 
+
+<struct name="MsgData_sResJiHuoSecrectDupl" desc="返回激活结果 msgId:8643" dir="2">	
+	<entry name="count" type="uint32" desc="列表数量" />
+	<entry name="items" type="MsgData_sJiHuoMakeresult" count="count" desc="激活列表" />		
+</struct> 
+ 
+<struct name="MsgData_sSecretDungeonSweep" desc="返回:个人秘境副本扫荡 msgId:8967" dir="2">	
+ 	<entry name="result" type="int32" desc="结果:0成功 1其他 2跨服中 3等级不足 4次数不足 5还在扫荡中 6道具不足" />	 	
+ 	<entry name="id" type="int32" desc=" 层数id" />	 	
+	<entry name="num" type="int32" desc=" 扫荡次数" />	 	 
+	<entry name="second" type="int32" desc=" 剩余秒数" />		
+</struct> 
+
+<struct name="MsgData_sSecretDungeonSweepReward" desc="返回:个人秘境副本扫荡领奖励 msgId:8968" dir="2">	
+ 	<entry name="result" type="int32" desc="结果:0成功 1其他 2还在扫荡中" />	 	
+ 	<entry name="id" type="int32" desc=" 层数id" />	 	
+	<entry name="num" type="int32" desc=" 扫荡次数" />	 	  	
+</struct>  
+
+<struct name="MsgData_sSecretDungeonSweepInfo" desc="返回:个人秘境副本扫荡 msgId:8969" dir="2">	 	
+ 	<entry name="id" type="int32" desc=" 层数id" />	 	
+	<entry name="num" type="int32" desc=" 扫荡次数" />	 	  	
+	<entry name="second" type="int32" desc=" 剩余秒数" />	
+</struct>  
+ 
+ <struct name="MsgData_cWorldBoss" desc="c->s 请求世界列表(CW_WorldBoss msgId:2063)" dir="1">
+
+</struct>
+
+<struct name="MsgData_sWorldBossList" desc="世界Boss列表" dir="2">	
+ 	<entry name="id" type="int32" desc="bossId" />	 	
+ 	<entry name="line" type="int32" desc=" 活动所在线" />	 	
+ 	<entry name="state" type="int32" desc="0活着， 1死亡" />	 	
+ 	<entry name="roleId" type="int64" desc=" 上次击杀者roleId" />	 
+ 	<entry name="roleName" type="buffer" count ="32" desc="上次击杀者名字" />	
+ 	<entry name="hp" type="double" desc="剩余血量" />	 	
+ 	<entry name="maxHp" type="double" desc="总血量" />	 		
+</struct> 
+
+<struct name="MsgData_sWorldBoss" desc="s->c 返回世界BOSS列表，刷新时推单个(WC_WorldBoss msgId:7064)" dir="2">
+	<entry name="count" type="uint32" desc="Boss列表数量" />
+	<entry name="items" type="MsgData_sWorldBossList" count="count" desc="世界Boss列表" />	
+</struct>
+ 
+<struct name="MsgData_sActivityStateList" desc="活动状态列表" dir="2">	
+ 	<entry name="id" type="int32" desc="活动id" />	 		
+ 	<entry name="state" type="int32" desc="0关闭， 1开启" />	
+ 	<entry name="time" type="int64" desc="开启或关闭时间" />		
+ 	<entry name="line" type="int32" desc=" 活动所在线" />	 	
+ 	<entry name="mapId" type="int32" desc=" 活动所在地图" />	 	
+</struct> 
+
+<struct name="MsgData_sActivityState" desc="s->c 返回活动状态，刷新时推单个(WC_ActivityState msgId:7065)" dir="2">
+	<entry name="count" type="uint32" desc="数量" />
+	<entry name="items" type="MsgData_sActivityStateList" count="count" desc="活动状态列表" />	
+</struct>
+
+ <struct name="MsgData_cActivityEnter" desc="请求:进入活动 msgId:3159;" dir="1">
+	<entry name="id" type="int32" desc="活动id"/>	
+	<entry name="param1" type="int32" desc="参数1 打宝塔时传层数id,其他活动传0"/>
+</struct>  
+
+ <struct name="MsgData_cActivityQuit" desc="请求:退出活动 msgId:3160;" dir="1">
+	<entry name="id" type="int32" desc="活动id"/>	
+</struct>  
+
+<struct name="MsgData_sActivityList" desc="活动列表list" dir="2">	
+ 	<entry name="id" type="int32" desc="活动id" />	 		
+ 	<entry name="dailyCount" type="int32" desc="今天已参加次数" />	 	
+</struct> 
+
+<struct name="MsgData_sActivity" desc="登录返回活动列表 msgId:8158" dir="2">		
+	<entry name="count" type="uint32" desc="数量" />
+	<entry name="list" type="MsgData_sActivityList" count="count" desc="活动列表list" />	  	
+</struct>  
+
+<struct name="MsgData_sActivityEnter" desc="返回:进入活动 msgId:8159" dir="2">	
+ 	<entry name="result" type="int32" desc="结果:0成功  -1配置等系统性错误   -2或其他 为条件不满足错误" />	 	
+ 	<entry name="id" type="int32" desc=" 活动id" />	 	
+	<entry name="param1" type="int32" desc=" 参数1" />	 	  	
+</struct>  
+
+<struct name="MsgData_sActivityQuit" desc="返回:退出活动 msgId:8160" dir="2">	
+ 	<entry name="result" type="int32" desc="结果:0成功" />	 	
+ 	<entry name="id" type="int32" desc=" 活动id" />	 		  	
+</struct>  
+
+<struct name="MsgData_sActivityFinish" desc="返回:活动结束(活动内玩家) msgId:8161" dir="2">	
+ 	<entry name="id" type="int32" desc=" 活动id" />	 		  	
+</struct>  
+
+<struct name="MsgData_sWorldBossDamage" desc="返回玩家累计伤害 msgId:8162" dir="2">	
+ 	<entry name="damage" type="double" desc="伤害总量" />	 		  	
+</struct>  
+
+<struct name="MsgData_sWorldBossHurtList" desc="(活动内)世界BOSS伤害排行(前5名)" dir="2">	
+ 	<entry name="roleId" type="int64" desc="roleId" />	 		
+ 	<entry name="roleName" type="buffer" count="32" desc="roleName" />	 
+	<entry name="hurt" type="double" desc="造成伤害" />	 		
+</struct> 
+
+<struct name="MsgData_sWorldBossHurt" desc="返回世界BOSS伤害信息(活动内) msgId:8163" dir="2">	
+ 	<entry name="hp" type="double" desc="hp" />	 	
+ 	<entry name="maxHp" type="double" desc="maxHp" />	 
+	<entry name="hurtList" type="MsgData_sWorldBossHurtList" count="5" desc="世界BOSS伤害排行(前5名)" />
+</struct>  
+
+ <struct name="MsgData_cWaBaoList" desc="请求:挖宝列表信息 msgId:3806;" dir="1">
+	
+</struct>  
+
+<struct name="MsgData_sBossWabaoList" desc="boss挖宝列表" dir="2">	
+ 	<entry name="bossId" type="int32" desc="bossId" />	 		
+ 	<entry name="num" type="int32" desc="可领取次数" />	 
+	<entry name="state" type="int32" desc="领取状态:0:不可领取， 1:可领取  2:已领取" />	 		
+</struct> 
+
+<struct name="MsgData_sWaBaoList" desc="返回Boss挖宝信息 msgId:8807" dir="2">	
+ 	<entry name="count" type="uint32" desc="数量" />
+	<entry name="list" type="MsgData_sBossWabaoList" count="count" desc="boss挖宝列表" />	
+</struct>  
+
+ <struct name="MsgData_cGetWaBaoReward" desc="请求:领取对应BOSS奖励 msgId:3805;" dir="1">
+	<entry name="bossId" type="int32" desc="bossId"/>	
+	<entry name="index" type="int32" desc="领取类型 0:1次 , 1:多次"/>		
+</struct>  
+
+<struct name="MsgData_sGetWaBaoReward" desc="领取对应BOSS奖励 msdId:8808" dir="2">	
+ 	<entry name="bossId" type="int32" desc="bossId" />	 		
+ 	<entry name="num" type="int32" desc="可领取次数" />	 
+	<entry name="result" type="int32" desc="使用结果 0成功" />	 		
+</struct> 
+
+<struct name="MsgData_sTriggerTrap" desc="陷阱触发 msdId:9947" dir="2">	
+ 	<entry name="TrapRoleID" type="uint64" desc="Trap ID" />	 		
+ 	<entry name="TrapType" type="uint8" desc="0 buffer，光环，1 trap" />			
+</struct> 
+
+<struct name="MsgData_sWorldLevel" desc="返回世界等级 msdId:8740" dir="2">	
+ 	<entry name="level" type="int32" desc="世界等级" />	 				
+</struct> 
+
+<struct name="MsgData_sFieldBoss" desc="返回野外金币BOSS信息 msdId:8737" dir="2">	
+ 	<entry name="id" type="int32" desc="bossId" />	 	
+	<entry name="damage" type="int64" desc="伤害值" />	 	
+</struct> 
+
+ <struct name="MsgData_cZhenBaoGe" desc="请求:珍宝阁数据 msgId:3113;" dir="1">
+	
+</struct>  
+
+ <struct name="MsgData_cZhenBaoGeSubmitList" desc="珍宝阁提交道具list" dir="1">
+	<entry name="id" type="int32" desc="珍宝阁id"/>	
+</struct>  
+
+ <struct name="MsgData_cZhenBaoGeSubmit" desc="珍宝阁一键提交道具 msgId:3114;" dir="1">
+	<entry name="count" type="uint32" desc="数量" />
+	<entry name="list" type="MsgData_cZhenBaoGeSubmitList" count="count" desc="珍宝阁提交道具list" />	
+</struct>  
+
+ <struct name="MsgData_cZhenBaoGeSpeItem" desc="珍宝阁提交特殊道具 msgId:3115;" dir="1">
+	<entry name="id" type="int32" desc="珍宝阁id"/>	
+	<entry name="itemId" type="int32" desc="特殊道具id"/>	
+</struct>  
+
+<struct name="MsgData_sZhenBaoGeList" desc="珍宝阁数据list" dir="2">	
+ 	<entry name="id" type="int32" desc="珍宝阁id" />	 		
+ 	<entry name="submitTimes" type="int32" desc="已提交次数" />	 
+	<entry name="submitNum" type="int32" desc="当前次数已提交数量" />	 	
+	<entry name="itemNum1" type="int32" desc="特殊道具1" />	
+	<entry name="itemNum2" type="int32" desc="特殊道具2" />	
+	<entry name="itemNum3" type="int32" desc="特殊道具3" />		
+</struct> 
+
+<struct name="MsgData_sZhenBaoGe" desc="返回珍宝阁数据,数据刷新时也返回这个 msgID:8113" dir="2">	
+ 	<entry name="count" type="uint32" desc="数量" />
+	<entry name="list" type="MsgData_sZhenBaoGeList" count="count" desc="珍宝阁数据list" />	
+</struct>  
+
+
+ <struct name="MsgData_cFindTreasure" desc="客户端请求：寻宝任务接取 msgId:3476" dir="1">
+	<entry name="quality" type="int32" desc="寻宝图quality"/>	 
+</struct>  
+
+ <struct name="MsgData_cReqTreasureAddTime" desc="请求打宝塔增加时间 msgId:3676" dir="1">
+	<entry name="id" type="int32" desc="物品ID"/>	 
+	<entry name="count" type="int32" desc="物品数量"/>	 
+</struct>  
+
+
+ <struct name="MsgData_sFindTreasureInfo" desc="寻宝信息 msgId:8475" dir="2">
+	<entry name="mapid" type="int32" desc="地图点1"/>	 
+	<entry name="mapid2" type="int32" desc="地图点2"/>	 
+	<entry name="wabaoId" type="int32" desc="wabao表ID"/>	 
+	<entry name="getlvl" type="int32" desc="接取时玩家等级"/>	 
+	<entry name="lastNum" type="int32" desc="剩余次数"/>	 
+	<entry name="lookPoint" type="int32" desc="看过的点。没有发0"/>	 
+</struct>   
+ 
+ <struct name="MsgData_sFindTreasureResult" desc="服务器返回:寻宝任务接取 结果 msgId:8476" dir="2">
+	<entry name="result" type="int32" desc="结果=0成功，1=失败"/>	 
+	<entry name="mapid" type="int32" desc="地图点1"/>	 
+	<entry name="mapid2" type="int32" desc="地图点2"/>	 
+	<entry name="wabaoId" type="int32" desc="wabao表ID"/>	 
+	<entry name="getlvl" type="int32" desc="接取时玩家等级"/>	 
+	<entry name="lastNum" type="int32" desc="剩余次数"/>	  	 
+</struct>  
+
+ <struct name="MsgData_sFindTreasureCancel" desc="服务器返回:取消寻宝任务 msgId:8477" dir="2">
+	<entry name="result" type="int32" desc="结果=0成功，1=失败"/>	   	 
+</struct> 
+
+
+ <struct name="MsgData_sFindTreasureCollect" desc="服务器返回:接取结果 msgId:8478;" dir="2">
+	<entry name="result" type="int32" desc="0=真，1=假"/>	 
+	<entry name="mapid" type="int32" desc="当前辨别的id"/>	 
+	<entry name="resType" type="int32" desc="1=宝箱，2=妖怪"/>	 
+	<entry name="resId" type="int32" desc="挖到的id"/>	  	 
+</struct>  
+ 
+ <struct name="MsgData_sTreasureTodayAddedTimer" desc="返回今日已经购买的时间 msgId:8676" dir="2">
+	<entry name="addedTimer" type="int32" desc="今日已经购买的时间"/>	   	 
+</struct>  
+ 
+ <struct name="MsgData_sTreasureRemainTime" desc="打宝塔剩余时间 msgId:8677" dir="2">
+	<entry name="remainTime" type="int32" desc="剩余时间"/>	   	 
+</struct>  
+ 
+ <struct name="MsgData_sTreasurebossList" desc="boss状态列表" dir="2">
+	<entry name="bossState" type="int32" desc="0、已刷新 1、未刷新"/>	  
+	<entry name="remainTimer" type="int32" desc="未刷新需要剩余时间"/>	
+	<entry name="id" type="int32" desc="BossID"/>			
+</struct> 
+
+
+ <struct name="MsgData_sTreasureUpdateBoss" desc="更新BOSS状态信息 msgId:8678" dir="2">
+	<entry name="count" type="uint32" desc="数量"/>	   
+	<entry name="items" type="MsgData_sTreasurebossList"  count = "count" desc="数量"/>	   		
+</struct>    
+ 
+ <struct name="MsgData_cCreateRoom" desc="组队秘境创建房间 msgId:2156" dir="1">
+	<entry name="dungeonIndex" type="int32" desc="副本层数对应ID"/>
+	<entry name="gloryLevelLimit" type="int32"  desc="修为等级"/>
+	<entry name="attrLimit" type="int32"  desc="战力需求"/>
+	<entry name="autoStart" type="int32"  desc="自动开始，0是true"/>
+</struct>
+
+ <struct name="MsgData_sTimeDungeonRoomInfo" desc="组队秘境，自己房间信息 msgId:7154" dir="2">
+	<entry name="dungeonIndex" type="int32" desc="副本层数对应ID"/>
+	<entry name="isLock" type="int8"  desc="锁"/>
+	<entry name="lockAttrNum" type="int32"  desc="战斗力限制值"/>
+	<entry name="autoStart" type="int32"  desc="自动开始，0是true"/>
+</struct>
+
+ <struct name="MsgData_cSecretTeamStart" desc="试炼秘境队伍请求进入组队活动 msgId:2907" dir="1">
+	<entry name="dungeonID" type="int32" desc="副本层数对应ID"/>
+</struct>
+
+ <struct name="MsgData_sEnterDulpPrepare" desc="进入组队副本提示准备消息 msgId:7245" dir="2">
+	<entry name="line" type="int32" desc="队长所在线"/>
+	<entry name="type" type="int32"  desc="邀请类型 0:正常组队 1:魔域深渊 2:奇遇 3:公会组队"/>
+</struct>
+
+<struct name="MsgData_cQueryMonsterByPosition" desc="客户端请求：查询指定点是否有怪 msgId:4939" dir="1">
+	<entry name="x" type="int32" desc="x"/>	  
+	<entry name="y" type="int32" desc="y"/>	
+</struct>   
+
+ <struct name="MsgData_sQueryMonsterByPosition" desc="服务器返回:查询指定点有多少怪 msgId:9948" dir="2">
+	<entry name="x" type="int32" desc="x"/>	  
+	<entry name="y" type="int32" desc="y"/>	
+	<entry name="num" type="int8" desc="怪物数量"/>	
+</struct>  
+ 
+ <struct name="MsgData_cEquipGroup" desc="客户端请求：设置装备套装 msgId:3465" dir="1">
+	<entry name="equipUid" type="int64" desc="装备UID"/>	  
+	<entry name="itemUid" type="int64" desc="物品UID"/>	
+</struct>   
+
+ <struct name="MsgData_sEquipGroup" desc="服务器返回:设置装备套装 msgId:8465" dir="2">
+	<entry name="result" type="int8" desc="结果:0成功，1装备不存在，2道具不存在 3物品无法使用"/>	  
+	<entry name="equipUid" type="int64" desc="装备UID"/>	  
+	<entry name="itemUid" type="int64" desc="物品UID"/>	
+	<entry name="itemId" type="int32" desc="物品ID"/>	
+</struct>  
+
+ <struct name="MsgData_cEquipGroupTwo" desc="客户端请求：设置装备套装2 msgId:3564" dir="1">
+	<entry name="equipUid" type="int64" desc="装备UID"/>	  
+	<entry name="groupId" type="int32" desc="套装tid"/>	
+	<entry name="isBind" type="int32" desc="是否绑定  0非绑定  1绑定"/>	
+</struct>   
+
+ <struct name="MsgData_sEquipGroupTwo" desc="服务器返回:设置装备套装2 msgId:8565" dir="2">
+	<entry name="result" type="int8" desc="结果:0成功，1装备不存在，2道具不存在 3物品无法使用  4已有套装"/>	  
+	<entry name="equipUid" type="int64" desc="装备UID"/>	 
+	<entry name="groupId" type="int32" desc="套装tid"/>		
+	<entry name="isBind" type="int32" desc="是否绑定  0未绑定  1已绑定"/>	
+</struct>  
+
+ <struct name="MsgData_cEquipGroupPeel" desc="客户端请求：剥离装备套装 msgId:3558" dir="1">
+	<entry name="equipUid" type="int64" desc="装备UID"/>	  
+</struct>   
+
+ <struct name="MsgData_sEquipGroupPeel" desc="服务器返回:剥离装备套装 msgId:8558" dir="2">
+	<entry name="result" type="int8" desc="结果:0成功，1装备不存在，2套装不存在"/>	  
+	<entry name="equipUid" type="int64" desc="装备UID"/>	 
+</struct>  
+
+ <struct name="MsgData_cEquipGroupLvlUp" desc="客户端请求：套装升级 msgId:3685" dir="1">
+	<entry name="equipUid" type="int64" desc="装备UID"/>	
+	<entry name="isBind" type="int32" desc="使用绑定材料:  0 非绑定材料   1 绑定材料    2不限"/>		
+</struct>   
+
+ <struct name="MsgData_sEquipGroupLvlUp" desc="服务器返回:套装升级 msgId:8685" dir="2">
+	<entry name="result" type="int8" desc="结果:0成功，1装备不存在，2道具不足   3已满级   4无套装属性"/>	  
+	<entry name="equipUid" type="int64" desc="装备UID"/>	
+	<entry name="equipLevel" type="int32" desc="套装等级"/>	 	
+</struct>  
+
+ <struct name="MsgData_cNewEquipGroupSwap" desc="客户端请求：装备套装交换 msgId:3868" dir="1">
+	<entry name="equipId1" type="int64" desc="装备ID1"/>	
+	<entry name="equipId2" type="int64" desc="装备ID2"/>		
+</struct>   
+
+ <struct name="MsgData_sNewEquipGroupSwap" desc="服务器返回:装备套装交换 msgId:8868" dir="2">
+	<entry name="result" type="int32" desc="结果:0成功，1失败"/>	  
+	<entry name="equipId1" type="int64" desc="装备ID1"/>	
+	<entry name="groupId1" type="int32" desc="装备groupId1"/>	
+	<entry name="groupLvl1" type="int32" desc="装备grouplvl1"/>	
+	<entry name="bind1" type="int8" desc="0未绑定   1已绑定"/>	
+	<entry name="equipId2" type="int64" desc="装备ID2"/>	
+	<entry name="groupId2" type="int32" desc="装备groupId2"/>	
+	<entry name="groupLvl2" type="int32" desc="装备grouplvl2"/>	
+	<entry name="bind2" type="int8" desc="0未绑定   1已绑定"/>	
+</struct>  
+
+ <struct name="MsgData_cEquipGroupOpenPos" desc="客户端请求：解锁套装孔 msgId:3943" dir="1">
+	<entry name="pos" type="int32" desc="装备位"/>	
+	<entry name="index" type="int32" desc="套装位"/>		
+</struct>   
+
+ <struct name="MsgData_sEquipGroupOpenPos" desc="服务器返回:解锁套装孔 msgId:8944" dir="2">
+	<entry name="result" type="int32" desc="结果:0成功，1道具不足  2不可解锁  3已达可解锁上限"/>	  
+	<entry name="pos" type="int32" desc="装备位"/>	
+	<entry name="index" type="int32" desc="套装位"/>	
+</struct>  
+
+ <struct name="MsgData_cEquipGroupOpenSet" desc="客户端请求：激活套装id msgId:3944" dir="1">
+	<entry name="pos" type="int32" desc="装备位"/>	
+	<entry name="index" type="int32" desc="套装位"/>		
+</struct>   
+
+ <struct name="MsgData_sEquipGroupOpenSet" desc="服务器返回:激活套装id msgId:8945" dir="2">
+	<entry name="result" type="int32" desc="结果:0成功，1道具不足  2不可开启"/>	  
+	<entry name="pos" type="int32" desc="装备位"/>	
+	<entry name="index" type="int32" desc="套装位"/>	
+</struct>  
+
+ <struct name="MsgData_cEquipGroupUpLvl" desc="客户端请求：升级套装 msgId:3945" dir="1">
+	<entry name="pos" type="int32" desc="装备位"/>	
+	<entry name="index" type="int32" desc="套装位"/>		
+</struct>   
+
+ <struct name="MsgData_sEquipGroupUpLvl" desc="服务器返回: 升级套装  msgId:8946" dir="2">
+	<entry name="result" type="int32" desc="结果:0成功，1道具不足  2不可开启"/>	  
+	<entry name="pos" type="int32" desc="装备位"/>	
+	<entry name="index" type="int32" desc="套装位"/>	
+	<entry name="lvl" type="int32" desc="等级"/>	
+</struct>  
+
+ <struct name="MsgData_cEquipSmeltList" desc="熔炼道具list" dir="1">
+	<entry name="uid" type="int64" desc="熔炼道具guid"/>	
+</struct>  
+
+ <struct name="MsgData_cEquipSmelt" desc="客户端请求:装备熔炼 msgId:3514;" dir="1">
+	<entry name="flags" type="int32" desc="熔炼品质" />
+	<entry name="count" type="uint32" desc="数量" />
+	<entry name="list" type="MsgData_cEquipSmeltList" count="count" desc="熔炼道具list" />	
+</struct>  
+
+ <struct name="MsgData_sEquipSmelt" desc="服务器返回:装备熔炼结果 msgId:8923" dir="2">
+	<entry name="result" type="int32" desc="结果:0成功"/>	  
+	<entry name="equipUid" type="int64" desc="装备uid"/>	
+</struct>    
+
+
+ <struct name="MsgData_cEnterTreasureDupl" desc="客户端请求：进入宝塔秘境 msgId:4940" dir="1">
+	<entry name="id" type="int32" desc="副本id"/>	
+</struct>   
+
+ <struct name="MsgData_sEnterTreasureDupl" desc="服务器返回: 进入宝塔秘境  msgId:9949" dir="2">
+	<entry name="result" type="int32" desc="结果:0成功 其它失败"/>	  
+	<entry name="id" type="int32" desc="副本id"/>	
+</struct>  
+<struct name="MsgData_sQuitTreasureDupl" desc="服务器返回: 退了宝塔秘境  msgId:9950" dir="2">
+	<entry name="result" type="int32" desc="结果:0成功 其它失败"/>	  
+</struct>  
+
+<struct name="MsgData_sTeamTargetData" desc="服务器返回: 组队目标数据  msgId:7907" dir="2">
+	<entry name="teamTargetID" type="int32" desc="组队目标ID"/>
+	<entry name="powerLimit" type="int32" desc="战力限制"/>
+	<entry name="gloryLevelLimit" type="int32" desc="修为限制"/>
+</struct>
+
+<struct name="MsgData_cUpdateTeamTarget" desc="客户端请求: 更新组队目标  msgId:2908" dir="1">
+	<entry name="teamTargetID" type="int32" desc="组队目标ID"/>
+</struct>
+
+<struct name="MsgData_cUpdateTeamLimit" desc="客户端请求: 更新组队限制条件  msgId:2909" dir="1">
+	<entry name="teamTargetID" type="int32" desc="组队目标ID"/>
+	<entry name="powerLimit" type="int32" desc="战力限制"/>
+	<entry name="gloryLevelLimit" type="int32" desc="修为限制"/>
+</struct>
+
+
+<struct name="MsgData_cEquipInherit" desc="装备传承 msgId:3148" dir="1">
+	<entry name="srcid" type="int64" desc="源装备cid"/>
+	<entry name="tarid" type="int64" desc="目标装备cid"/>
+	<entry name="autoBuy" type="int32" desc="自动购买材料 1:true"/>
+</struct>
+
+ <struct name="MsgData_sEquipInherit" desc="返回装备传承 msgId:8150" dir="2">
+	<entry name="srcid" type="int64" desc="源装备cid"/>
+	<entry name="tarid" type="int64" desc="目标装备cid"/>
+	<entry name="result" type="int32" desc=" 结果,0成功, -1失败"/>
+</struct>
+ 
+<struct name="MsgData_cUnionQuestFinish" desc="公会任务一键完成 msgId:3942" dir="1">
+
+</struct>
+
+ <struct name="MsgData_sUnionQuestList" desc="一键完成的公会任务列表" dir="2">
+	<entry name="id" type="int32" desc="任务id" /> 
+</struct>	
+
+<struct name="MsgData_sUnionQuestFinish" desc="返回公会任务一键完成奖励信息 msgId:8942" dir="2">
+	<entry name="result" type="int8" desc="0成功 1钱不够  2VIP等级不够  3等级不足" />
+	<entry name="level" type="int32" desc="每日完成奖励等级" />
+	<entry name="count" type="uint32" desc="完成的日讨伐任务列表个数" />
+	<entry name="questList" type="MsgData_sUnionQuestList" count="count" desc="一键完成的公会任务列表" />
+</struct>	
+
+
+
+ <struct name="MsgData_cEquipPeiYang" desc="请求培养 msgid:3850" dir="1">
+	<entry name="id" type="int64" desc="装备cid" /> 
+</struct>	
+ <struct name="MsgData_cEquipPeiYangSet" desc="请求培养保存属性 msgid:3851" dir="1">
+	<entry name="id" type="int64" desc="装备cid" /> 
+</struct>	
+
+ 
+ <struct name="MsgData_sEquipPeiYang" desc="返回请求培养 msgid:8850" dir="2">
+	<entry name="result" type="int32" desc="错误类型 0成功  -1 材料不足 -2装备不存在" /> 
+	<entry name="id" type="int64" desc="装备cid" /> 
+	<entry name="count"  type="uint32"  desc="数量"/>
+	<entry name="items"  type="MsgData_sNewSuperVO" count="count" desc="数据list"/>
+</struct>	
+
+
+ <struct name="MsgData_sEquipPeiYangSet" desc="返回培养保存属性 msgid:8851" dir="2">
+	<entry name="result" type="int32" desc="错误类型 0成功  -1装备不存在" /> 
+	<entry name="id" type="int64" desc="装备cid" /> 
+</struct>	
+
+ <struct name="MsgData_sDailyActivyItem" desc="开启的日常活动成员信息" dir="2">
+	<entry name="id" type="int32" desc="日常活动表id" /> 
+	<entry name="state" type="int32" desc="0-未开启，1-开启" /> 
+	<entry name="count" type="int32" desc="完成次数" /> 
+</struct>	
+
+<struct name="MsgData_sDailyActivyList" desc="开启的日常活动列表 msgId:9953" dir="2">
+	<entry name="count" type="uint32" desc="开启的日常活动个数" />
+	<entry name="list" type="MsgData_sDailyActivyItem" count="count" desc="开启的日常活动id列表" />
+</struct>	
+
+<struct name="MsgData_sCastMoveEffect" desc="服务端通知:位移技能效果 msgId:8089" dir="2">
+	<entry name="caseterID" type="int64" desc="释放者" />
+	<entry name="targetID" type="int64" desc="目标者" />
+	<entry name="skillID" type="int32" desc="技能ID" />
+	<entry name="skillEffectID" type="int32" desc="技能效果ID" />
+	<entry name="moveTime" type="int32" desc="移动时间" />
+	<entry name="posX" type="double" desc="位置X" />
+	<entry name="posY" type="double" desc="位置Y" />
+</struct>	
+
+<struct name="MsgData_cReqColorGemOperation" desc="请求七彩灵石操作 msgid:3681" dir="1">
+	<entry name="Type" type="int32" desc="装4镶嵌 5卸载" /> 
+	<entry name="ID" type="int32" desc="ID" /> 
+	<entry name="Pos" type="int32" desc="位置" /> 
+</struct>
+
+<struct name="MsgData_cReqColorGemLevelup" desc="请求七彩灵石升级 msgid:3682" dir="1">
+	<entry name="Type" type="int32" desc="1激活 2升级 3突破" /> 
+	<entry name="ID" type="int32" desc="ID" />
+</struct>
+
+<struct name="MsgData_sResColorGemItem" desc="服务端通知:数据" dir="2">
+	<entry name="ID" type="int32" desc="ID" />
+	<entry name="Stage" type="int32" desc="宝石段位" />
+	<entry name="Level" type="int32" desc="宝石等级" />
+	<entry name="Pos" type="int32" desc="镶嵌位置" />
+</struct>
+
+<struct name="MsgData_sResColorGemInfo" desc="服务端通知:返回灵石列表 msgId:8671" dir="2">
+	<entry name="Size" type="uint32" desc="list size" />
+	<entry name="InsetList" type="MsgData_sResColorGemItem" count="Size" desc="所有数据" />
+</struct>	
+
+<struct name="MsgData_sResColorGemILevelup" desc="服务端通知:返回灵石操作结果 msgId:8672" dir="2">
+	<entry name="Type" type="int32" desc="1激活 2升级 3突破 4穿戴 5卸下" />
+	<entry name="Result" type="int32" desc="0成功 1失败" />
+</struct>
+
+<struct name="MsgData_sResOtherColorGemItem" desc="服务端通知:数据" dir="2">
+	<entry name="Pos" type="int32" desc="镶嵌位置" />
+	<entry name="ID" type="int32" desc="ID" />
+	<entry name="Level" type="int32" desc="宝石等级" />
+	<entry name="Stage" type="int32" desc="宝石段位" />
+</struct>
+
+<struct name="MsgData_sResOtherColorGemInfo" desc="返回装备七彩灵石信息 msgId:8351（其他人的，响应cs消息3217，m_i4type:512）" dir="2">
+	<entry name="ServerType" type="int32" desc="是否全服排行信息 1=是 其余都不是" />
+	<entry name="Type" type="int32" desc="1== 详细信息，2 == 排行榜详细信息" />
+	<entry name="RoleID" type="int64" desc="角色ID" />
+	<entry name="Size" type="uint32" desc="list size" />
+	<entry name="InsetList" type="MsgData_sResOtherColorGemItem" count="Size" desc="所有数据" />
+</struct>
+</lib>

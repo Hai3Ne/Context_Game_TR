@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ExportConfig>
+  <Config>
+    <SourceFolder Value="..\..\..\..\..\SMDL_CeHua\trunk\Excel(old)" />
+    <ExportFolderExcel Value="exportExcel" />
+    <ExportFolderLocal Value="exportLocal" />
+  </Config>
+  <IgnoreLocal>
+	<File Name="illegalword" />
+  </IgnoreLocal>
+</ExportConfig>

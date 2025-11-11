@@ -73,6 +73,7 @@ namespace HotUpdate
             m_Btn_Yinsi.onClick.RemoveListener(OnYinsiBtn);
             m_Btn_Comece.onClick.RemoveListener(OnComeceBtn);
             m_Btn_Comece1.onClick.RemoveListener(OnComece1Btn);
+            m_Btn_Comece2.onClick.RemoveListener(OnComece2Btn);
 
             m_Tog_Btn.onValueChanged.RemoveListener(onValueChange);
             Message.RemoveListener<string>(MessageName.WX_LOGIN_CALLBACK, OnWxCallBack);
@@ -93,7 +94,7 @@ namespace HotUpdate
             m_Btn_Yinsi.onClick.AddListener(OnYinsiBtn);
             m_Btn_Comece.onClick.AddListener(OnComeceBtn);
             m_Btn_Comece1.onClick.AddListener(OnComece1Btn);
-            
+            m_Btn_Comece2.onClick.AddListener(OnComece2Btn);
             m_Tog_Btn.onValueChanged.AddListener(onValueChange);
             Message.AddListener<string>(MessageName.WX_LOGIN_CALLBACK, OnWxCallBack);
         }
@@ -197,6 +198,10 @@ namespace HotUpdate
             }
 
 
+        }
+        public void OnComece2Btn()
+        {
+            OnLoginBtn();
         }
 
         public void OnComeceBtn()

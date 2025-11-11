@@ -8,6 +8,7 @@ namespace HotUpdate
 		private Button m_Btn_Service;
 		private Button m_Btn_Comece;
 		private Button m_Btn_Comece1;
+		private Button m_Btn_Comece2;
 		private Toggle m_Tog_Btn;
 		private Text m_Txt_text;
 		private Button m_Btn_User;
@@ -21,11 +22,12 @@ namespace HotUpdate
 			m_Btn_Service = autoBindTool.GetBindComponent<Button>(0);
 			m_Btn_Comece = autoBindTool.GetBindComponent<Button>(1);
 			m_Btn_Comece1 = autoBindTool.GetBindComponent<Button>(2);
-			m_Tog_Btn = autoBindTool.GetBindComponent<Toggle>(3);
-			m_Txt_text = autoBindTool.GetBindComponent<Text>(4);
-			m_Btn_User = autoBindTool.GetBindComponent<Button>(5);
-			m_Btn_Yinsi = autoBindTool.GetBindComponent<Button>(6);
-			m_Drop_selec = autoBindTool.GetBindComponent<Dropdown>(7);
+			m_Btn_Comece2 = autoBindTool.GetBindComponent<Button>(3);
+			m_Tog_Btn = autoBindTool.GetBindComponent<Toggle>(4);
+			m_Txt_text = autoBindTool.GetBindComponent<Text>(5);
+			m_Btn_User = autoBindTool.GetBindComponent<Button>(6);
+			m_Btn_Yinsi = autoBindTool.GetBindComponent<Button>(7);
+			m_Drop_selec = autoBindTool.GetBindComponent<Dropdown>(8);
 		}
 	}
 }

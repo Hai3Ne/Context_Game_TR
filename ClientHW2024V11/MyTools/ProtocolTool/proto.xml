@@ -1,0 +1,1434 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!-- 
+										协议配置说明
+		1、dir用于指示当前协议消息是上行(C2S)还是下行(S2C)，如果是上行，标记为1；下行标记为2；如果
+		   上下行都用到，标记为3。
+		2、基本数据类型如下：
+			int8/uint8
+			int16/uint16
+			int32/uint32
+			int64/uint64
+			float
+			double
+			string(采取通用字符串存储格式：2字节的长度+字符串内容+\0结束)
+			buffer，必须指定buffer长度count字段。
+		3、文件格式需使用UTF8编码
+		4、固定长度数组，使用count="常量"
+		5、变长数组，count域引用指定数组长度的字段
+-->
+
+<lib name="NetMsgData" >
+  <struct name="MsgData_cHeartBeat" desc= "心跳 msgId:2136;" msgId="2136" dir="1">
+    <entry name="Time" type="int64" desc="时间" />
+  </struct>
+  
+  
+  <struct name="MsgData_sHeartBeat" desc= "心跳 msgId:7136;" msgId="7136" dir="2">
+    <entry name="Time" type="int64" desc="时间" />
+  </struct>
+  
+  <struct name="MsgData_cLogin" desc="c->s 登录协议(CL_CONN_SRV)"  dir="1">
+    <entry name="Account" type="buffer" count="64" desc="玩家帐号"/>
+    <entry name="Platform" type="buffer" count="32" desc="平台"/>
+    <entry name="GameName" type="buffer" count="32" desc="游戏名字" />
+    <entry name="ServerID" type="uint32" desc="区服ID" />
+    <entry name="ClientTime" type="uint32" desc="客户端时间" />
+    <entry name="IsAdult" type="uint32" desc="防沉迷标记" />
+    <entry name="Exts" type="buffer" count="64" desc="扩展信息"/>
+    <entry name="Sign" type="buffer" count="64" desc="签名信息"/>
+    <entry name="Mac" type="buffer" count="32" desc="本地mac地址"/>
+    <entry name="Version" type="buffer" count="33" desc="协议版本号"/>
+    <entry name="Channel" type="buffer" count="64" desc="渠道标识"/>
+    <entry name="TxOpenId" type="buffer" count="33" desc="TxOpenId"/>
+	<entry name="TxOpenKey" type="buffer" count="33" desc="TxOpenKey"/>
+	<entry name="TxPfKey" type="buffer" count="33" desc="TxPfKey"/>
+  </struct>
+  
+    <struct name="MsgData_cCreateRole" desc="创建角色(CL_CREATE_ROLE_REQ msgId:1002)" msgId="1002" dir="1">
+    <entry name="RoleName" type="buffer" count="32" desc="角色名字"/>
+    <entry name="Job" type="int32" desc="角色职业"/>
+    <entry name="Icon" type="int32" desc="角色ICON" />
+    <entry name="Channel" type="buffer" count="32" desc="渠道" />
+	<entry name="Exts" type="buffer" count="64" desc="扩展信息"/>
+    <entry name="AccountGUID" type="int64" desc="帐号guid" />
+    <entry name="CurrentRoleID" type="int64" desc="当前选中的角色guid，没有则填0" />
+    <entry name="szIp" type="buffer" count="32" desc="ip"/>
+	<entry name="TxOpenId" type="buffer" count="33" desc="TxOpenId"/>
+	<entry name="TxOpenKey" type="buffer" count="33" desc="TxOpenKey"/>
+	<entry name="TxPfKey" type="buffer" count="33" desc="TxPfKey"/>
+  </struct>
+  
+    <struct name="MsgData_cEnterGame" desc="c->s 请求进入游戏(CW_ENTER_GAME msgId:2001" msgId="2001" dir="1">
+    <entry name="Account" type="buffer" count="64" desc="玩家ID"/>
+    <entry name="IP" type="buffer" count="32" desc="Client IP"/>
+    <entry name="MAC" type="buffer" count="32" desc="物理地址" />
+    <entry name="OpenKey" type="buffer" count="64" desc="Open Key" />
+    <entry name="Channel" type="buffer" count="64" desc="渠道" />
+    <entry name="Exts" type="buffer" count="64" desc="扩展信息" />
+    <entry name="ServerID" type="int32" desc="服务器ID"/>
+    <entry name="LoginType" type="int32" desc="登录类型:0web,1微端"/>
+    <entry name="ActivityID" type="int32" desc="活动ID"/>
+    <entry name="PID" type="int32" desc="pid"/>
+    <entry name="SelectedRole" type="int64" desc="选中的角色guid"/>
+	<entry name="AccountGUID" type="int64" desc="角色帐号guid"/>
+	<entry name="Language" type="buffer" count="64" desc="语言"/>
+	<entry name="TxOpenId" type="buffer" count="33" desc="TxOpenId"/>
+	<entry name="TxOpenKey" type="buffer" count="33" desc="TxOpenKey"/>
+	<entry name="TxPfKey" type="buffer" count="33" desc="TxPfKey"/>
+  </struct>
+  
+  <struct name="MsgData_sLogin" desc="S->C 登录返回 msgId:6001(LC_CONN_RESP)"  msgId="6001" dir="2">
+    <entry name="ResultCode" type="int32" desc="返回：0:OK -1:Create Role -2:时间戳错误 -3:签名不匹配 -4:封停 -5:协议不一致 -6:MAC封禁 -7:区服错误 -9手机密码错误 -10未找到手机号对应账号;-11登录校验失败"/>
+    <entry name="TxCode" type="int32" desc="如果是TX接口失败,返回TX的错误码" />
+    <entry name="Account" type="buffer" count="64" desc="玩家帐号" />
+    <entry name="GUID" type="int64" desc="guid" />
+    <entry name="ForbbidenTime" type="int32" desc="封禁时间" />
+    <entry name="ServerTime" type="int64" desc="服务器时间" />
+    <entry name="Exts" type="buffer" count="64" desc="扩展信息" />
+    <entry name="ServerID" type="uint32" desc="区服ID" />
+    <entry name="AccountGUID" type="int64" desc="帐号guid" />
+    <entry name="RoleCount" type="int8" desc="角色个数" />
+  </struct>
+
+  <struct name="MsgData_sLoginRole" desc="登录时返回的角色概要信息" dir="2">
+    <entry name="ID" type="int64" desc="角色ID" />
+    <entry name="Name" type="buffer" count="32" desc="角色名字" />
+    <entry name="MapID" type="int32" desc="地图ID" />
+    <entry name="Job" type="int32" desc="角色职业" />
+    <entry name="Level" type="int32" desc="角色等级" />
+    <entry name="FightPoint" type="int32" desc="战斗力" />
+    <entry name="VipLevel" type="int32" desc="Vip等级" />
+    <entry name="Weapon" type="int32" desc="武器" />
+    <entry name="MagicWeapon" type="int32" desc="神兵" />
+    <entry name="Dress" type="int32" desc="衣服" />
+    <entry name="FashionHead" type="int32" desc="时装头" />
+    <entry name="FashionWeapon" type="int32" desc="时装武器" />
+    <entry name="FashionDress" type="int32" desc="时装衣服" />
+    <entry name="Wing" type="int32" desc="翅膀" />
+    <entry name="LastLoginTime" type="int64" desc="最近登录时间" />
+    <entry name="ForbbidenTime" type="int32" desc="封禁结束时间" />
+    <entry name="EquipStarMin" type="int32" desc="装备升星最小星级" />
+	<entry name="CreateTime" type="int64" desc="创建角色登录时间" />
+  </struct>
+
+  <struct name="MsgData_sRoleInfo" desc="返回登录角色信息 msgId:6003" msgId="6003" dir="2">
+    <entry name="SelectIndex" type="int8" desc="选中的角色索引" />
+    <entry name="RoleCount" type="int8" desc="角色个数" />
+    <entry name="Roles" type="MsgData_sLoginRole" count="RoleCount" desc="角色数组" />
+  </struct>
+  
+    <struct name="MsgData_sCreateRole" desc="创建角色(LC_CREATE_ROLE_RESP msgId:6002)" msgId="6002" dir="2">
+    <entry name="Result" type="int32" desc="结果,0成功,-1名字冲突,-2名字不合法 -3其他Error" />
+    <entry name="Job" type="int32" desc="角色职业" />
+    <entry name="ID" type="int64"  desc="角色ID" />
+	<entry name="Name" type="buffer" count="32" desc="角色名" />
+	<entry name="Externsion" type="int64" desc="扩展ID，客户端无用" />
+	<entry name="createtime" type="int64" desc="创建角色时间" />
+  </struct>
+  
+  <struct name="MsgData_sEnterGame" desc="进入游戏返回(WC_ENTER_GAME msgId:7001)" msgId="7001" dir="2">
+    <entry name="ResultCode" type="int32" desc="失败原因 1:服务器未启动 2:玩家已在线" />
+  </struct>
+
+  <struct name="MsgData_cLogout" desc="登出协议(msgId:1903)" msgId="1903" dir="1">
+    <entry name="AccountGUID" type="int64" desc="账号GUID" />
+  </struct>
+
+  <struct name="MsgData_cLeaveGame" desc="离开游戏协议(msgId:2906)" msgId="2906" dir="1">
+  </struct>
+
+  <struct name="MsgData_sLeaveGame" desc="服务器返回离开游戏(msgId:7906)" msgId="7906" dir="2">
+  </struct>
+
+  <struct name="MsgData_cReconnect" desc="重连协议(msgId:1902)" msgId="1902" dir="1">
+    <entry name="Account" type="buffer" count="64" desc="账号GUID" />
+    <entry name="Cookie" type="buffer" count="64" desc="cookie"/>
+    <entry name="Status" type="int8" desc="0 表示 在选角色状态， 1 表示在游戏场景中 ,2表示在跨服场景中"/>
+    <entry name="ServerID" type="int32" desc="server id"/>
+  </struct>
+
+  <struct name="MsgData_sReconnect" desc="返回重连协议(msgId:6006)" msgId="6006" dir="2">
+    <entry name="Result" type="uint8" desc="成功返回0 ，cookie认证失败返回1, 连接失败返回2"/>
+  </struct>
+
+  <struct name="MsgData_sCookieUpdate" desc="Cookie更新Cookie协议(msgId:6005)" msgId="6005" dir="2">
+    <entry name="ExpiredTime" type="uint32" desc="linux timtstamp"/>
+    <entry name="Cookie" type="buffer" count="64" desc="cookie"/>
+  </struct>
+
+  <struct name="CS_HUMAN_ENTER_GAME_REQ" desc="客户端请求: msgId:3030; 请求进入游戏" msgId="3030" dir="1">
+    <entry name="i4GameType" type="int32" desc="游戏类型 1:50线 2:单线 3:消除"/>
+    <entry name="i4RoomType" type="int32" desc="房间类型 1-3"/>
+  </struct>
+ <struct name="CS_HUMAN_LEAVE_GAME_REQ" desc=" msgId:3031; 玩家离开游戏房间请求" msgId="3031" dir="1">
+ </struct>
+ 
+ <struct name="SC_HUMAN_ENTER_GAME_RET" desc=" msgId:9000; 玩家进入游戏房间请求返回" msgId="9000" dir="2">
+ <entry name="nResult" type="int32" desc="进房间结果 0:成功 1：房间人满"/>
+ <entry name="nGameType" type="int32" desc="游戏类型 1:50线 2:单线 3:消除"/>
+ <entry name="nRoomType" type="int32" desc="房间类型 1-3"/>
+ </struct>
+ 
+ <struct name="SC_HUMAN_LEAVE_GAME_RET" desc=" msgId:9001; 玩家离开游戏房间请求返回" msgId="9001"  dir="2">
+ </struct>
+ 
+  <struct name="CS_GAME1_BET_REQ" desc="msgId:4001 下注" msgId="4001"  dir="1">
+  <entry name="nBet" type="int32" desc="当前下注（配置文件筹码）"/>
+ </struct>
+ 
+  <struct name="SC_GAME1_BET_RET" desc="msgid:11001下注返回" msgId="11001" dir="2">
+  <entry name="nAllBet" type="int32" desc="当前总下注"/>
+  <entry name="n64CommPowerGold" type="int64" desc="普通线倍率赢金"/>
+  <entry name="n64RSPowerGold" type="int64" desc="RS倍率赢金"/>
+  <entry name="n64SunGold" type="int64" desc="太阳币模式总金币"/>
+  <entry name="n64FreeGold" type="int64" desc="免费游戏模式总金币"/>
+  <entry name="n64Gold" type="int64" desc="当前金币"/>
+  <entry name="arrayLogo" type="buffer" count="15" desc="图标列表"/>
+  <entry name="arraySun" type="buffer" count="15"  desc="太阳币列表"/>
+  <entry name="arrayLine" type="buffer" count="50"  desc="线倍率信息"/>
+  <entry name="nModelGame" type="int32" desc="特殊模式游戏总次数"/>
+  <entry name="nFreeGame" type="int32" desc="免费游戏模式剩余次数"/>
+  <entry name="nSunGame" type="int32" desc="太阳币游戏模式剩余次数"/>
+  <entry name="n64Jackpot" type="int64" desc="当前奖池"/>
+ </struct>
+ 
+  <struct name="SC_GAME1_BROADCAST_JACKPOT" desc="msgid:11002 游戏中广播更新奖池" msgId="11002" dir="2">
+  <entry name="n64Jackpot" type="int64" desc="当前奖池"/>
+ </struct>
+ 
+  <struct name="SGame1AwardInfo" desc="/*中奖信息*/" dir="2">
+  <entry name="n64RoleID" type="int64" desc="玩家角色GUID"/>
+  <entry name="nIconID" type="int32" desc="头像ID"/>
+  <entry name="n64Gold" type="int64" desc="中奖金币"/>
+   <entry name="szName" type="buffer" count="32"  desc="名字"/>
+ </struct>
+ 
+   <struct name="SC_GAME1_BROADCAST_ADD_AWARD" desc="msgid:11003游戏中广播新增列表" msgId="11003" dir="2">
+  <entry name="info" type="SGame1AwardInfo" count="1" desc="中奖信息"/>
+ </struct>
+ 
+   <struct name="SC_GAME1_ROOM_INFO" desc="进房间下发：游戏房间信息(msgId:11004)" msgId="11004" dir="2">
+   <entry name="nModelGame" type="int32" desc="特殊模式游戏总次数"/>
+   <entry name="nFreeGame" type="int32" desc="免费游戏模式剩余次数"/>
+   <entry name="nSunGame" type="int32" desc="太阳币游戏模式剩余次数"/>
+   <entry name="nBet" type="int32" desc="当前下注"/>
+   <entry name="n64FreeGold" type="int64" desc="免费游戏模式总金币"/>
+   <entry name="arrayLogo" type="buffer" count="15" desc="图标列表"/>
+   <entry name="arraySun" type="buffer" count="15" desc="太阳币列表"/>
+   <entry name="n64Jackpot" type="int64"  desc="当前奖池"/>
+   <entry name="arrayAward" type="SGame1AwardInfo" count="10" desc="中奖信息列表"/>
+  </struct>
+
+  <struct name="SC_ENTER_ROOM_RET" desc="进入房间返回:  msgId:8230" msgId="8230" dir="2">
+    <entry name=" m_i4RoomType" type="int32" desc="房间类型"/>
+    <entry name="m_i8RoomID" type="int64" desc="房间id"/>
+	<entry name="m_i8Coins" type="int64" desc="当前拥有金币数量"/>
+	<entry name="m_i8PoolCoins" type="int64" desc="奖池金币数量"/>
+	<entry name="m_i4FreeTimes" type="int32" desc="免费次数"/>
+  </struct>
+  
+   <struct name="GAME2_BET_REQ" desc="下注(msgId:4021)" msgId="4021" dir="1">
+    <entry name="nBet" type="int32" desc="当前下注（配置文件筹码）"/>
+  </struct>
+  
+  <struct name="SC_GAME2_BET_RET" desc="下注返回(msgId:11021)" msgId="11021" dir="2">
+    <entry name="nAllBet" type="int32" desc="当前总下注"/>
+	<entry name="n64CommPowerGold" type="int64" desc="普通线倍率赢金"/>
+	<entry name="n64RSPowerGold" type="int64" desc="RS倍率赢金"/>
+	<entry name="eRSType" type="int8" desc="RS中奖类型（小1中2大3）"/>
+	<entry name="n64FreeGold" type="int64" desc="免费游戏模式总金币"/>
+	<entry name="n64Gold" type="int64" desc="当前金币"/>
+	<entry name="arrayLogo" type="buffer" count="15"  desc="图标列表"/>
+	<entry name="arrayLine" type="buffer" count="9"  desc="线倍率信息"/>
+	<entry name="nModelGame" type="int32" desc="特殊模式游戏总次数"/>
+	<entry name="nFreeGame" type="int32" desc="免费游戏模式剩余次数"/>
+	<entry name="n64Jackpot" type="int64" desc="当前奖池"/>
+  </struct>
+  
+  <struct name="SC_GAME2_BROADCAST_JACKPOT" desc="游戏中广播更新奖池(msgId:11022)" msgId="11022" dir="2">
+    <entry name="n64Jackpot" type="int64" desc="当前奖池"/>
+  </struct>
+  
+   <struct name="SGame2AwardInfo" desc="中奖信息" dir="2">
+    <entry name="n64RoleID" type="int64" desc="玩家角色GUID"/>
+	 <entry name="nIconID" type="int32" desc="头像ID"/>
+	  <entry name="n64Gold" type="int64" desc="中奖金币"/>
+	   <entry name="szName" type="buffer" count="32"  desc="名字"/>
+  </struct>
+  
+  <struct name="SC_GAME2_BROADCAST_ADD_AWARD" desc="游戏中广播新增列表(msgId:11023)" msgId="11023" dir="2">
+    <entry name="info" type="SGame2AwardInfo" count="1" desc="中奖信息"/>
+  </struct>
+
+  <struct name="SC_GAME2_ROOM_INFO" desc="进房间下发：游戏房间信息(msgId:11024)" msgId="11024" dir="2">
+   <entry name="nModelGame" type="int32" desc="特殊模式游戏总次数"/>
+   <entry name="nFreeGame" type="int32" desc="免费游戏模式剩余次数"/>
+   <entry name="nBet" type="int32" desc="当前下注"/>
+   <entry name="n64FreeGold" type="int64" desc="免费游戏模式总金币"/>
+   <entry name="n64Jackpot" type="int64" desc="当前奖池"/>
+   <entry name="arrayAward" type="SGame2AwardInfo" count="10" desc="中奖信息列表"/>
+  </struct>
+  
+  <struct name="SW_RECHARGE_PIX_REQ" desc="请求创建pix支付订单 msgId:3040" msgId="3040" dir="1">
+  <entry name="m_i4ItemID" type="int32" desc="商品id(玩家充哪一档)"/>
+  <entry name="nPayType" type="int32" desc="充值方式类型"/>
+  <entry name="szParam" type="buffer" count="128" desc="充值参数"/>
+
+  </struct>
+  
+  <struct name="SC_RECHARGE_PIX_RET" desc="返回：创建pix支付订单 msgId:9002" msgId="9002" dir="2">
+  <entry name="m_i4ItemID" type="int32" desc="商品id(玩家充哪一档)"/>
+  <entry name="szOrderNo" type="buffer" count="64" desc="CP订单id"/>
+  <entry name="m_i4Ret" type="int32" desc="错误代码  0成功; -1失败; -10:vip礼包重复购买; -11:重复购买首充商品 -12 短时间内重复操作"/>
+  <entry name="m_i4Size" type="int32" desc="m_data 长度"/>
+  <entry name="m_data" type="buffer" count="m_i4Size" desc="平台返回订单数据 Json格式"/>
+  </struct>
+  
+     <struct name="EPlayerAttrType" desc="属性定义" dir="2">
+    <entry name="eName" type="int64" desc="玩家角色GUID"/>
+	 <entry name="nIconID" type="int32" desc="头像ID"/>
+	  <entry name="n64Gold" type="int64" desc="中奖金币"/>
+	   <entry name="szName" type="buffer" count="32"  desc="名字"/>
+  </struct>
+  
+  <struct name="SC_SCENE_SHOW_ME_INFO" desc="主角接收自己的信息 msgId:8002" msgId="8002" dir="2">
+  <entry name="m_i8roleID" type="int64" desc="角色ID"/>
+  <entry name="m_roleName" type="buffer" count="32" desc="角色名字"/>
+  <entry name="m_i1sex" type="int8"  desc="性别"/>
+  <entry name="m_i4Viplev" type="int32"  desc="vip等级"/>
+  <entry name="m_i4VipExp" type="int32"  desc="vip经验"/>
+  <entry name="m_i4prof" type="int32" desc="职业"/>
+  <entry name="m_i4icon" type="int32" desc="头像"/>
+  <entry name="m_szPhone" type="buffer" count="20" desc="手机号 空为未绑定"/>
+  <entry name="m_i8Golds" type="int64" desc="金币"/>
+  <entry name="m_i4SignIn" type="int32" desc="7日签到信息--按位"/>
+  <entry name="m_i8SignInTime" type="int64" desc="领取7日登录奖励时间"/>
+  <entry name="m_iSignDay" type="int8" desc="今天是否已签到"/>
+  <entry name="m_i4JJJDay" type="int8" desc="今天是否已领取救济金"/>
+  <entry name="m_i8JJJTime" type="int64" desc="领取救济金时间"/>
+  <entry name="m_i4BuyVipgoods" type="int32" desc="购买vip商品记录(二进制位)对应充值表vipgoods_flag"/>
+  <entry name="m_i4CatExp" type="int32" desc="招财猫经验值"/>
+  <entry name="m_i8CatRewardTime" type="int64" desc="领取招财猫奖励时间"/>
+  <entry name="m_i4FlagBits" type="int32" desc="玩家一些状态表示二级制位"/>
+  <entry name="m_nMsgCount" type="int32" desc="在线留言数量"/>
+  <entry name="m_i8Cashoutgold" type="int64" desc="可提取总金额上限值"/>
+  <entry name="m_pixCashOutCount" type="int32" desc="当天pix已提取次数"/>
+  <entry name="m_pixCashOutTotalDay" type="int64" desc="当天pix已提总金额"/>
+  <entry name="m_nGameType" type="int32" desc="游戏类型 1:50线 2:单线 3:消除"/>
+  <entry name="m_nRoomType" type="int32" desc="房间类型 1-3"/>
+  <entry name="m_szHeadUrl" type="buffer" count="256"  desc="头像地址"/>
+  <entry name="m_i8Diamonds" type="int64" desc="钻石"/>
+  
+  </struct>
+  
+    <struct name="SC_SCENE_SHOW_ME_INFO_EXTEND" desc="主角接收自己的扩展信息 " msgId="8004" dir="2">
+  <entry name="nJJJDay" type="int32"  desc="上一次领取救济金当天总额度"/>
+  <entry name="n64JJJTime" type="int64"  desc="上一次领取救济金时间0点"/>
+  <entry name="szPassword" type="buffer" count="33" desc="登录密码"/>
+  </struct>
+  
+  <struct name="SC_SCENE_VARIABLE_VALUE_INFO" desc="登录下发动态值信息 " msgId="8005" dir="2">
+  <entry name="nCount" type="int32"  desc="动态值数量"/>
+  <entry name="n64Value" type="int64" count="nCount"  desc="动态值列表"/>
+  </struct>
+  
+  
+  
+  <struct name="_ClientAttr" desc="msgId:8011; 玩家个人信息同步结构体"  dir="2">
+  <entry name="m_i1type" type="int8" desc="类型"/>
+  <entry name="m_i8value" type="int64" desc="数值"/>
+  <entry name="szData" type="buffer" count="32" desc="数值"/>
+  </struct>
+  
+  <struct name="SC_OBJ_ATTR_INFO" desc="msgId:8011; 玩家个人信息同步" msgId="8011" dir="2">
+  <entry name="m_i8roleId" type="int64" desc="角色ID"/>
+  <entry name="attrData_size" type="uint32" desc="attrData size"/>
+  <entry name="attrData" type="_ClientAttr" count="attrData_size" desc="_ClientAttr"/>
+  </struct>
+  
+  
+  <struct name="CS_GAME3_BET_REQ" desc="下注(msgId:4041)" msgId="4041" dir="1">
+   <entry name="nBet" type="int32" desc="当前下注（配置文件筹码）"/>
+  </struct>
+  
+  <struct name="CS_GAME3_AWARD_BOX_REQ" desc="下注(msgId:4041)" msgId="4041" dir="1">
+   <entry name="nBet" type="int32" desc=" 目标消耗值（配置文件）"/>
+  </struct>
+  
+  <struct name="CW_GetMailList" desc="请求获取邮件列表 msgId:2032" msgId="2032" dir="1">
+  </struct>
+  
+   <struct name="_MailVo" desc="邮件结构体" dir="2">
+   <entry name="m_i8mailid" type="int64" desc="邮件id"/>
+   <entry name="m_i1read" type="int8" desc="是否读过 0 - 未读， 1 - 已读"/>
+   <entry name="m_i1item" type="int8" desc="是否领取过附件0 - 没有附件， 1 - 未领取附件， 2 - 已领取附件"/>
+   <entry name="m_i8sendTime" type="int64" desc="发件时间"/>
+   <entry name="m_i8leftTime" type="int64" desc="剩余时间"/>
+   <entry name="m_mailtitle" type="buffer" count="50" desc="邮件标题"/>
+   <entry name="m_i4mailTxtId" type="int32" desc="配表id"/>
+  </struct>
+  
+  <struct name="WC_GetMailResult" desc="返回邮件列表 msgId:7032" msgId="7032" dir="2">
+   <entry name="MailList_size" type="uint32" desc="MailList size"/>
+   <entry name="MailList" type="_MailVo" count="MailList_size" desc="MailList size"/>
+  </struct>
+   <struct name="CW_OpenMail" desc=" 请求打开邮件 msgId:2033" msgId="2033" dir="1">
+   <entry name="m_i8mailid" type="int64" desc="邮件id"/>
+  </struct>
+  
+  <struct name="_MailItemVo" desc="返回打开邮件结构体" dir="2">
+  <entry name="m_i4itemid" type="int32" desc="附件物品id; eMoneyGold = 9, 表示金币"/>
+  <entry name="m_i8itemcount" type="int64" desc="附件物品数量"/>
+  </struct>
+  
+  <struct name="WC_OpenMailResult" desc="返回打开邮件 msgId:7033" msgId="7033" dir="2">
+  <entry name="m_i8mailid" type="int64" desc="邮件id"/>
+  <entry name="m_i1item" type="int8" desc="是否领取过附件0 - 没有领取附件， 1 - 已领取附件"/>
+  <entry name="m_mailcontnet" type="buffer" count="512" desc="邮件内容 type=1 'param1:type1,param2:type2'"/>
+  <entry name="MailItemList" type="_MailItemVo" count="8" desc="邮件id"/>
+  </struct>
+  
+  <struct name="_MailReqItemVo" desc="请求领取附件结构体" dir="1">
+  <entry name="m_i8mailid" type="int64" desc="邮件id"/>
+  </struct>  
+  
+  <struct name="CW_GetMailItem" desc=" 请求领取附件 msgId:2034" msgId="2034" dir="1">
+  <entry name="ucType" type="uint8" desc="0:普通。1权益"/>
+  <entry name="MailList_size" type="uint32" desc="MailList size"/>
+  <entry name="MailList" type="_MailReqItemVo" count="MailList_size" desc="请求领取附件"/>
+  </struct>
+  
+  <struct name="_MailRespItemVo" desc="请求领取附件结构体" dir="2">
+  <entry name="m_i8mailid" type="int64" desc="邮件id"/>
+  <entry name="m_i1result" type="int8" desc="领取邮件附件结果 0- 成功 1-失败"/>
+  </struct>  
+  
+  <struct name="WC_GetMailItemResult" desc="请求领取附件返回 msgId:7034" msgId="7034" dir="2">
+  <entry name="MailList_size" type="uint32" desc="MailList size"/>
+  <entry name="MailList" type="_MailRespItemVo" count="MailList_size" desc="请求领取附件"/>
+  </struct>
+  
+   <struct name="SC_CARD_EXCHANGE_GOLD_INFO" desc="卡兑换金币信息" msgId="8213" dir="2">
+    <entry name="Card" type="int64" desc="权益卡"/>
+    <entry name="Gold" type="int64" desc="金币"/>
+  </struct>
+
+  
+  <struct name="_ReqMailDelVo" desc="请求删除邮件结构体" dir="1">
+  <entry name="m_i8mailid" type="int64" desc="邮件id"/>
+  </struct>  
+  
+  <struct name="CW_DelMail" desc="请求删除邮件 msgId:2035" msgId="2035" dir="1">
+  <entry name="MailList_size" type="uint32" desc="MailList size"/>
+  <entry name="MailList" type="_ReqMailDelVo" count="MailList_size" desc="请求删除邮件"/>
+  </struct>
+  
+  <struct name="_RespMailDelVo" desc="请求删除邮件返回结构体" dir="1">
+  <entry name="m_i8mailid" type="int64" desc="邮件id"/>
+  </struct> 
+  
+  <struct name="WC_DelMail" desc="请求删除邮件返回 msgId:7035" msgId="7035" dir="2">
+  <entry name="MailList_size" type="uint32" desc="MailList size"/>
+  <entry name="MailList" type="_RespMailDelVo" count="MailList_size" desc="请求删除邮件"/>
+  </struct>
+  
+  <struct name="WC_NotifyMail" desc="邮件提醒 msgId:7036" msgId="7036" dir="2">
+  <entry name="m_i4mailcount" type="int32" desc="邮件数量"/>
+  </struct>
+  
+  <struct name="CW_BindAccountSmsgReq" desc="请求账号绑定手机号的短信验证 msgId:2010" msgId="2010" dir="1">
+  <entry name="m_szPhone" type="buffer" count="20" desc="手机号码 "/>
+  </struct>
+ 
+   <struct name="CW_BindAccountReq" desc="请求账号绑定手机号 msgId:2011" msgId="2011" dir="1">
+  <entry name="m_szPhone" type="buffer" count="20" desc="手机号码 "/>
+  <entry name="m_szCode" type="buffer" count="32" desc="手机验证码"/>
+  <entry name="m_szPswd" type="buffer" count="250" desc="手机密码(8-16位数字英文组合加密后的字符串) --暂时明码-会选择一种加解密方式"/>
+  </struct>
+  
+  <struct name="CW_ChangeAccountSmsgReq" desc="请求修改账号密码的短信验证 msgId:2012" msgId="2012" dir="1">
+  </struct>
+  
+
+  <struct name="CW_ChangeAccountPswdReq" desc="请求修改账号的密码 msgId:2013" msgId="2013" dir="1">
+  <entry name="m_szCode" type="buffer" count="32" desc="手机验证码"/>
+  <entry name="m_szPswd" type="buffer" count="250" desc="手机密码(8-16位数字英文组合加密后的字符串) --暂时明码-会选择一种加解密方式};"/>
+  </struct>
+  
+  <struct name="CS_GAME4_BET_REQ" desc="下注" msgId="4061" dir="1">
+  <entry name="nBet" type="int32" desc=" 当前下注（配置文件筹码）"/>
+  </struct>
+
+  <struct name="SGame4HandInfo" desc="每局信息列表" dir="2">
+  <entry name="n64CommPowerGold" type="int64" desc="普通倍率赢金"/>
+  <entry name="n64RSPowerGold" type="int64" desc="RS倍率赢金"/>
+   <entry name="n64TotalGold" type="int64" desc="本次总赢金（每次中奖金币总和"/>
+    <entry name="nTotalDouble" type="int32" desc="总倍数（X符号总和）"/>
+  <entry name="arrayLogo" type="uint8" count="30" desc="总局数"/>
+  </struct>
+  
+  <struct name="SC_GAME4_BET_RET" desc="下注返回" msgId="11061" dir="2">
+  <entry name="nAllBet" type="int32" desc="当前总下注"/>
+  <entry name="n64Gold" type="int64" desc="当前金币"/>
+  <entry name="n64Jackpot" type="int64" desc="当前奖池"/>
+  <entry name="nHandSize" type="int32" desc="总局数"/>
+  <entry name="sInfo" type="SGame4HandInfo" count="nHandSize" desc="每局信息列表"/>
+  </struct>
+  
+   <struct name="SC_GAME4_BROADCAST_JACKPOT" desc="游戏中广播更新奖池" msgId="11062" dir="2">
+    <entry name="n64Jackpot" type="int64" desc="当前总下注"/>
+   </struct>
+   
+   <struct name="SGame4AwardInfo" desc="中奖信息" dir="2">
+    <entry name="n64RoleID" type="int64" desc="玩家角色GUID"/>
+	<entry name="nIconID" type="int32" desc="头像ID"/>
+	<entry name="n64Gold" type="int64" desc="中奖金币"/>
+	<entry name="szName" type="buffer" count="32"  desc="名字"/>
+   </struct>
+   
+   <struct name="SC_GAME4_BROADCAST_ADD_AWARD" desc="游戏中广播新增列表" msgId="11063" dir="2">
+    <entry name="info" type="SGame4AwardInfo" count="1" desc="中奖信息"/>
+   </struct>
+   
+   <struct name="SC_GAME4_ROOM_INFO" desc="游戏中广播新增列表" msgId="11064" dir="2">
+    <entry name="n64Jackpot" type="int64" desc="当前奖池"/>
+	<entry name="arrayAward" type="SGame4AwardInfo" count="10" desc="中奖信息列表"/>
+   </struct>
+   
+   <struct name="WC_BindAccountSmsgRet" desc="服务端通知: 请求绑定手机号的短信验证回复 msgId:7100" msgId="7100" dir="2">
+   <entry name="m_szPhone" type="buffer" count="20" desc="手机号码 "/>
+   <entry name="m_nResult" type="int32" desc="// 错误代码 0成功; 1失败; 2号码格式错误; 3手机号码长度不对;4请求短信验证码频繁 5此手机已绑定过账号"/>
+   </struct>
+   
+   <struct name="WC_BindAccountRet" desc=" 服务端通知: 请求账号绑定手机号回复 msgId:7101" msgId="7101" dir="2">
+   <entry name="m_szPhone" type="buffer" count="20" desc="手机号码 "/>
+   <entry name="m_nResult" type="int32" desc="// 错误代码 0成功，1失败;2错误的密码格式，3密码长度不对;验证码不正确5验证码超时;6两次手机号码不相同;7手机号码长度不对 8此手机已绑定过账号"/>
+   </struct>
+   
+   <struct name="WC_ChangeAccountSmsgRet" desc="服务端通知: 请求修改账号密码的短信验证回复 msgId:7102 " msgId="7102" dir="2">
+   <entry name="m_nResult" type="int32" desc="// 错误代码 0成功; 1失败; 2号码格式错误; 3手机号码长度不对;4请求短信验证码频繁"/>
+   </struct>
+   
+   <struct name="WC_ChangeAccountPswdRet" desc="服务端通知: 修改账号的密码回复 msgId:7103 " msgId="7103" dir="2">
+   <entry name="m_nResult" type="int32" desc="// 错误代码  0修改密码成功; 1修改密码失败;2错误的密码格式; 3密码长度不对;4验证码不正确;5验证码超时"/>
+   </struct>   
+   
+    <struct name="CL_CONN_SRV_PHONE" desc="手机登录协议 msgId:1009" msgId="1009"  dir="1">
+    <entry name="m_szPhone" type="buffer" count="20" desc="手机号码"/> 
+    <entry name="m_szPswd" type="buffer" count="25" desc="手机密码"/> 
+    <entry name="Platform" type="buffer" count="32" desc="平台"/>
+    <entry name="GameName" type="buffer" count="32" desc="游戏名字" />
+    <entry name="ServerID" type="int32" desc="区服ID" />
+    <entry name="ClientTime" type="int32" desc="客户端时间" />
+    <entry name="IsAdult" type="int32" desc="防沉迷标记" />
+    <entry name="Exts" type="buffer" count="64" desc="扩展信息"/>
+    <entry name="Sign" type="buffer" count="64" desc="签名信息"/>
+    <entry name="Mac" type="buffer" count="32" desc="本地mac地址"/>
+    <entry name="Version" type="buffer" count="33" desc="协议版本号"/>
+    <entry name="Channel" type="buffer" count="64" desc="渠道标识"/>
+    <entry name="TxOpenId" type="buffer" count="33" desc="TxOpenId"/>
+	<entry name="TxOpenKey" type="buffer" count="33" desc="TxOpenKey"/>
+	<entry name="TxPfKey" type="buffer" count="33" desc="TxPfKey"/>
+  </struct>
+  
+  <struct name="CS_TEST_SEND_MAIL" desc="请求邮件测试 msgId:3004" msgId="3004" dir="1">
+  <entry name="m_i4MailId" type="int32" desc="邮件类型id"/>
+  </struct>
+  
+    <struct name="SC_GAME3_AWARD_BOX_RET" desc="领取宝箱奖励返回(msgId:11042)" msgId="11042"  dir="2">
+   <entry name="nGold" type="int32" desc="获得金币"/>
+   <entry name="n64Gold" type="int64" desc="当前金币"/>
+   <entry name="n64ExpendTotal" type="int64" desc="消耗统计"/>
+  </struct>
+  
+  <struct name="SC_GAME3_ROOM_INFO" desc="进房间下发：游戏房间信息(msgId:11043)" msgId="11043" dir="2">
+   <entry name="nModelGame" type="int32" desc="特殊模式游戏总次数"/>
+   <entry name="nFreeGame" type="int32" desc="免费游戏模式剩余次数"/>
+   <entry name="nBet" type="int32" desc="当前下注"/>
+   <entry name="n64FreeGold" type="int64" desc="免费游戏模式总金币"/>
+   <entry name="n64ExpendTotal" type="int64" desc="消耗统计"/>
+  </struct>
+    <struct name="SC_GAME3_BET_RET" desc="下注返回  msgId 11041" msgId="11041" dir="2">
+   <entry name="nAllBet" type="int32" desc="当前总下注"/>
+   <entry name="n64CommPowerGold" type="int64" desc="普通线倍率赢金"/>
+   <entry name="n64FreeGold" type="int64" desc="免费游戏模式总金币"/>
+	<entry name="n64Gold" type="int64" desc="当前金币"/>
+	<entry name="arrayLogo" type="buffer" count="15" desc="图标列表"/>
+	<entry name="arrayLine" type="buffer" count="9" desc="线倍率信息"/>
+    <entry name="nModelGame" type="int32" desc="中奖信息列表"/>
+    <entry name="nFreeGame" type="int32" desc="中奖信息列表"/>
+    <entry name="n64ExpendTotal" type="int64" desc="中奖信息列表"/>
+  </struct>
+
+  <struct name="CS_HUMAN_SET_ICONID_REQ" desc="设置头像id  msgId 3013" msgId="3013" dir="1">
+   <entry name="m_i4IconId" type="int32" desc="头像配置id"/>
+  </struct>
+   <struct name="SC_HUMAN_SET_ICONID_RET" desc="服务器返回结果:设置头像id msgId 8204" msgId="8204" dir="2">
+   <entry name="m_i1Ret" type="int8" desc=" // 0设置成功 1头像id错误"/>
+  </struct>
+  
+   <struct name="CS_TASK_GAIN_REWARD_REQ" desc="msgId:3901 任务领奖" msgId="3901" dir="1">
+   <entry name="nType" type="int32" desc="任务类型"/>
+   <entry name="nID" type="int32" desc="任务ID"/>
+   </struct>
+   
+   <struct name="SC_TASK_GAIN_REWARD_RET" desc="msgId:10801 任务领奖" msgId="10801" dir="2">
+   <entry name="nType" type="int32" desc="任务类型"/>
+   <entry name="nID" type="int32" desc="任务ID"/>
+   <entry name="nGainGold" type="int32" desc="获得金币"/>
+  </struct>
+  
+    <struct name="STaskInfo" desc="任务信息结构体"  dir="2">
+   <entry name="nType" type="int32" desc="任务类型"/>
+   <entry name="n64Total" type="int64" desc="累计值"/>
+   <entry name="n64Retime" type="int64" desc="下次重置时间"/>
+   <entry name="n64Reward" type="int64" desc="奖励领取情况"/>
+  </struct>  
+  
+   <struct name="SC_TASK_LIST_INFO" desc="msgId:10802登录下发：任务列表信息" msgId="10802" dir="2">
+   <entry name="n64BombBoxValue" type="int64" desc="炸弹箱子统计值"/>
+   <entry name="nTypeSize" type="int32" desc="任务类型大小"/>
+   <entry name="arrayInfo" type="STaskInfo" count="nTypeSize" desc=" 任务信息"/>
+  </struct>  
+  
+   <struct name="SC_TASK_UPDATE_INFO" desc="更新任务信息" msgId="10803" dir="2">
+   <entry name="nType" type="int32" desc="任务类型"/>
+   <entry name="n64Total" type="int64"  desc=" 任务信息"/>
+  </struct>
+
+   <struct name="WC_SyncTime" desc="服务器同步时间" msgId="7010" dir="2">
+   <entry name="nType" type="int32" desc="服务器当前时间"/>
+   <entry name="n64ServerTime" type="int64" desc="服务器当前时间"/>
+  </struct>   
+  
+    <struct name="CS_GAME5_BET_REQ" desc="下注" msgId="4081" dir="1">
+   <entry name="nBet" type="int32" desc="当前下注（配置文件筹码）"/>
+  </struct>
+  
+  <struct name="SGame5HandInfo" desc="/*下注每局信息*/" dir="2">
+   <entry name="n64CommPowerGold" type="int64" desc="普通倍率赢金"/>
+   <entry name="n64RSPowerGold" type="int64" desc="RS倍率赢金"/>
+   <entry name="n64TotalGold" type="int64" desc="本次总赢金（每次中奖金币总和）"/>
+   <entry name="arrayLogo" type="buffer" count="3" desc="图标列表"/>
+  </struct>
+  
+   <struct name="SC_GAME5_BET_RET" desc="下注返回" msgId="11081" dir="2">
+	<entry name="nAllBet" type="int32" desc="当前总下注"/>
+	<entry name="n64Gold" type="int64" desc="当前金币"/>
+	<entry name="n64Jackpot" type="int64" desc="当前奖池"/>
+	<entry name="nHandSize" type="int32" desc="总局数"/>
+	<entry name="sInfo" type="SGame5HandInfo" count="nHandSize" desc="每局信息列表"/>
+  </struct> 
+  
+   <struct name="SC_GAME5_BROADCAST_JACKPOT" desc="游戏中广播更新奖池" msgId="11082" dir="2">
+	<entry name="n64Jackpot" type="int64" desc="当前奖池"/>
+  </struct> 
+  
+   <struct name="SGame5AwardInfo" desc="/*中奖信息*/" dir="2">
+	<entry name="n64RoleID" type="int64" desc="玩家角色GUID"/>
+	<entry name="nIconID" type="int32" desc="头像ID"/>
+	<entry name="n64Gold" type="int64" desc="中奖金币"/>
+	<entry name="szName" type="buffer" count="32" desc="名字"/>
+  </struct> 
+  
+   <struct name="SC_GAME5_BROADCAST_ADD_AWARD" desc="游戏中广播新增列表" msgId="11083" dir="2">
+	<entry name="info" type="SGame5AwardInfo" count="1" desc="中奖信息"/>
+  </struct> 
+  
+  <struct name="SC_GAME5_ROOM_INFO" desc="进房间下发：游戏房间信息" msgId="11084" dir="2">
+	<entry name="n64Jackpot" type="int64" desc="当前奖池"/>
+	<entry name="arrayAward" type="SGame5AwardInfo" count="10" desc="中奖信息"/>
+  </struct> 
+  
+  <struct name="CS_HUMAN_SIGNIN_REQ" desc="签到并领奖" msgId="3010" dir="1">
+  <entry name="m_i4Day" type="int32" desc="签 第几天的签到 1~7"/>
+  </struct> 
+  
+  <struct name="SC_HUMAN_SIGNIN_RET" desc="服务器返回结果：签到结果 msgId:8201" msgId="8201" dir="2">
+  <entry name="m_i8Time" type="int64" desc="本次签到时间"/>
+  <entry name="m_i4SignInfo" type="int32" desc="签到情况"/>
+  <entry name="m_i1Ret" type="int8" desc="0签到成功 1签到失败 2当天已签到 3不可重复签到 4需要至少充值一次 才可领取 5天数值不在范围内"/>
+  <entry name="m_i8Golds" type="int64" desc="奖励数量"/>
+  </struct>  
+  
+  <struct name="CS_HUMAN_GETJJJ_REQ" desc="领取救济金 msgId:3011" msgId="3011" dir="1">
+  </struct>    
+  
+  <struct name="SC_HUMAN_GETJJJ_RET" desc=" 服务器返回结果：领取救济金返回 msgId:8202" msgId="8202" dir="2">
+  <entry name="m_i8Time" type="int64" desc="本次领取时间"/>
+  <entry name="m_i1Ret" type="int8" desc="0领取成功 1领取失败 2当天已领取 3活动未开放 4身上金币大于等于领取线"/>
+  <entry name="m_i8Golds" type="int64" desc="奖励数量"/>
+  <entry name="m_i4JJJDay" type="int32" desc="上一次领取救济金当天总额度"/>
+  </struct> 
+  
+  <struct name="CS_HUMAN_GETZCCAT_REQ" desc="领取招财猫奖励 msgId:3012" msgId="3012" dir="1">
+  </struct>   
+  
+  <struct name="SC_HUMAN_GETZCCAT_RET" desc="服务器返回结果：领取招财猫奖励返回 msgId:8203" msgId="8203" dir="2">
+  <entry name="m_i8Time" type="int64" desc="本次领取时间"/>
+  <entry name="m_i1Ret" type="int8" desc="0领取成功 1领取失败 2当天已领取 3活动未开放 4身上金币大于等于领取线"/>
+  <entry name="m_i8Golds" type="int64" desc="奖励数量"/>
+  </struct>     
+  
+  <struct name="CS_RECHARGE_PIX_BIND_INFO_REQ" desc="请求绑定pix代出认证信息 msgId:3041" msgId="3401" dir="1">
+  <entry name="szAccountType" type="buffer" count="10" desc="用户pix类型.EMAIL/PHONE/CPF/CNPJ/RANDOM"/>
+  <entry name="szPhone" type="buffer" count="16" desc="13位手机号码"/>
+   <entry name="szEmail" type="buffer" count="65" desc="邮件地址 长度"/>
+  <entry name="szAccountNum" type="buffer" count="65" desc="支付账号"/>
+  <entry name="szCustomerName" type="buffer" count="100" desc="支付姓名"/>
+  <entry name="szCustomerCert" type="buffer" count="12" desc="用户CPF纯数字长度"/>
+  </struct>    
+  
+  <struct name="SC_RECHARGE_PIX_BIND_INFO_RET" desc="服务器返回结果：绑定pix代出认证信息返回 msgId:8205" msgId="8205" dir="2">
+  <entry name="m_i1Ret" type="int8" desc="0成功 1名字与实名名字不一致 2支付账号有误 3系统错误"/>
+  
+  </struct> 
+  
+  <struct name="SC_CASHOUT_PIX_RET" desc=" // 服务器返回结果：pix提取返回 msgId:8206" msgId="8206" dir="2">
+  <entry name="m_i4Ret" type="int32" desc=" // 0成功 1操作完成等待回调 -1余额不满足 -2绑定信息不满足 -3兑出金额 大于 可提取金额 -4扣款失败 -5系统错误 -6已达当天可提取次数"/>
+  <entry name="m_i8Amounts" type="int64" desc="兑出的金额 分"/>
+  </struct> 
+  
+  <struct name="CS_CASHOUT_PIX_REQ" desc="msgId:3042; 请求pix提取 " msgId="3042" dir="1">
+  <entry name="i8Amounts" type="int64" desc="分"/>
+  </struct> 
+  
+  <struct name="WC_SysNotice" desc="服务端通知:公告 msgId:7006" msgId="7006" dir="2">
+  <entry name="ucTypeID" type="int8" desc="公告类型ID"/>
+  <entry name="nParamSize" type="int32" desc="公告参数内容大小"/>
+  <entry name="szParam" type="buffer" count="nParamSize" desc="公告参数(内容用#分割)"/>
+  </struct> 
+  
+  <struct name="SC_HUMAN_ONLINE_MESSAGE_RET" desc="msgId:9003; 玩家在线留言请求返回" msgId="9003" dir="2">
+  <entry name="nCount" type="int32" desc="总次数(每天3次)"/>
+  </struct> 
+  
+  <struct name="CS_HUMAN_ONLINE_MESSAGE_REQ" desc="msgId:3032; 玩家在线留言请求" msgId="3032" dir="1">
+  <entry name="nSize" type="int32" desc="内容大小"/>
+  <entry name="szContent" type="buffer" count="nSize" desc="留言内容（最长256）"/>
+  </struct> 
+  
+  <struct name="CS_GET_PIX_CASHOUT_BIND_INFO_REQ" desc="msgId:3043; 请求pix代出认证信息" msgId="3043" dir="1">
+  </struct> 
+  
+  <struct name="SC_CASHOUT_PIX_BIND_INFO_RET" desc="服务器返回结果：pix绑定信息 msgId:8207" msgId="8207" dir="2">
+  <entry name="szAccountType" type="buffer" count="10" desc="用户pix类型.EMAIL/PHONE/CPF"/>
+  <entry name="szPhone" type="buffer" count="16" desc="13位手机号码"/>
+  <entry name="szEmail" type="buffer" count="65" desc="邮件地址"/>
+  <entry name="szAccountNum" type="buffer" count="65" desc="用户pix账号"/>
+  <entry name="szCustomerName" type="buffer" count="100" desc="用户姓名"/>
+  <entry name="szCustomerCert" type="buffer" count="12" desc="用户CPF纯数字"/>
+  </struct> 
+  
+  <struct name="CS_HUMAN_SET_PLAYER_NAME_REQ" desc="设置玩家名称 msgId:3014" msgId="3014" dir="1">
+  <entry name="szNewName" type="buffer" count="32" desc="玩家名字"/>
+  </struct>   
+  
+  <struct name="SC_HUMAN_SET_PLAYER_NAME_RET" desc="服务器返回结果：设置玩家名称返回 msgId:8208" msgId="8208" dir="2">
+  <entry name="m_i1Ret" type="int8"  desc="0设置成功 1失败"/>
+  </struct> 
+  
+  <struct name="CL_RegisterAccountSmsgReq" desc="请求注册账号短信验证码 msgId:1012" msgId="1012" dir="1">
+  <entry name="m_szPhone" type="buffer" count="20"  desc="手机号码"/>
+  </struct> 
+  
+  <struct name="LC_RegisterAccountSmsgRet" desc="请求注册账号短信验证码回复 6010" msgId="6010" dir="2">
+  <entry name="m_szPhone" type="buffer" count="20"  desc="手机号码"/>
+  <entry name="m_nResult" type="int32" desc="错误代码 0成功; 1失败; 2号码格式错误; 3手机号码长度不对;4请求短信验证码频繁;5此手机已绑定过账号"/>
+  </struct> 
+  
+  <struct name="CL_RegisterAccountReq" desc="请求注册账号 msgId:1013" msgId="1013" dir="1">
+  <entry name="m_szPhone" type="buffer" count="20"  desc="手机号码"/>
+  <entry name="m_szCode" type="buffer" count="32"  desc="手机验证码"/>
+  <entry name="m_szPswd" type="buffer" count="250"  desc="手机密码(8-16位数字英文组合加密后的字符串) --暂时明码-会选择一种加解密方式"/>
+  <entry name="m_platform" type="buffer" count="32" desc="平台"/>     
+  <entry name="m_game_name" type="buffer" count="32" desc="游戏名"/> 
+  <entry name="m_i4server_id" type="int32" desc="101"/> 
+  <entry name="m_i4time" type="int32"  desc="时间"/> 
+  <entry name="m_i4is_adult" type="int32" desc="防沉迷标记"/> 
+  <entry name="m_exts" type="buffer" count="64" desc="扩展信息"/> 
+  <entry name="m_sign" type="buffer" count="64" desc="签名"/> 
+  <entry name="m_mac" type="buffer" count="32" desc=" 物理地址"/> 
+  <entry name="m_version" type="buffer" count="33" desc=" 协议版本 1.0.1"/> 
+  <entry name="m_pf" type="buffer" count="64" desc=" 渠道"/> 
+  </struct>
+  
+  <struct name="LC_RegisterAccountRet" desc="请求注册账号回复 msgid:6011" msgId="6011" dir="2">
+  <entry name="m_nResult" type="int32" desc=" 错误代码 0注册成功; 1失败; 2请重新发启验证码(断线了);3两次手机号码不相同;4手机号码长度不对;5验证码不正确;6验证码超时;7错误的密码格式;8密码长度不对"/>
+  </struct>
+  
+  <struct name="SC_HUMAN_RECHARGE_MONEY_RET" desc="msgId : 9004; 玩家充值成功信息同步" msgId="9004" dir="2">
+  <entry name="m_i4GoodsId" type="int32" desc=" 商品id"/>
+  <entry name=" m_i4MType" type="int32" desc="金额类型 1雷亚尔; 2RMB"/>
+  <entry name=" m_i8Money" type="int64" desc="金额数量"/>
+  </struct>
+
+  <struct name="CL_ChangePwdForAccountSmsgReq" desc=" 请求用于修改账号密码的短信验证码 msgId:1014" msgId="1014" dir="1">
+  <entry name="m_szPhone" type="buffer" count="20" desc="手机号码"/>
+  </struct>  
+  
+  <struct name="CL_ChangePwdForAccountReq" desc=" 请求修改账号密码 msgId:1015" msgId="1015" dir="1">
+  <entry name="m_szPhone" type="buffer" count="20" desc="手机号码"/>
+  <entry name="m_szCode" type="buffer" count="32" desc="手机验证码"/>
+  <entry name="m_szPswd" type="buffer" count="250" desc="新的手机密码(8-16位数字英文组合加密后的字符串)"/>
+  </struct>
+  
+  <struct name="LC_ChangePwdForAccountSmsgRet" desc=" 请求用于修改账号密码的短信验证码-回复 6012" msgId="6012" dir="2">
+  <entry name="m_szPhone" type="buffer" count="20" desc="手机号码"/>
+  <entry name="m_nResult" type="int32" desc="错误代码 0成功; 1失败; 2号码格式错误; 3手机号码长度不对;4请求短信验证码频繁;5此手机未绑定过账号"/>
+  </struct>
+  
+  <struct name="LC_ChangePwdForAccountRet" desc=" 请求修改账号密码-回复 msgId:6013" msgId="6013" dir="2">
+  <entry name="m_nResult" type="int32"  desc="错误代码 0注册成功; 1失败; 2请重新发启验证码(断线了);3两次手机号码不相同;4手机号码长度不对;5验证码不正确;6验证码超时;7错误的密码格式;8密码长度不对"/>
+  </struct>
+  
+  <struct name="SGameOnlineInfo" desc=" 同步游戏在线信息结构体" dir="2">
+  <entry name="nGameID" type="int32"  desc="游戏ID"/>
+  <entry name="nOnline" type="int32" count="4"  desc="游戏数量"/>
+  </struct>
+  
+  <struct name="SC_SYN_GAME_ONLINE_INFO" desc=" 同步游戏在线信息msgId:9005" msgId="9005" dir="2">
+  <entry name="nCount" type="int32"  desc="游戏数量"/>
+  <entry name="sData" type="SGameOnlineInfo" count="nCount"  desc="游戏在线信息列表"/>
+  </struct>
+  
+  <struct name="CS_SYN_GAME_ONLINE_REQ" desc="同步游戏在线信息请求 msgId:3033" msgId="3033" dir="1">
+  </struct>
+  
+  <struct name="CS_GAME6_BET_REQ" desc="msgId:4101 下注" msgId="4101"  dir="1">
+  <entry name="nBet" type="int32" desc="当前下注（配置文件筹码）"/>
+  </struct>
+  
+  <struct name="SC_GAME6_BET_RET" desc="msgId:11101 下注返回" msgId="11101"  dir="2">
+	<entry name="nAllBet" type="int32" desc="当前总下注"/>
+	<entry name="n64CommPowerGold" type="int64" desc="普通线倍率赢金"/>
+	<entry name="n64RSPowerGold" type="int64" desc="RS倍率赢金"/>
+	<entry name="eRSType" type="int8" desc="RS中奖类型（小1中2大3）"/>
+	<entry name="n64FreeGold" type="int64" desc="免费游戏模式总金币"/>
+	<entry name="n64Gold" type="int64" desc="当前金币"/>
+	<entry name="arrayLogo" type="buffer" count="15"  desc="图标列表"/>
+	<entry name="arrayLine" type="buffer" count="9"  desc="线倍率信息"/>
+	<entry name="nModelGame" type="int32" desc="特殊模式游戏总次数"/>
+	<entry name="nFreeGame" type="int32" desc="免费游戏模式剩余次数"/>
+	<entry name="n64Jackpot" type="int64" desc="当前奖池"/>
+  </struct>
+  
+  <struct name="SC_GAME6_BROADCAST_JACKPOT" desc="游戏中广播更新奖池(msgId:11102)" msgId="11102" dir="2">
+    <entry name="n64Jackpot" type="int64" desc="当前奖池"/>
+  </struct>
+  
+  <struct name="SC_GAME6_BROADCAST_ADD_AWARD" desc="游戏中广播新增列表(msgId:11103)" msgId="11103" dir="2">
+    <entry name="info" type="SGame6AwardInfo" count="1" desc="中奖信息"/>
+  </struct>
+  
+  <struct name="SC_GAME6_ROOM_INFO" desc="进房间下发：游戏房间信息(msgId:11104)" msgId="11104" dir="2">
+   <entry name="nModelGame" type="int32" desc="特殊模式游戏总次数"/>
+   <entry name="nFreeGame" type="int32" desc="免费游戏模式剩余次数"/>
+   <entry name="nBet" type="int32" desc="当前下注"/>
+   <entry name="n64FreeGold" type="int64" desc="免费游戏模式总金币"/>
+   <entry name="n64Jackpot" type="int64" desc="当前奖池"/>
+   <entry name="arrayAward" type="SGame6AwardInfo" count="10" desc="中奖信息列表"/>
+  </struct>
+  
+  <struct name="SGame6AwardInfo" desc="中奖信息" dir="2">
+    <entry name="n64RoleID" type="int64" desc="玩家角色GUID"/>
+	 <entry name="nIconID" type="int32" desc="头像ID"/>
+	  <entry name="n64Gold" type="int64" desc="中奖金币"/>
+	   <entry name="szName" type="buffer" count="32"  desc="名字"/>
+  </struct>
+  
+   <struct name="CW_ACCOUNT_RELOGIN_REQ" desc=" 账号请求重新登录申请（服务器强制下线玩家） msgId:2002" msgId="2002" dir="1">
+     <entry name="n64AccountGUID" type="int64"  desc=" 账号GUID"/>
+     <entry name="n64RoleGUID" type="int64"  desc="角色GUID"/>
+   </struct>
+   
+        <struct name="CS_GAME7_BET_REQ" desc="msgId:4121 下注" msgId="4121"  dir="1">
+	<entry name="nBet" type="int32" desc="当前下注（配置文件筹码）"/>
+  </struct>
+  
+  <struct name="SC_GAME7_BET_RET" desc="msgId:11121 下注返回" msgId="11121"  dir="2">
+	<entry name="nAllBet" type="int32" desc="当前总下注"/>
+	<entry name="n64CommPowerGold" type="int64" desc="普通线倍率赢金"/>
+	<entry name="n64SpecialPowerGold" type="int64" desc="特殊模式倍率赢金（结算时才赋值）"/>
+	<entry name="n64Gold" type="int64" desc="当前金币"/>
+	<entry name="arrayLogo" type="buffer" count="20"  desc="图标列表"/>
+	<entry name="arrayLine" type="buffer" count="30"  desc="线倍率信息"/>
+	<entry name="nSpecialCount" type="int32" desc="特殊图标数量（大于0代表是特殊模式）"/>
+  </struct>
+  
+  <struct name="SC_GAME7_BROADCAST_ADD_AWARD" desc="游戏中广播新增列表(msgId:11123)" msgId="11123" dir="2">
+    <entry name="info" type="SGame7AwardInfo" count="1" desc="中奖信息"/>
+  </struct>
+  
+  <struct name="SGame7AwardInfo" desc="中奖信息" dir="2">
+    <entry name="n64RoleID" type="int64" desc="玩家角色GUID"/>
+	<entry name="nIconID" type="int32" desc="头像ID"/>
+	<entry name="n64Gold" type="int64" desc="中奖金币"/>
+	<entry name="nRate" type="int32" desc="中奖倍数"/>
+	<entry name="szName" type="buffer" count="32"  desc="名字"/>
+  </struct>
+   
+  <struct name="SC_GAME7_ROOM_INFO" desc="进房间下发：游戏房间信息(msgId:11124)" msgId="11124" dir="2">
+   <entry name="nSpecialCount" type="int32" desc="特殊图标数量（大于0代表是特殊模式）"/>
+   <entry name="nBet" type="int32" desc="当前下注"/>
+   <entry name="arrayLogo" type="buffer" count="20" desc="图标列表"/>
+   <entry name="arrayAward" type="SGame7AwardInfo" count="10" desc="中奖信息列表"/>
+  </struct> 
+   
+  <struct name="CS_GAME8_BET_REQ" desc="msgId:4141 下注" msgId="4141"  dir="1">
+	<entry name="nBet" type="int32" desc="当前下注（配置文件筹码）"/>
+  </struct> 
+  
+   <struct name="SC_GAME8_BET_RET" desc="msgId:11141 下注返回" msgId="11141"  dir="2">
+	<entry name="nAllBet" type="int32" desc="当前总下注"/>
+	<entry name="n64CommPowerGold" type="int64" desc="普通线倍率赢金"/>
+	<entry name="n64Gold" type="int64" desc="当前金币"/>
+	<entry name="arrayLogo" type="buffer" count="15"  desc="图标列表"/>
+	<entry name="arrayLine" type="buffer" count="30"  desc="线倍率信息"/>
+	<entry name="arrayJackpot" type="SJackpotInfo" count="10" desc="奖池信息列表"/>
+	<entry name="n64NowTimeStamp" type="int64" desc="当前时间戳"/>
+	<entry name="ucRSID" type="int32" desc="中得奖池ID（奖池模式、子游戏模式共用；0代表未中奖池）"/>
+	<entry name="n64JackPotGold" type="int64" desc="奖池模式赢金"/>
+	<entry name="arrayLogoSubGame" type="buffer" count="3"  desc="子游戏图标列表"/>
+	<entry name="n64SubGameGold" type="int64" desc="子游戏赢金"/>
+	<entry name="nSubGameTotalDouble" type="int32" desc="子游戏总倍数（0代表赢得奖池）"/>
+    <entry name="nModelGame" type="int32" desc="免费模式游戏总次数"/>
+	<entry name="nFreeGame" type="int32" desc="免费游戏模式剩余次数"/>
+	<entry name="n64FreeGold" type="int64" desc="免费游戏模式总金币"/>
+  </struct>
+  
+  <struct name="SJackpotInfo" desc="奖池信息" dir="2">
+	<entry name="n64Jackpot" type="int64" desc="中奖金币"/>
+	<entry name="n64TimeStamp" type="int64" desc="时间戳"/>
+	<entry name="nSpeed" type="int32" desc="上涨速度"/>
+  </struct>
+  
+  <struct name="SGame8AwardInfo" desc="中奖信息" dir="2">
+    <entry name="n64RoleID" type="int64" desc="玩家角色GUID"/>
+	<entry name="nIconID" type="int32" desc="头像ID"/>
+	<entry name="n64Gold" type="int64" desc="中奖金币"/>
+    <entry name="szName" type="buffer" count="32"  desc="名字"/>
+    <entry name="ucRSID" type="int32" desc="中得奖池ID"/>
+	<entry name="sJackpot" type="SJackpotInfo" count="1" desc="奖池信息"/>
+  </struct>
+  
+  <struct name="SC_GAME8_BROADCAST_ADD_AWARD" desc=" 游戏中广播新增列表(msgId:11143)" msgId="11143" dir="2">
+    <entry name="info" type="SGame8AwardInfo" count="1" desc="中奖信息"/>
+  </struct>
+  
+  <struct name="SC_GAME8_ROOM_INFO" desc="进房间下发：游戏房间信息(msgId:11144)" msgId="11144" dir="2">
+   <entry name="nModelGame" type="int32" desc="免费模式游戏总次数"/>
+   <entry name="nFreeGame" type="int32" desc="免费游戏模式剩余次数"/>
+   <entry name="nBet" type="int32" desc="当前下注"/>
+   <entry name="n64FreeGold" type="int64" desc="免费游戏模式总金币"/>
+   <entry name="arrayJackpot" type="SJackpotInfo" count="10" desc="奖池信息列表"/>
+   <entry name="n64NowTimeStamp" type="int64" desc="当前时间戳"/>
+   <entry name="arrayAward" type="SGame8AwardInfo" count="10" desc="中奖信息"/>
+  </struct> 
+  
+  <struct name="CS_GAME9_BET_REQ" desc="msgId:4161 下注" msgId="4161"  dir="1">
+	<entry name="nBet" type="int32" desc="当前下注（配置文件筹码）"/>
+  </struct>
+  
+  <struct name="SC_GAME9_BET_RET" desc="msgId:11161 下注返回" msgId="11161"  dir="2">
+	<entry name="nAllBet" type="int32" desc="当前总下注"/>
+	<entry name="n64CommPowerGold" type="int64" desc="普通线倍率赢金"/>
+	<entry name="nDoublePower" type="int32" desc="转盘倍数 (总赢金 = n64CommPowerGold * nDoublePower)"/>
+	<entry name="n64Gold" type="int64" desc="当前金币"/>
+	<entry name="arrayLogo" type="buffer" count="5"  desc="图标列表"/>
+  </struct>
+  
+    
+  <struct name="SC_HUMAN_RECHARGE_RECORD_NOTICE" desc="  msgId:9006; 玩家充值记录通知" msgId="9006" dir="2">
+  <entry name="m_szOrderID" type="buffer" count="64" desc="订单ID"/>
+  <entry name="m_i4GoodsId" type="int32"  desc="商品id"/>
+  <entry name="m_i4MType" type="int32"  desc="金额类型 1雷亚尔; 2RMB"/>
+  <entry name="m_i8Money" type="int64"  desc="金额数量"/>
+  <entry name="m_bFirstRecharge" type="uint8"  desc="是否是首次充值"/>
+  </struct>
+  
+    <struct name="CS_HUMAN_RECHARGE_RECORD_NOTICE_FINISH" desc=" msgId:3034; 玩家充值记录通知已完成" msgId="3034" dir="1">
+  <entry name="m_szOrderID" type="buffer" count="64"  desc="订单ID"/>
+  </struct>
+   
+    <struct name="CS_GAME10_BET_REQ" desc="msgId:4181 下注" msgId="4181"  dir="1">
+	<entry name="nBet" type="int32" desc="当前下注（配置文件筹码）"/>
+  </struct>
+  
+  <struct name="SC_GAME10_BET_RET" desc="msgId:11181 下注返回" msgId="11181"  dir="2">
+	<entry name="nAllBet" type="int32" desc="当前总下注"/>
+	<entry name="n64CommPowerGold" type="int64" desc="普通线倍率赢金"/>
+	<entry name="ucAllLine" type="int8" desc="是否都中线"/>
+	<entry name="n64Gold" type="int64" desc="当前金币"/>
+	<entry name="arrayLogo" type="buffer" count="9"  desc="图标列表"/>
+	<entry name="arrayLine" type="buffer" count="5"  desc="线倍率信息"/>
+	<entry name="ucFreeGame" type="int8" desc="免费游戏模式状态（0普通游戏 1免费游戏模式 2触发假免费游戏）"/>
+	<entry name="ucLogo" type="int8" desc="免费游戏模式基础图标"/>
+  </struct>
+  
+  <struct name="SC_GAME10_ROOM_INFO" desc="msgId:11184 下注返回" msgId="11184"  dir="2">
+	<entry name="nBet" type="int32" desc="免费游戏模式当前下注"/>
+	<entry name="ucLogo" type="int8" desc="免费游戏模式基础图标"/>
+	<entry name="arrayLogo" type="buffer" count="9"  desc="图标列表"/>
+  </struct> 
+  
+    <struct name="CS_GAME11_BET_REQ" desc="msgId:4201 下注" msgId="4201"  dir="1">
+	<entry name="nBet" type="int32" desc="当前下注（配置文件筹码）"/>
+  </struct>
+  
+  <struct name="SC_GAME11_BET_RET" desc="msgId:11201 下注返回" msgId="11201"  dir="2">
+	<entry name="nAllBet" type="int32" desc="当前总下注"/>
+	<entry name="n64CommPowerGold" type="int64" desc="普通线倍率赢金"/>
+	<entry name="n64Gold" type="int64" desc="当前金币"/>	
+	<entry name="arrayLogo" type="buffer" count="15"  desc="图标列表"/>
+	<entry name="arrayLine" type="buffer" count="30"  desc="线倍率信息"/>
+	<entry name="arrayJackpot" type="SJackpotInfo" count="4" desc="奖池信息列表"/>
+	<entry name="n64NowTimeStamp" type="int64" desc="当前时间戳"/>
+	<entry name="ucModel" type="int8" desc="游戏模式（1女巫模式 2炼金锅模式 3骰子模式 4轮盘模式 5奖池模式）"/>
+	<entry name="n64ModelGold" type="int64" desc="游戏模式赢金"/>
+	<entry name="nRSID" type="int32" desc="中得奖池ID（5奖池模式）"/>
+	<entry name="n64BaseGold" type="int64" desc="游戏模式基础奖金（1女巫模式 2炼金锅模式 3骰子模式 4轮盘模式）"/>
+	<entry name="nRate" type="int32" desc="游戏模式倍率（2炼金锅模式 3骰子模式 4轮盘模式）"/>
+	<entry name="arrayMagic" type="buffer" count="12"  desc="女巫模式信息"/>
+  </struct>
+  
+  <struct name="SGame11AwardInfo" desc="/*中奖信息*/" dir="2">
+  <entry name="n64RoleID" type="int64" desc="玩家角色GUID"/>
+  <entry name="nIconID" type="int32" desc="头像ID"/>
+  <entry name="n64Gold" type="int64" desc="中奖金币"/>
+  <entry name="szName" type="buffer" count="32"  desc="名字"/>
+  <entry name="ucRSID" type="int32" desc="中得奖池ID"/>
+  <entry name="sJackpot" type="SJackpotInfo" count="1" desc="奖池信息"/>
+ </struct>
+ 
+ <struct name="SC_GAME11_BROADCAST_ADD_AWARD" desc="游戏中广播新增列表(msgId:11203)" msgId="11203" dir="2">
+    <entry name="info" type="SGame11AwardInfo" count="1" desc="中奖信息"/>
+  </struct>
+  
+  <struct name="SC_GAME11_ROOM_INFO" desc="msgId:11204 下注返回" msgId="11204"  dir="2">
+	<entry name="n64NowTimeStamp" type="int64" desc="当前时间戳"/>
+	<entry name="arrayJackpot" type="SJackpotInfo" count="4" desc="奖池信息列表"/>
+   <entry name="arrayAward" type="SGame11AwardInfo" count="10" desc="中奖信息"/>
+  </struct>
+  
+    <struct name="SExpandRankInfo" desc="msgId:10804 推广记录获取结构体"  dir="2">
+  <entry name="n64Guid" type="int64" desc="角色GUID"/>
+  <entry name="nLower" type="int32" desc="下线人数"/>
+  <entry name="n64Gold" type="int64" desc="推广金币"/>
+  </struct>
+  
+  <struct name="SC_TASK_EXPAND_INFO_RET" desc="msgId:10804 推广记录获取返回" msgId="10804" dir="2">
+  <entry name="n64Up1Guid" type="int64"  desc="1级上级角色GUID"/>
+  <entry name="nLower1" type="int32"  desc="1级下线人数"/>
+  <entry name="nLower1Pay" type="int32"  desc="1级下线充值人数"/>
+  <entry name="n64ExpandGold" type="int64"  desc="推广金币"/>
+  <entry name="n64ExtractGold" type="int64"  desc="已提取金币"/>
+  <entry name="arrayRank" type="SExpandRankInfo" count="10"  desc="推广排行信息列表"/>
+  </struct>
+  
+    <struct name="CS_TASK_EXPAND_EXTRACT_REQ" desc="msgId:3903 推广兑换金币" msgId="3902" dir="1">
+  <entry name="n64Gold" type="int64"  desc="兑换金币"/>
+  </struct>
+  
+    <struct name="SC_TASK_EXPAND_EXTRACT_RET" desc="msgId:10805 推广兑换金币返回" msgId="10805" dir="2">
+  <entry name="nResult" type="int32"  desc="兑出结果 1成功 0失败，操作频繁稍后再试"/>
+  <entry name="n64Gold" type="int64"  desc="兑换金币"/>
+  <entry name="n64ExtractGold" type="int64"  desc="已提取金币"/>
+  </struct>
+  
+   <struct name="CS_TASK_EXPAND_INFO_REQ" desc=" msgId:3902 推广记录获取" msgId="3902" dir="1">
+  </struct>
+    <struct name="CS_GAME12_BET_REQ" desc="msgId:4221 下注" msgId="4221"  dir="1">
+	<entry name="nBet" type="int32" desc="当前下注（配置文件筹码）"/>
+	<entry name="ucArea" type="int8" desc="下注区域"/>
+  </struct>
+  
+  <struct name="SC_GAME12_BET_RET" desc="msgId:11222 下注返回" msgId="11222"  dir="2">
+	<entry name="ucArea" type="int8" desc="下注区域"/>
+	<entry name="nBet" type="int32" desc="当前下注"/>
+    <entry name="n64AllBet" type="int64" desc="当前区域自己总下注"/>
+	<entry name="n64Gold" type="int64" desc="当前金币"/>
+  </struct>
+  
+  <struct name="SC_GAME12_BROADCAST_BET" desc="游戏中广播下注(msgId:11223)" msgId="11223" dir="2">
+    <entry name="nCount" type="int32" desc="数量"/>
+	<entry name="arrayBet" type="SGame12RoomBetInfo" count="nCount" desc="信息列表"/>
+  </struct>
+  
+  <struct name="SGame12RoomBetInfo" desc="游戏中下注" dir="2">
+    <entry name="ucArea" type="int8" desc="下注区域"/>
+	<entry name="nBet" type="int32" desc="当前下注"/>
+    <entry name="n64AllBet" type="int64" desc="当前区域所有玩家总下注"/>
+  </struct>
+  
+
+  
+  <struct name="SGame12RoomAwardInfo" desc="房间中奖信息(msgId:11223)" dir="2">
+    <entry name="n64Gold" type="int64" desc="中奖金币"/>
+	<entry name="szName" type="buffer" count="32"  desc="名字"/>
+  </struct>
+  
+  <struct name="SC_GAME12_BROADCAST_ADD_PLAYER" desc="游戏中广播新增玩家列表(msgId:11224)" msgId="11224" dir="2">
+	<entry name="info" type="SGame12RoomPlayerInfo" count="1"  desc=" 玩家信息"/>
+  </struct>
+  
+  <struct name="SC_GAME12_BROADCAST_DEL_PLAYER" desc="游戏中广播移除玩家列表(msgId:11225)" msgId="11225" dir="2">
+	<entry name="n64LoginGuid" type="int64" desc="玩家登录唯一标识"/>
+  </struct>
+  
+  <struct name="SGame12RoomPlayerInfo" desc="房间玩家信息" dir="2">
+    <entry name="n64LoginGuid" type="int64" desc="玩家登录唯一标识"/>
+    <entry name="nIconID" type="int32" desc="头像ID"/>
+	<entry name="szName" type="buffer" count="32"  desc="名字"/>
+  </struct>
+  
+  <struct name="SC_GAME12_ROOM_INFO" desc="进房间下发：游戏房间信息" msgId="11221" dir="2">
+  	<entry name="ucModelType" type="int8" desc="游戏模式类型（1：下注模式 2：开奖模式）"/>
+    <entry name="n64ModelTime" type="int64" desc="开始游戏模式时间点"/>
+	<entry name="n64Jackpot" type="int64" desc="当前奖池"/>
+	<entry name="arrayAreaBet" type="int64" count="8" desc="区域下注列表" />
+	<entry name="arrayAreaRate" type="int32" count="8" desc="区域概率计数列表" />
+	<entry name="arrayHistory" type="buffer" count="20" desc="历史数据列表" />
+	<entry name="nPlayer" type="int32" desc="玩家数量"/>
+	<entry name="arrayPlayer" type="SGame12RoomPlayerInfo" count="nPlayer" desc="玩家信息列表" />
+  </struct>
+  
+  <struct name="SC_GAME12_BROADCAST_BET_START" desc="游戏中广播下注模式开始(msgId:11226)" msgId="11226" dir="2">
+    <entry name="n64ServerTime" type="int64" desc="服务器时间点"/>
+  </struct>
+  
+  <struct name="SC_GAME12_BROADCAST_BET_END" desc="游戏中广播下注模式结束(msgId:11227)" msgId="11227" dir="2">
+    <entry name="n64ServerTime" type="int64" desc="服务器时间点"/>
+	<entry name="ucShowArea" type="int8" desc="中奖显示区域（区域值+(0-2)*8）"/>
+    <entry name="n64Jackpot" type="int64" desc="当前奖池"/>
+	<entry name="arrayAward" type="SGame12RoomAwardInfo" count="5"  desc="中奖信息列表"/>
+  </struct>
+  
+   <struct name="SC_GAME12_CALCULATE" desc="游戏结算" msgId="11228" dir="2">
+    <entry name="n64PowerGold" type="int64" desc="倍率赢金"/>
+	<entry name="n64Gold" type="int64" desc="当前金币"/>
+  </struct>
+  
+  <struct name="CS_GAME13_BET_REQ" desc="msgId:4241 下注" msgId="4241"  dir="1">
+	<entry name="nBet" type="int32" desc="当前下注"/>
+  </struct>
+  
+  <struct name="SC_GAME13_BET_RET" desc="msgId:11241 下注返回" msgId="11241"  dir="2">
+    <entry name="nAllBet" type="int32" desc="当前总下注"/>
+	<entry name="n64CommPowerGold" type="int64" desc="普通线倍率赢金"/>
+	<entry name="ucAllSame" type="int8" desc="是否都是相同元素"/>
+	<entry name="n64Gold" type="int64" desc="当前金币"/>
+	<entry name="arrayLogo" type="buffer" count="12"  desc="图标列表"/>
+	<entry name="arrayLine" type="buffer" count="10"  desc="图标列表"/>
+	<entry name="ucFreeGame" type="int8" desc="免费游戏模式状态（0普通游戏 1触发免费游戏模式 2触发假免费游戏 3免费游戏模式中）"/>
+  </struct>
+  
+   <struct name="SC_GAME13_ROOM_INFO" desc="进房间下发：游戏房间信息" msgId="11244" dir="2">
+  	<entry name="nAllBet" type="int32" desc="免费游戏模式当前下注"/>
+  </struct>
+  
+  <struct name="CS_GAME14_BET_REQ" desc="msgId:4261 下注" msgId="4261"  dir="1">
+	<entry name="nBet" type="int32" desc="当前下注"/>
+  </struct>
+   
+  <struct name="SC_GAME14_BET_RET" desc="msgId:11261 下注返回" msgId="11261"  dir="2">
+    <entry name="nAllBet" type="int32" desc="当前总下注"/>
+	<entry name="n64CommPowerGold" type="int64" desc="普通线倍率赢金"/>
+	<entry name="n64NumberPowerGold" type="int64" desc="数字币倍率赢金"/>
+	<entry name="n64Gold" type="int64" desc="当前金币"/>
+	<entry name="arrayLogo" type="buffer" count="12"  desc="图标列表"/>
+	<entry name="arrayLine" type="buffer" count="10"  desc="线倍率信息"/>
+	<entry name="arrayNumber" type="buffer" count="12"  desc="数字币列表"/>
+	<entry name="ucFreeGame" type="int8" desc="免费游戏模式状态（0普通游戏 1触发免费游戏模式 2触发假免费游戏 3免费游戏模式中）"/>
+	<entry name="nFreeGame" type="int32" desc="免费游戏模式剩余次数"/>
+	<entry name="n64FreeGold" type="int64" desc="免费游戏模式倍率赢金"/>
+  </struct>
+  
+  <struct name="SC_GAME14_ROOM_INFO" desc="进房间下发：游戏房间信息" msgId="11264" dir="2">
+  	<entry name="nBet" type="int32" desc="免费游戏模式当前下注"/>
+	<entry name="nFreeGame" type="int32" desc="免费游戏模式剩余次数"/>
+	<entry name="n64FreeGold" type="int32" desc="免费游戏模式倍率赢金"/>
+  </struct>
+  
+    <struct name="CS_TASK_COMMRANK_CURRENT_REQ" desc="普通排行当前榜单" msgId="3904" dir="1">
+  	<entry name="nType" type="int32" desc="普通排行类型"/>
+  </struct>
+  
+   <struct name="CS_TASK_COMMRANK_HISTORY_REQ" desc="普通排行历史榜单" msgId="3905" dir="1">
+  	<entry name="nType" type="int32" desc="普通排行类型"/>
+  </struct>
+  
+     <struct name="CS_TASK_COMMARENA_CURRENT_REQ" desc="普通竞技场当前榜单" msgId="3906" dir="1">
+  	<entry name="nType" type="int32" desc="普通竞技场类型"/>
+	<entry name="nLevel" type="int32" desc="普通竞技场等级"/>
+  </struct>
+
+     <struct name="CS_TASK_COMMARENA_HISTORY_REQ" desc="普通竞技场历史榜单" msgId="3907" dir="1">
+  	<entry name="nType" type="int32" desc="普通竞技场类型"/>
+	<entry name="nLevel" type="int32" desc="普通竞技场等级"/>
+  </struct>
+  
+      <struct name="CS_TASK_GOLDRANK_REQ" desc="msgId:3908 财富排行榜单" msgId="3908"  dir="1">
+ 
+ </struct>
+  
+  
+  <struct name="SCommRankData" desc="普通排行数据"  dir="2">
+  	<entry name="ucType" type="uint8" desc="排行类型"/>
+	<entry name="n64Charguid" type="int64" desc="角色GUID"/>
+	<entry name="n64Total" type="int64" desc="累计值"/>
+	<entry name="szName" type="buffer" count="32"  desc="名字"/>
+	<entry name="nIconID" type="int32" desc="头像ID"/>
+	<entry name="szHeadUrl" type="buffer" count="256"  desc="头像地址"/>
+  </struct>
+  
+    <struct name="SCommArenaData" desc="普通竞技场数据"  dir="2">
+  	<entry name="ucType" type="uint8" desc="竞技场类型"/>
+	<entry name="ucLevel" type="uint8" desc="竞技场等级"/>
+	<entry name="n64Charguid" type="int64" desc="角色GUID"/>
+	<entry name="szName" type="buffer" count="32"  desc="名字"/>
+	<entry name="nIconID" type="int32" desc="头像ID"/>
+	<entry name="szHeadUrl" type="buffer" count="256"  desc="头像地址"/>
+  </struct>
+  
+      <struct name="SGoldRankData" desc="财富榜排行数据"  dir="2">
+  	<entry name="n64Charguid" type="int64" desc="角色GUID"/>
+	<entry name="n64Gold" type="int64" desc="财富"/>
+	<entry name="ucTrade" type="uint8" desc="商人标识"/>
+	<entry name="nIconID" type="int32" desc="头像ID"/>
+	<entry name="szName" type="buffer" count="64"  desc="名称"/>
+	<entry name="szSign" type="buffer" count="128" desc="签名"/>
+  </struct>
+  
+  <struct name="SC_TASK_COMMRANK_CURRENT_INFO" desc="普通排行当前榜单信息" msgId="10806" dir="2">
+  	<entry name="nType" type="int32" desc="普通排行类型"/>
+	<entry name="n64Total" type="int64" desc="累计值"/>
+	<entry name="nSize" type="int32" desc="排行榜大小"/>
+	<entry name="arrayInfo" type="SCommRankData" count="nSize" desc="排行榜信息"/>
+  </struct>
+  
+    <struct name="SC_TASK_COMMRANK_HISTORY_INFO" desc="普通排行历史榜单信息" msgId="10807" dir="2">
+  	<entry name="nType" type="int32" desc="普通排行类型"/>
+	<entry name="nSize" type="int32" desc="排行榜大小"/>
+	<entry name="arrayInfo" type="SCommRankData" count="nSize" desc="排行榜信息"/>
+  </struct>
+  
+   <struct name="SC_TASK_COMMARENA_CURRENT_INFO" desc="普通竞技场当前榜单信息" msgId="10808" dir="2">
+  	<entry name="nType" type="int32" desc="普通竞技场类型"/>
+	<entry name="nLevel" type="int32" desc="普通竞技场等级"/>
+	<entry name="n64Total" type="int64" desc="累计值"/>
+	<entry name="n64Retime" type="int64" desc="下次重置时间"/>
+	<entry name="n64Reward" type="int64" desc="奖励达成情况（等级对应二进制位，从1开始）"/>
+	<entry name="nSize" type="int32" desc="数据大小"/>
+	<entry name="arrayInfo" type="SCommArenaData" count="nSize" desc="信息列表"/>
+  </struct>
+  
+     <struct name="SC_TASK_COMMARENA_HISTORY_INFO" desc="普通竞技场历史榜单信息" msgId="10809" dir="2">
+  	<entry name="nType" type="int32" desc="普通竞技场类型"/>
+	<entry name="nLevel" type="int32" desc="普通竞技场等级"/>
+	<entry name="nSize" type="int32" desc="数据大小"/>
+	<entry name="arrayInfo" type="SCommArenaData" count="nSize" desc="信息列表"/>
+  </struct>
+  
+       <struct name="SC_TASK_GOLDRANK_INFO" desc="财富排行榜单信息" msgId="10810" dir="2">
+	<entry name="nSize" type="int32" desc="数据大小"/>
+	<entry name="arrayInfo" type="SGoldRankData" count="nSize" desc="信息列表"/>
+  </struct>
+  
+    <struct name="CS_GAME20_BET_REQ" desc="msgId:4381 下注" msgId="4381"  dir="1">
+  <entry name="nBet" type="int32" desc="当前下注（配置文件筹码）"/>
+ </struct>
+ 
+    <struct name="SGame20HandInfo" desc="每局下注信息结构体"   dir="2">
+  <entry name="n64CommPowerGold" type="int64" desc="普通倍率赢金"/>
+  <entry name="n64TotalGold" type="int64" desc="本次总赢金（每次中奖金币总和）"/>
+  <entry name="bSpecial" type="int8" desc="是否特殊模式"/>
+  <entry name="ucPos" type="int8" desc="特殊模式图标位置"/>
+  <entry name="ucWildLogo" type="int8" desc="百变模式图标"/>
+  <entry name="arrayLogo" type="int8" count="36" desc=" 图标列表"/>
+ </struct>
+ 
+  <struct name="SC_GAME20_BET_RET" desc="msgid:11381下注返回" msgId="11381" dir="2">
+  <entry name="nAllBet" type="int32" desc="当前总下注"/>
+  <entry name="n64Gold" type="int64" desc="当前金币"/>
+  <entry name="nNewFreeCount" type="int32" desc="当局触发免费次数"/>
+  <entry name="n64FreeGold" type="int64" desc="免费游戏模式总金币"/>
+  <entry name="nModelGame" type="int32" desc="免费游戏模式游戏总次数"/>
+  <entry name="nFreeGame" type="int32" desc="免费游戏模式剩余次数"/>
+  <entry name="nHandSize" type="int32" desc=" 总局数"/>
+  <entry name="sInfo" type="SGame20HandInfo" count="nHandSize" desc="每局信息列表"/>
+ </struct>
+ 
+    <struct name="SC_GAME20_ROOM_INFO" desc="进房间下发：游戏房间信息(msgId:11384)" msgId="11384" dir="2">
+   <entry name="n64FreeGold" type="int64" desc="免费游戏模式总金币"/>
+   <entry name="nModelGame" type="int32" desc="免费游戏模式游戏总次数"/>
+   <entry name="nFreeGame" type="int32" desc="免费游戏模式剩余次数"/>
+   <entry name="nBet" type="int32" desc="当前下注"/>
+  </struct>
+  
+    <struct name="CS_GAME19_BET_REQ" desc="msgId:4361 下注" msgId="4361"  dir="1">
+	<entry name="nBet" type="int32" desc="当前下注"/>
+  </struct>
+  
+   <struct name="SC_GAME19_BET_RET" desc="msgId:11361 下注返回" msgId="11361"  dir="2">
+	<entry name="nAllBet" type="int32" desc="当前总下注"/>
+    <entry name="n64CommPowerGold" type="int64" desc="普通线倍率赢金"/>
+	<entry name="n64RSPowerGold" type="int64" desc="RS倍率赢金"/>
+	<entry name="eRSType" type="int8" desc="RS中奖类型（小1中2大3）"/>
+	<entry name="n64FreeGold" type="int64" desc="免费游戏模式总金币"/>
+	<entry name="n64Gold" type="int64" desc="当前金币"/>
+    <entry name="arrayLogo" type="buffer" count="15" desc="图标列表"/>
+    <entry name="arrayLine" type="buffer" count="9"  desc="线倍率信息"/>
+	<entry name="arrayLineLeft" type="buffer" count="9"  desc="中线左右信息（1左边 0右边）"/>
+    <entry name="nModelGame" type="int32" desc="特殊模式游戏总次数"/>
+    <entry name="nFreeGame" type="int32" desc="免费游戏模式剩余次数"/>
+    <entry name="n64Jackpot" type="int64" desc="当前奖池"/>
+  </struct>
+  
+     <struct name="SC_GAME19_BROADCAST_JACKPOT" desc="msgid:11362 游戏中广播更新奖池" msgId="11362" dir="2">
+	<entry name="n64Jackpot" type="int64" desc="当前奖池"/>
+   </struct>
+   
+  <struct name="SC_GAME19_BROADCAST_ADD_AWARD" desc="游戏中广播新增列表(msgId:11363)" msgId="11363" dir="2">
+    <entry name="info" type="SGame19AwardInfo" count="1" desc="中奖信息"/>
+  </struct>
+  
+     <struct name="SGame19AwardInfo" desc="中奖信息" dir="2">
+    <entry name="n64RoleID" type="int64" desc="玩家角色GUID"/>
+	 <entry name="nIconID" type="int32" desc="头像ID"/>
+	  <entry name="n64Gold" type="int64" desc="中奖金币"/>
+	   <entry name="szName" type="buffer" count="32"  desc="名字"/>
+  </struct>
+  
+  <struct name="SC_GAME19_ROOM_INFO" desc="进房间下发：游戏房间信息(msgId:11364)" msgId="11364" dir="2">
+   <entry name="nModelGame" type="int32" desc="特殊模式游戏总次数"/>
+   <entry name="nFreeGame" type="int32" desc="免费游戏模式剩余次数"/>
+   <entry name="nBet" type="int32" desc="当前下注"/>
+   <entry name="n64FreeGold" type="int64" desc="免费游戏模式总金币"/>
+   <entry name="n64Jackpot" type="int64"  desc="当前奖池"/>
+   <entry name="arrayAward" type="SGame19AwardInfo" count="10" desc="中奖信息列表"/>
+  </struct>
+  
+  <struct name="SSendGoldRecordData" desc="赠送金币记录数据" dir="2">
+     <entry name="n64ID" type="int64" desc="唯一ID"/>
+	 <entry name="n64FromRoleID" type="int64" desc="FROM角色ID"/>
+	 <entry name="szFromName" type="buffer" count="32"  desc="FROM角色名字"/>
+	 <entry name="n64ToRoleID" type="int64" desc=" TO角色ID"/>
+	 <entry name="szToName" type="buffer" count="32"  desc="TO角色名字"/>
+	 <entry name="n64Gold" type="int64" desc="金币"/>
+	 <entry name="n64SendTime" type="int64" desc="赠送时间"/>
+  </struct>
+  
+  <struct name="CS_HUMAN_SEND_GOLD_REQ" desc="赠送金币(msgId:3015)" msgId="3015" dir="1">
+    <entry name="n64ToRoleID" type="int64" desc="TO角色ID"/>
+	<entry name="n64Gold" type="int64" desc="金币"/>
+  </struct>
+  
+  <struct name="SC_HUMAN_SEND_GOLD_RET" desc="赠送金币(msgId:8209)" msgId="8209" dir="2">
+    <entry name="cResult" type="int8" desc="0成功 1未绑定手机 2其他原因"/>
+	<entry name="data" type="SSendGoldRecordData" count="1" desc="赠送记录数据"/>
+  </struct>
+  
+  <struct name="SC_HUMAN_SEND_GOLD_NOTE" desc="收到赠送金币通知(msgId:8210)" msgId="8210" dir="2">
+	<entry name="data" type="SSendGoldRecordData" count="1" desc="赠送记录数据"/>
+  </struct>
+  
+  <struct name="CS_TASK_SEND_GOLD_RECORD_INFO_REQ" desc="赠送金币记录获取(msgId:3909)" msgId="3909" dir="1">
+	<entry name="n64IndexID" type="int64" desc="当前记录索引ID"/>
+  </struct>
+  
+    <struct name="SC_TASK_SEND_GOLD_RECORD_INFO_RET" desc="赠送金币记录获取(msgId:10811)" msgId="10811" dir="2">
+	<entry name="nSize" type="int32" desc="本次获取记录数据大小"/>
+	<entry name="sData" type="SSendGoldRecordData" count="nSize" desc="记录数据信息"/>
+  </struct>
+  
+    <struct name="CS_GAME15_BET_REQ" desc="下注" msgId="4281" dir="1">
+  <entry name="nBet" type="int32" desc=" 当前下注（配置文件筹码）"/>
+  </struct>
+
+  <struct name="SGame15HandInfo" desc="每局信息列表" dir="2">
+  <entry name="n64CommPowerGold" type="int64" desc="普通倍率赢金"/>
+  <entry name="n64RSPowerGold" type="int64" desc="RS倍率赢金"/>
+   <entry name="n64TotalGold" type="int64" desc="本次总赢金（每次中奖金币总和"/>
+    <entry name="nTotalDouble" type="int32" desc="总倍数（X符号总和）"/>
+  <entry name="arrayLogo" type="uint8" count="42" desc="总局数"/>
+  </struct>
+  
+  <struct name="SC_GAME15_BET_RET" desc="下注返回" msgId="11281" dir="2">
+  <entry name="nAllBet" type="int32" desc="当前总下注"/>
+  <entry name="n64Gold" type="int64" desc="当前金币"/>
+  <entry name="n64Jackpot" type="int64" desc="当前奖池"/>
+  <entry name="nHandSize" type="int32" desc="总局数"/>
+  <entry name="sInfo" type="SGame15HandInfo" count="nHandSize" desc="每局信息列表"/>
+  </struct>
+  
+   <struct name="SC_GAME15_BROADCAST_JACKPOT" desc="游戏中广播更新奖池" msgId="11282" dir="2">
+    <entry name="n64Jackpot" type="int64" desc="当前总下注"/>
+   </struct>
+   
+   <struct name="SGame15AwardInfo" desc="中奖信息" dir="2">
+    <entry name="n64RoleID" type="int64" desc="玩家角色GUID"/>
+	<entry name="nIconID" type="int32" desc="头像ID"/>
+	<entry name="n64Gold" type="int64" desc="中奖金币"/>
+	<entry name="szName" type="buffer" count="32"  desc="名字"/>
+   </struct>
+   
+   <struct name="SC_GAME15_BROADCAST_ADD_AWARD" desc="游戏中广播新增列表" msgId="11283" dir="2">
+    <entry name="info" type="SGame15AwardInfo" count="1" desc="中奖信息"/>
+   </struct>
+   
+   <struct name="SC_GAME15_ROOM_INFO" desc="游戏中广播新增列表" msgId="11284" dir="2">
+    <entry name="n64Jackpot" type="int64" desc="当前奖池"/>
+	<entry name="arrayAward" type="SGame15AwardInfo" count="10" desc="中奖信息列表"/>
+   </struct>
+   
+  <struct name="CW_Human_Real_Name_Authentication_Req" desc="实名认证" msgId="2014" dir="1">
+  <entry name="szIdCardNum" type="buffer" count="19" desc=" 身份证号"/>
+  <entry name="szName" type="buffer" count="64" desc=" 名字"/>
+  </struct>
+  
+    <struct name="WC_Human_Real_Name_Authentication_Ret" desc="服务器返回结果：实名认证返回" msgId="7104" dir="2">
+  <entry name="m_i1Ret" type="uint8" desc=" ERealNameCertifyRet 1认证成功; 2未成年人; 3认证失败; 4参数长度不正确; 5系统错误"/>
+  </struct>
+  
+  <struct name="CS_DIAMOND_EXCHANGE_REQ" desc="钻石兑换" msgId="3043" dir="1">
+  <entry name="unType" type="uint8" desc=" 兑换类型 9金币 15权益卡"/>
+  <entry name="ucItemID" type="uint8" desc=" 兑换物品ID"/>
+  </struct>
+  
+    <struct name="SC_DIAMOND_EXCHANGE_RET" desc="钻石兑换返回" msgId="8211" dir="2">
+  <entry name="unType" type="uint8" desc=" 兑换类型 9金币 15权益卡"/>
+  <entry name="ucItemID" type="uint8" desc=" 兑换物品ID"/>
+  </struct>
+  
+  <struct name="SC_DIAMOND_EXCHANGE_INFO" desc="钻石兑换返回" msgId="8212" dir="2">
+	<entry name="nSize" type="int32" desc="长度"/>
+	<entry name="arrayInfo" type="_ClientDiamondExchange" count="nSize" desc="钻石兑换数据"/>
+  </struct>
+  
+    <struct name="_ClientDiamondExchange" desc="钻石兑换" dir="2">
+	<entry name="ucType" type="uint8" desc=" 兑换类型"/>
+	<entry name="data" type="SDiamondExchangeData" count="1" desc="中奖信息"/>
+   </struct>
+   
+   <struct name="SDiamondExchangeData" desc="钻石兑换数据" dir="2">
+	<entry name="ucItemID" type="uint8" desc=" 兑换物品ID"/>
+	<entry name="ucTotalDay" type="uint8" desc=" 当天累计值"/>
+	<entry name="ucTotalHistory" type="uint8" desc=" 历史累计值"/>
+   </struct>
+   
+     <struct name="CS_TASK_BOMBBOX_GAIN_REWARD_REQ" desc="炸弹箱子领奖" msgId="3910" dir="1">
+  <entry name="nTarget" type="int32" desc="目标消耗值"/>
+
+  </struct>
+  
+  <struct name="SC_TASK_BOMBBOX_GAIN_REWARD_RET" desc="炸弹箱子领奖返回" msgId="10812" dir="2">
+   <entry name="nAward" type="int32" desc="获得奖励"/>
+    <entry name="n64BombBoxValue" type="int64" desc="炸弹箱子统计值"/>
+  </struct> 
+   
+   <struct name="SC_TASK_BOMBBOX_UPDATE_INFO" desc="炸弹箱子领奖返回" msgId="10813" dir="2">
+    <entry name="n64BombBoxValue" type="int64" desc="炸弹箱子统计值"/>
+  </struct> 
+</lib> 

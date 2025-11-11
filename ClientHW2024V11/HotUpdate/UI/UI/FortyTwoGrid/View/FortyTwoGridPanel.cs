@@ -98,7 +98,7 @@ namespace HotUpdate
                   
                     img.SetParent(m_Rect_bgPanel);
                     img.localScale = new Vector3(1, 1, 1);
-                    img.anchoredPosition = new Vector2((-283 + i % 2 * 110) + 110 * j * 2, 256 - i * 110); //new Vector3(-307f, 13.192f,0f); 
+                    img.anchoredPosition = new Vector2((-307 + i % 2 * 115) + 115 * j * 2, 256 - i * 115); //new Vector3(-307f, 13.192f,0f); 
 
                 }
             }
@@ -303,7 +303,7 @@ namespace HotUpdate
             {
                 var obj = ToolUtil.ClonePrefab(m_Rect_Item.gameObject, m_Mask2D_Panel.transform, "item");
                 obj.gameObject.SetActive(true);
-                obj.anchoredPosition3D = new Vector3(-283 + 110 * i, itemY, 0);
+                obj.anchoredPosition3D = new Vector3(-308 + 123 * i, itemY, 0);
                 //obj.anchoredPosition3D = new Vector3(-307 + 122 * i, itemY, 0);
                 for (int j = 0; j < 7; j++)
                 {

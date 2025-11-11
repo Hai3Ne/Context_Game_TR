@@ -32,13 +32,11 @@ public class GameConst
     public static string zipName = "GameAsset.unity3d";
     public static string ZipKey = "1000";
 
-    // public static string VesionUrl = "https://a.lywl2025.com/tga1/";
-    public static string VesionUrl = "http://192.168.0.7:8080/Game_V11/"; // for test
+    public static string VesionUrl = "https://a.lywl2025.com/tga2/"; // release version
     public static List<string> VesionUrlArr = new List<string>() {
-        // "https://a.lywl2025.com/tga1/",
-        // "https://lywl123.oss-cn-hangzhou.aliyuncs.com/xcfb/",
-        // "http://121.43.163.16:80/tga1/",
-        "http://192.168.0.7:8080/Game_V11/", // for test
+        "https://a.lywl2025.com/tga2/",
+        "https://lywl123.oss-cn-hangzhou.aliyuncs.com/tga2/",
+        "http://18.162.135.99/tga2/",
     };
     public static string CdnUrl = "";//"https://game.zhongheboy.cn/mltxj/";//"https://game.hnyilin.top/xxl/";"https://game.hnyilin.top/hlxxx/";//
     #region 路径

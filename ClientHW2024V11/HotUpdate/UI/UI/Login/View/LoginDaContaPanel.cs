@@ -85,12 +85,12 @@ namespace HotUpdate
                 ToolUtil.FloattingText("您输入的电话号码不正确", this.gameObject.transform);
                 return;
             }
-            else if (m_Input_phone.text.Length < 11 || m_Input_phone.text.Length > 11)
-            {
-                //手机号位数不对
-                ToolUtil.FloattingText("抱歉，不支持此数字的手机号码", this.gameObject.transform);
-                return;
-            }
+            // else if (m_Input_phone.text.Length < 11 || m_Input_phone.text.Length > 11)
+            // {
+            //     //手机号位数不对
+            //     ToolUtil.FloattingText("抱歉，不支持此数字的手机号码", this.gameObject.transform);
+            //     return;
+            // }
             else if (m_Input_pwd.text.Equals("") || m_Input_pwd.text.Length < 8 || m_Input_pwd.text.Length > 16)
             {
                 //密码未填写或密码格式不对 

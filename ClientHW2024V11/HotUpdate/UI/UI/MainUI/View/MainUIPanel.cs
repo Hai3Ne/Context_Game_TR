@@ -90,7 +90,19 @@ namespace HotUpdate
             Screen.orientation = ScreenOrientation.Portrait;
      
             await System.Threading.Tasks.Task.Delay(TimeSpan.FromSeconds(0.03f));
-            if (MainUIModel.Instance.palyerData.m_i8Diamonds >=30 && GuideModel.Instance.bReachCondition(6))
+
+            long throughTimes = 0;
+            long onLineTimes = 0;
+            if (MainUIModel.Instance.n64VariableValue.Count >= 2)
+            {
+                throughTimes = ToolUtil.getServerTime() - MainUIModel.Instance.n64VariableValue[0];
+                onLineTimes = MainUIModel.Instance.n64VariableValue[1] + throughTimes;
+            }
+
+            bool isVip1OrHigher = MainUIModel.Instance.palyerData.m_i4Viplev >= 1;
+            bool hasPlayedEnough = onLineTimes >= 2400;
+
+            if ((isVip1OrHigher || hasPlayedEnough) && GuideModel.Instance.bReachCondition(6))
             {
                 bGuide = true;
                 GuideModel.Instance.SetFinish(6);

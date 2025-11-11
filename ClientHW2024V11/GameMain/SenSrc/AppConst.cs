@@ -25,7 +25,7 @@ public class AppConst
     public static string SubPackName = "SubRes";
     public static string ConfigName = "ResConfig/Rescsv.csv";
     //打进主包里名称
-    public static string SubPackArr = "FortyTwoGridPack|Game602Pack";  //"FortyTwoGridPack|Game602Pack|" //"Game700Pack|Game1600Pack";
+    public static string SubPackArr = ""; //FortyTwoGridPack|Game602Pack";  //"FortyTwoGridPack|Game602Pack|" //"Game700Pack|Game1600Pack";
     //public static string SubPackArr = "zeusPack|Game500Pack|Game600Pack|Game601Pack|Game700Pack|Game800Pack|Game900Pack|Game1000Pack|Game1100Pack|Game1200Pack|Game1300Pack|Game1400Pack|Game1500Pack|Game1600Pack";
     //public static string SubPackArr = "zeusPack|Game500Pack|Game600Pack|Game601Pack|Game700Pack|Game800Pack|Game900Pack|Game1000Pack|Game1100Pack|Game1200Pack|Game1300Pack|Game1400Pack|Game1500Pack|Game1600Pack";
 
@@ -45,12 +45,11 @@ public class AppConst
     public const float AssetCacheTime = 60;						// 资源缓存时间
     public const int GameFrameRate = 30;                        //游戏帧频
 
-    public const int ResVersion = 1005;
+    public const int ResVersion = 1000;
     public const string ResDataDir = "ResData/";                   //资源目录
     public const string ExtName = ".unity3d";                   //扩展名
     public const string AssetDir = "StreamingAssets";           //素材目录
-    public const string CdnUrl = "http://192.168.0.7:8080/Game_V11/";// "https://a.lywl2025.com/xcfb/"; //CDN地址
-    // public const string CdnUrl = "https://a.lywl2025.com/tga1/"; //CDN地址
-    public const string customer = "t8.lywl2025.com"; //版本地址
-    public const string backstage = "https://rechargev8.lywl2025.com";
+    public const string CdnUrl = "https://a.lywl2025.com/tga2/"; //CDN地址
+    public const string customer = "ta1.lywl2025.com"; //版本地址
+    public const string backstage = "https://rechargeva1.lywl2025.com";
 }

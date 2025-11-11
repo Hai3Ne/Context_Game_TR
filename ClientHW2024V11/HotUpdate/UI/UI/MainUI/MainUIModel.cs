@@ -372,7 +372,6 @@ namespace HotUpdate
         public bool GetOnlineCondition()
         {
             long throughTimes = ToolUtil.getServerTime() - n64VariableValue[0] ;
-           // Debug.LogError("经过时长===="+ throughTimes+"=====在线时长"+ n64VariableValue[1]+"----"+ n64VariableValue[2]+"==="+ n64VariableValue[3]+"==="+ n64VariableValue[3]+"==="+ n64VariableValue[5]);
             long onLineTimes = n64VariableValue[1] + throughTimes;
             if (palyerData.m_i4VipExp >= n64VariableValue[2] &&  onLineTimes >= n64VariableValue[3])
                 return true;

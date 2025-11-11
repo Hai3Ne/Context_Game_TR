@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ExportConfig>
+  <Config>
+    <SourceFolder Value="Excel" />
+    <ExportFolderExcel Value="export_excel" />
+    <Localization_cfg Value="Localization_cfg.csv" />
+    <IgnoreLocal >
+    	<File Name="illegalword" />
+		<File Name="exam" />
+		<File Name="name" />
+    </IgnoreLocal>
+  </Config>
+</ExportConfig>

@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ExportConfig>
+  <Config>
+    <SourceFolder Value="..\..\..\SMDL_CeHua\trunk\Excel" />
+	<!-- <ExportFolderClientLua Value="..\..\Assets\ResData\Lua\Data" /> -->
+	<ExportFolderClientLua Value="lua" />
+    <ExportFolderClientCSV Value="" />
+    <ExportFolderServerLua Value="Server" />
+    <ExportFolderServerCPP Value="CPP" />
+  </Config>
+  <IgnoreNPOI>
+	<File Name="quest" />
+	<File Name="dailyquest" />
+	<File Name="guild" />
+	<File Name="map" />
+	<File Name="Minimap" />
+	<File Name="shop" />
+	<File Name="equip" />
+	<File Name="monster" />
+	<File Name="quest" />
+	<File Name="functionopen" />
+	<File Name="hero" />
+	<File Name="zhiyuanfb" />
+  </IgnoreNPOI>
+</ExportConfig>
