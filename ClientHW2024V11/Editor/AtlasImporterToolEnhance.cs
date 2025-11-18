@@ -364,7 +364,7 @@ namespace SEZSJ
         private void DrawSeparator()
         {
             GUILayout.Space(5);
-            Rect rect = GUILayout.GetRect(1, 1, GUILayout.ExpandWidth(true));
+            Rect rect = EditorGUILayout.GetControlRect(false, 1);
             EditorGUI.DrawRect(rect, new Color(0.5f, 0.5f, 0.5f, 0.5f));
             GUILayout.Space(5);
         }
@@ -806,7 +806,7 @@ namespace SEZSJ
         private void DrawSeparator()
         {
             GUILayout.Space(5);
-            Rect rect = GUILayout.GetRect(1, 1, GUILayout.ExpandWidth(true));
+            Rect rect = EditorGUILayout.GetControlRect(false, 1);
             EditorGUI.DrawRect(rect, new Color(0.5f, 0.5f, 0.5f, 0.5f));
             GUILayout.Space(5);
         }
