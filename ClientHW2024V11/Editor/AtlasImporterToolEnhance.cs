@@ -162,9 +162,8 @@ namespace SEZSJ
 
             // Language selection on the right
             GUILayout.Label("Language:", GUILayout.Width(70));
-            GUI.enabled = false;
-            EditorGUILayout.Toggle("English", true, GUILayout.Width(70));
-            GUI.enabled = true;
+            bool englishSelected = true;
+            EditorGUILayout.ToggleLeft("English", englishSelected, GUILayout.Width(80));
 
             GUILayout.Space(10);
             EditorGUILayout.EndHorizontal();
@@ -588,15 +587,18 @@ namespace SEZSJ
         private List<FileInfo> _pngFiles = new List<FileInfo>();
         private Vector2 _scrollPosition;
         private long _totalSize = 0;
+        private Texture2D _atlasPreview = null;
+        private string _atlasOutputPath = "";
 
         public static void ShowWindow(string folderName, string folderPath, int fileCount)
         {
             var window = GetWindow<AtlasPreviewWindow>(true, $"Preview: {folderName}");
-            window.minSize = new Vector2(600, 500);
+            window.minSize = new Vector2(700, 600);
             window._folderName = folderName;
             window._folderPath = folderPath;
             window._fileCount = fileCount;
             window.LoadFileList();
+            window.LoadAtlasPreview();
             window.Show();
         }
 
@@ -612,6 +614,13 @@ namespace SEZSJ
                 _pngFiles.AddRange(files);
                 _totalSize = _pngFiles.Sum(f => f.Length);
             }
+        }
+
+        private void LoadAtlasPreview()
+        {
+            // Try to load existing atlas
+            _atlasOutputPath = $"Assets/Atlas/English/{_folderName}.png";
+            _atlasPreview = AssetDatabase.LoadAssetAtPath<Texture2D>(_atlasOutputPath);
         }
 
         private void OnGUI()
@@ -642,8 +651,53 @@ namespace SEZSJ
             DrawSeparator();
             GUILayout.Space(10);
 
+            // Atlas Preview Image
+            if (_atlasPreview != null)
+            {
+                GUILayout.Label("ATLAS OUTPUT PREVIEW:", EditorStyles.boldLabel);
+                GUILayout.Space(5);
+
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
+                // Show atlas info
+                GUILayout.Label($"Atlas: {_atlasOutputPath}", EditorStyles.miniLabel);
+                GUILayout.Label($"Size: {_atlasPreview.width}x{_atlasPreview.height}", EditorStyles.miniLabel);
+                GUILayout.Space(5);
+
+                // Calculate preview size (max 512x512)
+                float maxPreviewSize = 512f;
+                float scale = Mathf.Min(maxPreviewSize / _atlasPreview.width, maxPreviewSize / _atlasPreview.height);
+                float previewWidth = _atlasPreview.width * scale;
+                float previewHeight = _atlasPreview.height * scale;
+
+                // Center the preview
+                Rect previewRect = GUILayoutUtility.GetRect(previewWidth, previewHeight);
+                previewRect.x = (position.width - previewWidth) / 2;
+
+                GUI.DrawTexture(previewRect, _atlasPreview, ScaleMode.ScaleToFit);
+
+                EditorGUILayout.EndVertical();
+
+                GUILayout.Space(10);
+                DrawSeparator();
+                GUILayout.Space(10);
+            }
+            else
+            {
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                GUILayout.Label("ATLAS OUTPUT PREVIEW:", EditorStyles.boldLabel);
+                GUILayout.Space(5);
+                GUILayout.Label("Atlas not yet exported. Export first to see preview.", EditorStyles.centeredGreyMiniLabel);
+                GUILayout.Space(5);
+                EditorGUILayout.EndVertical();
+
+                GUILayout.Space(10);
+                DrawSeparator();
+                GUILayout.Space(10);
+            }
+
             // File list
-            GUILayout.Label("FILES LIST:", EditorStyles.boldLabel);
+            GUILayout.Label("SOURCE FILES LIST:", EditorStyles.boldLabel);
             GUILayout.Space(5);
 
             _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
