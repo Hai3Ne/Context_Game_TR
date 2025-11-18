@@ -33,6 +33,11 @@ namespace SEZSJ
         private Vector2 _scrollPosition = Vector2.zero;
         private string _searchFilter = "";
         private bool _isExporting = false;
+
+        // Log system
+        private List<string> _logMessages = new List<string>();
+        private bool _showLog = true;
+        private Vector2 _logScrollPosition = Vector2.zero;
         #endregion
 
         #region Styles
@@ -104,6 +109,7 @@ namespace SEZSJ
         #region Unity Lifecycle
         private void OnEnable()
         {
+            AddLog("Atlas Importer Tool initialized");
             RefreshAtlasFolders();
         }
 
@@ -294,6 +300,47 @@ namespace SEZSJ
             GUILayout.Space(5);
 
             EditorGUILayout.EndVertical();
+
+            // Log section below Atlas Folders
+            GUILayout.Space(10);
+            DrawLogSection();
+        }
+
+        private void DrawLogSection()
+        {
+            EditorGUILayout.BeginVertical(Styles.boxStyle);
+
+            // Log header with foldout and clear button
+            EditorGUILayout.BeginHorizontal();
+            _showLog = EditorGUILayout.Foldout(_showLog, $"LOG ({_logMessages.Count} messages)", true, EditorStyles.foldoutHeader);
+
+            GUILayout.FlexibleSpace();
+
+            // Clear log button (red, small)
+            Color originalBgColor = GUI.backgroundColor;
+            GUI.backgroundColor = new Color(0.8f, 0.3f, 0.3f); // Red
+            if (GUILayout.Button("Clear", GUILayout.Width(60), GUILayout.Height(20)))
+            {
+                _logMessages.Clear();
+            }
+            GUI.backgroundColor = originalBgColor;
+
+            EditorGUILayout.EndHorizontal();
+
+            if (_showLog && _logMessages.Count > 0)
+            {
+                GUILayout.Space(5);
+                _logScrollPosition = EditorGUILayout.BeginScrollView(_logScrollPosition, GUILayout.Height(120));
+
+                foreach (var log in _logMessages)
+                {
+                    GUILayout.Label(log, EditorStyles.wordWrappedMiniLabel);
+                }
+
+                EditorGUILayout.EndScrollView();
+            }
+
+            EditorGUILayout.EndVertical();
         }
 
         private void DrawSeparator()
@@ -315,7 +362,7 @@ namespace SEZSJ
 
             if (dir == null || !dir.Exists)
             {
-                Debug.LogError($"Source folder not found: {sourcePath}");
+                AddLog($"ERROR: Source folder not found: {sourcePath}");
                 return;
             }
 
@@ -332,11 +379,11 @@ namespace SEZSJ
                 }
                 else
                 {
-                    Debug.LogWarning($"Folder has no PNG files: {item.Name}");
+                    AddLog($"WARNING: Folder has no PNG files: {item.Name}");
                 }
             }
 
-            Debug.Log($"Refreshed: Found {_atlasPathList.Count} atlas folders");
+            AddLog($"Refreshed: Found {_atlasPathList.Count} atlas folders");
         }
 
         private List<string> GetFilteredAtlasList()
@@ -390,6 +437,20 @@ namespace SEZSJ
             string folderPath = $"{SOURCE_PATH}/{LANGUAGE}/{folderName}";
             AtlasPreviewWindow.ShowWindow(folderName, folderPath, _atlasFolderFileCount[folderName]);
         }
+
+        private void AddLog(string message)
+        {
+            string timestamp = DateTime.Now.ToString("HH:mm:ss");
+            _logMessages.Add($"[{timestamp}] {message}");
+
+            // Keep only last 100 messages
+            if (_logMessages.Count > 100)
+            {
+                _logMessages.RemoveAt(0);
+            }
+
+            Repaint();
+        }
         #endregion
 
         #region Export Logic
@@ -419,16 +480,16 @@ namespace SEZSJ
                 string folderName = _atlasPathList[i];
                 string folderPath = $"{SOURCE_PATH}/{LANGUAGE}/{folderName}";
 
-                Debug.Log($"Exporting: {folderName}");
+                AddLog($"Exporting: {folderName}");
 
                 if (!ExportPng(LANGUAGE, folderPath))
                 {
                     hasError = true;
-                    Debug.LogError($"Export failed: {folderName}");
+                    AddLog($"ERROR: Export failed: {folderName}");
                 }
                 else
                 {
-                    Debug.Log($"Export successful: {folderName}");
+                    AddLog($"SUCCESS: Export successful: {folderName}");
                 }
             }
 
@@ -438,7 +499,7 @@ namespace SEZSJ
             {
                 AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh();
-                Debug.Log("All atlas exported successfully!");
+                AddLog("All atlas exported successfully!");
                 EditorUtility.DisplayDialog("Success", "All selected atlas exported successfully!", "OK");
             }
             else
@@ -651,52 +712,11 @@ namespace SEZSJ
             DrawSeparator();
             GUILayout.Space(10);
 
-            // Atlas Preview Image
-            if (_atlasPreview != null)
-            {
-                GUILayout.Label("ATLAS OUTPUT PREVIEW:", EditorStyles.boldLabel);
-                GUILayout.Space(5);
+            // Horizontal Split: Files List (Left) | Atlas Preview (Right)
+            EditorGUILayout.BeginHorizontal();
 
-                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-
-                // Show atlas info
-                GUILayout.Label($"Atlas: {_atlasOutputPath}", EditorStyles.miniLabel);
-                GUILayout.Label($"Size: {_atlasPreview.width}x{_atlasPreview.height}", EditorStyles.miniLabel);
-                GUILayout.Space(5);
-
-                // Calculate preview size (max 512x512)
-                float maxPreviewSize = 512f;
-                float scale = Mathf.Min(maxPreviewSize / _atlasPreview.width, maxPreviewSize / _atlasPreview.height);
-                float previewWidth = _atlasPreview.width * scale;
-                float previewHeight = _atlasPreview.height * scale;
-
-                // Center the preview
-                Rect previewRect = GUILayoutUtility.GetRect(previewWidth, previewHeight);
-                previewRect.x = (position.width - previewWidth) / 2;
-
-                GUI.DrawTexture(previewRect, _atlasPreview, ScaleMode.ScaleToFit);
-
-                EditorGUILayout.EndVertical();
-
-                GUILayout.Space(10);
-                DrawSeparator();
-                GUILayout.Space(10);
-            }
-            else
-            {
-                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-                GUILayout.Label("ATLAS OUTPUT PREVIEW:", EditorStyles.boldLabel);
-                GUILayout.Space(5);
-                GUILayout.Label("Atlas not yet exported. Export first to see preview.", EditorStyles.centeredGreyMiniLabel);
-                GUILayout.Space(5);
-                EditorGUILayout.EndVertical();
-
-                GUILayout.Space(10);
-                DrawSeparator();
-                GUILayout.Space(10);
-            }
-
-            // File list
+            // LEFT: Source Files List (scrollable)
+            EditorGUILayout.BeginVertical(GUILayout.Width(position.width * 0.5f));
             GUILayout.Label("SOURCE FILES LIST:", EditorStyles.boldLabel);
             GUILayout.Space(5);
 
@@ -704,10 +724,9 @@ namespace SEZSJ
 
             // Table header
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
-            GUILayout.Label("File Name", EditorStyles.boldLabel, GUILayout.Width(350));
-            GUILayout.Label("Dimensions", EditorStyles.boldLabel, GUILayout.Width(100));
-            GUILayout.Label("Size", EditorStyles.boldLabel, GUILayout.Width(80));
-            GUILayout.Label("", EditorStyles.boldLabel);
+            GUILayout.Label("File Name", EditorStyles.boldLabel, GUILayout.Width(150));
+            GUILayout.Label("Size (WxH)", EditorStyles.boldLabel, GUILayout.Width(80));
+            GUILayout.Label("Bytes", EditorStyles.boldLabel, GUILayout.Width(60));
             EditorGUILayout.EndHorizontal();
 
             foreach (var file in _pngFiles)
@@ -718,9 +737,9 @@ namespace SEZSJ
                 string dimensions = GetImageDimensions(file.FullName);
                 string fileSize = FormatBytes(file.Length);
 
-                GUILayout.Label(file.Name, GUILayout.Width(350));
-                GUILayout.Label(dimensions, GUILayout.Width(100));
-                GUILayout.Label(fileSize, GUILayout.Width(80));
+                GUILayout.Label(file.Name, GUILayout.Width(150));
+                GUILayout.Label(dimensions, GUILayout.Width(80));
+                GUILayout.Label(fileSize, GUILayout.Width(60));
 
                 // Warning for large files
                 if (file.Length > 1024 * 1024) // > 1MB
@@ -732,6 +751,48 @@ namespace SEZSJ
             }
 
             EditorGUILayout.EndScrollView();
+            EditorGUILayout.EndVertical();
+
+            GUILayout.Space(10);
+
+            // RIGHT: Atlas Output Preview (fixed)
+            EditorGUILayout.BeginVertical(GUILayout.Width(position.width * 0.45f));
+            GUILayout.Label("ATLAS OUTPUT PREVIEW:", EditorStyles.boldLabel);
+            GUILayout.Space(5);
+
+            if (_atlasPreview != null)
+            {
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
+                // Show atlas info
+                GUILayout.Label($"Atlas: {_atlasOutputPath}", EditorStyles.miniLabel);
+                GUILayout.Label($"Size: {_atlasPreview.width}x{_atlasPreview.height}", EditorStyles.miniLabel);
+                GUILayout.Space(5);
+
+                // Calculate preview size (max 400x400 for right panel)
+                float maxPreviewSize = 400f;
+                float scale = Mathf.Min(maxPreviewSize / _atlasPreview.width, maxPreviewSize / _atlasPreview.height);
+                float previewWidth = _atlasPreview.width * scale;
+                float previewHeight = _atlasPreview.height * scale;
+
+                // Draw preview
+                Rect previewRect = GUILayoutUtility.GetRect(previewWidth, previewHeight);
+                GUI.DrawTexture(previewRect, _atlasPreview, ScaleMode.ScaleToFit);
+
+                EditorGUILayout.EndVertical();
+            }
+            else
+            {
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                GUILayout.Space(20);
+                GUILayout.Label("Atlas not yet exported.", EditorStyles.centeredGreyMiniLabel);
+                GUILayout.Label("Export first to see preview.", EditorStyles.centeredGreyMiniLabel);
+                GUILayout.Space(20);
+                EditorGUILayout.EndVertical();
+            }
+
+            EditorGUILayout.EndVertical();
+            EditorGUILayout.EndHorizontal();
 
             GUILayout.Space(10);
 
