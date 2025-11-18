@@ -20,7 +20,6 @@ namespace SEZSJ
         private const string TP_ARG = @"""{0}"" --format cocos2d --disable-rotation --no-trim --algorithm MaxRects --max-size 2048 --size-constraints POT --data  ""{1}.xml"" --sheet ""{1}.png""";
 
         private const float TOOLBAR_HEIGHT = 35f;
-        private const float PROGRESS_HEIGHT = 50f;
         private const float BUTTON_WIDTH = 140f;
         private const float SMALL_BUTTON_WIDTH = 100f;
         private const int ITEMS_PER_ROW = 2;
@@ -34,10 +33,6 @@ namespace SEZSJ
         private Vector2 _scrollPosition = Vector2.zero;
         private string _searchFilter = "";
         private bool _isExporting = false;
-        private float _exportProgress = 0f;
-        private string _currentExportItem = "";
-        private int _exportedCount = 0;
-        private int _totalExportCount = 0;
         #endregion
 
         #region Styles
@@ -120,17 +115,12 @@ namespace SEZSJ
             DrawToolbar();
 
             // Main scroll area
-            float scrollHeight = position.height - TOOLBAR_HEIGHT - 60 - PROGRESS_HEIGHT;
+            float scrollHeight = position.height - TOOLBAR_HEIGHT - 90;
             _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition, GUILayout.Height(scrollHeight));
 
-            DrawLanguageSection();
-            GUILayout.Space(10);
             DrawAtlasFoldersSection();
 
             EditorGUILayout.EndScrollView();
-
-            // Bottom area
-            DrawExportProgress();
         }
         #endregion
 
@@ -169,27 +159,18 @@ namespace SEZSJ
 
             GUI.enabled = true;
             GUILayout.FlexibleSpace();
+
+            // Language selection on the right
+            GUILayout.Label("Language:", GUILayout.Width(70));
+            GUI.enabled = false;
+            EditorGUILayout.Toggle("English", true, GUILayout.Width(70));
+            GUI.enabled = true;
+
             GUILayout.Space(10);
             EditorGUILayout.EndHorizontal();
 
             GUILayout.Space(5);
             DrawSeparator();
-        }
-
-        private void DrawLanguageSection()
-        {
-            EditorGUILayout.BeginVertical(Styles.boxStyle);
-            GUILayout.Label("LANGUAGE SELECTION", Styles.sectionHeaderStyle);
-            GUILayout.Space(5);
-
-            EditorGUILayout.BeginHorizontal();
-            GUI.enabled = false;
-            EditorGUILayout.Toggle("English", true, GUILayout.Width(150));
-            GUI.enabled = true;
-            GUILayout.Label("(Default language)", EditorStyles.miniLabel);
-            EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.EndVertical();
         }
 
         private void DrawAtlasFoldersSection()
@@ -316,23 +297,6 @@ namespace SEZSJ
             EditorGUILayout.EndVertical();
         }
 
-        private void DrawExportProgress()
-        {
-            if (!_isExporting) return;
-
-            EditorGUILayout.BeginVertical(Styles.boxStyle);
-            GUILayout.Label("EXPORT PROGRESS", EditorStyles.boldLabel);
-
-            // Progress bar
-            Rect progressRect = EditorGUILayout.GetControlRect(false, 20);
-            EditorGUI.ProgressBar(progressRect, _exportProgress, $"{Mathf.RoundToInt(_exportProgress * 100)}% ({_exportedCount}/{_totalExportCount})");
-
-            // Current item
-            GUILayout.Label($"Current: {_currentExportItem}", EditorStyles.miniLabel);
-
-            EditorGUILayout.EndVertical();
-        }
-
         private void DrawSeparator()
         {
             Rect rect = EditorGUILayout.GetControlRect(false, 1);
@@ -446,9 +410,6 @@ namespace SEZSJ
             }
 
             _isExporting = true;
-            _exportedCount = 0;
-            _totalExportCount = GetSelectedCount();
-            _exportProgress = 0f;
 
             bool hasError = false;
 
@@ -458,10 +419,6 @@ namespace SEZSJ
 
                 string folderName = _atlasPathList[i];
                 string folderPath = $"{SOURCE_PATH}/{LANGUAGE}/{folderName}";
-
-                _currentExportItem = folderName;
-                _exportProgress = (float)_exportedCount / _totalExportCount;
-                Repaint();
 
                 Debug.Log($"Exporting: {folderName}");
 
@@ -474,14 +431,9 @@ namespace SEZSJ
                 {
                     Debug.Log($"Export successful: {folderName}");
                 }
-
-                _exportedCount++;
-                _exportProgress = (float)_exportedCount / _totalExportCount;
-                Repaint();
             }
 
             _isExporting = false;
-            _exportProgress = 1f;
 
             if (!hasError)
             {
