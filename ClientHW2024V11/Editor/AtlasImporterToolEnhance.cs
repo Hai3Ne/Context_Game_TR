@@ -9,7 +9,6 @@ namespace SEZSJ
 {
     /// <summary>
     /// Enhanced Atlas Importer Tool with improved UI and preview functionality
-    /// Author: Ray
     /// </summary>
     public class AtlasImporterToolEnhance : EditorWindow
     {
@@ -20,11 +19,10 @@ namespace SEZSJ
         private const string TP_CMD = @"TexturePacker/bin/TexturePacker.exe";
         private const string TP_ARG = @"""{0}"" --format cocos2d --disable-rotation --no-trim --algorithm MaxRects --max-size 2048 --size-constraints POT --data  ""{1}.xml"" --sheet ""{1}.png""";
 
-        private const float TOOLBAR_HEIGHT = 30f;
-        private const float PROGRESS_HEIGHT = 60f;
-        private const float MESSAGE_HEIGHT = 150f;
-        private const float BUTTON_WIDTH = 120f;
-        private const float SMALL_BUTTON_WIDTH = 80f;
+        private const float TOOLBAR_HEIGHT = 35f;
+        private const float PROGRESS_HEIGHT = 50f;
+        private const float BUTTON_WIDTH = 140f;
+        private const float SMALL_BUTTON_WIDTH = 100f;
         private const int ITEMS_PER_ROW = 2;
         #endregion
 
@@ -34,19 +32,12 @@ namespace SEZSJ
         private Dictionary<string, int> _atlasFolderFileCount = new Dictionary<string, int>();
 
         private Vector2 _scrollPosition = Vector2.zero;
-        private Vector2 _messageScrollPosition = Vector2.zero;
-
         private string _searchFilter = "";
         private bool _isExporting = false;
         private float _exportProgress = 0f;
         private string _currentExportItem = "";
         private int _exportedCount = 0;
         private int _totalExportCount = 0;
-
-        private List<LogMessage> _logMessages = new List<LogMessage>();
-        private bool _showMessages = true;
-
-        private static AtlasPreviewWindow _previewWindow;
         #endregion
 
         #region Styles
@@ -54,13 +45,9 @@ namespace SEZSJ
         {
             public static GUIStyle headerStyle;
             public static GUIStyle sectionHeaderStyle;
-            public static GUIStyle separatorStyle;
-            public static GUIStyle errorStyle;
-            public static GUIStyle warningStyle;
-            public static GUIStyle successStyle;
-            public static GUIStyle progressBarBg;
-            public static GUIStyle progressBarFg;
             public static GUIStyle boxStyle;
+            public static GUIStyle exportButtonStyle;
+            public static GUIStyle normalButtonStyle;
 
             public static void Initialize()
             {
@@ -69,80 +56,52 @@ namespace SEZSJ
                 // Header style
                 headerStyle = new GUIStyle(EditorStyles.boldLabel)
                 {
-                    fontSize = 14,
-                    alignment = TextAnchor.MiddleLeft,
-                    normal = { textColor = new Color(0.8f, 0.9f, 1f) }
+                    fontSize = 16,
+                    alignment = TextAnchor.MiddleCenter,
+                    normal = { textColor = new Color(0.9f, 0.95f, 1f) }
                 };
 
-                // Section header style
+                // Section header style - larger and more prominent
                 sectionHeaderStyle = new GUIStyle(EditorStyles.boldLabel)
                 {
-                    fontSize = 12,
-                    normal = { textColor = Color.white }
-                };
-
-                // Separator style
-                separatorStyle = new GUIStyle()
-                {
-                    normal = { background = EditorGUIUtility.whiteTexture },
-                    margin = new RectOffset(0, 0, 5, 5),
-                    fixedHeight = 1
-                };
-
-                // Error style
-                errorStyle = new GUIStyle(EditorStyles.label)
-                {
-                    normal = { textColor = new Color(1f, 0.4f, 0.4f) },
-                    wordWrap = true
-                };
-
-                // Warning style
-                warningStyle = new GUIStyle(EditorStyles.label)
-                {
-                    normal = { textColor = new Color(1f, 0.9f, 0.3f) },
-                    wordWrap = true
-                };
-
-                // Success style
-                successStyle = new GUIStyle(EditorStyles.label)
-                {
-                    normal = { textColor = new Color(0.4f, 1f, 0.4f) },
-                    wordWrap = true
+                    fontSize = 14,
+                    alignment = TextAnchor.MiddleLeft,
+                    normal = { textColor = new Color(1f, 1f, 1f) },
+                    padding = new RectOffset(5, 5, 5, 5)
                 };
 
                 // Box style
                 boxStyle = new GUIStyle(GUI.skin.box)
                 {
-                    padding = new RectOffset(10, 10, 5, 5)
+                    padding = new RectOffset(10, 10, 10, 10),
+                    margin = new RectOffset(5, 5, 5, 5)
+                };
+
+                // Export button style - green background
+                exportButtonStyle = new GUIStyle(GUI.skin.button)
+                {
+                    fontSize = 12,
+                    fontStyle = FontStyle.Bold,
+                    normal = { textColor = Color.white },
+                    padding = new RectOffset(10, 10, 8, 8)
+                };
+
+                // Normal button style
+                normalButtonStyle = new GUIStyle(GUI.skin.button)
+                {
+                    fontSize = 11,
+                    padding = new RectOffset(10, 10, 6, 6)
                 };
             }
         }
         #endregion
 
-        #region Log Message Class
-        private class LogMessage
-        {
-            public enum MessageType { Success, Warning, Error }
-
-            public MessageType Type;
-            public string Message;
-            public string Timestamp;
-
-            public LogMessage(MessageType type, string message)
-            {
-                Type = type;
-                Message = message;
-                Timestamp = DateTime.Now.ToString("HH:mm:ss");
-            }
-        }
-        #endregion
-
         #region Menu Item
-        [MenuItem("Atlas Tools/Atlas Importer Enhanced", false)]
+        [MenuItem("Tools/Tamron Tool/Atlas Importer Enhanced", false)]
         static void OpenWindow()
         {
             var window = GetWindow<AtlasImporterToolEnhance>(true, "Atlas Importer Tool - Enhanced");
-            window.minSize = new Vector2(600, 600);
+            window.minSize = new Vector2(700, 500);
             window.Show();
         }
         #endregion
@@ -151,8 +110,6 @@ namespace SEZSJ
         private void OnEnable()
         {
             RefreshAtlasFolders();
-            _logMessages.Clear();
-            AddLog(LogMessage.MessageType.Success, "Atlas Importer Tool initialized successfully");
         }
 
         private void OnGUI()
@@ -163,62 +120,66 @@ namespace SEZSJ
             DrawToolbar();
 
             // Main scroll area
-            float scrollHeight = position.height - TOOLBAR_HEIGHT - 80 - PROGRESS_HEIGHT - MESSAGE_HEIGHT;
+            float scrollHeight = position.height - TOOLBAR_HEIGHT - 60 - PROGRESS_HEIGHT;
             _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition, GUILayout.Height(scrollHeight));
 
             DrawLanguageSection();
-            DrawSeparator();
+            GUILayout.Space(10);
             DrawAtlasFoldersSection();
 
             EditorGUILayout.EndScrollView();
 
             // Bottom area
             DrawExportProgress();
-            DrawMessagesSection();
         }
         #endregion
 
         #region UI Drawing Methods
         private void DrawHeader()
         {
-            EditorGUILayout.BeginVertical(Styles.boxStyle);
-            GUILayout.Label("🎨 ATLAS IMPORTER TOOL", Styles.headerStyle);
-            GUILayout.Label("Author: Ray", EditorStyles.miniLabel);
+            GUILayout.Space(10);
+            GUILayout.Label("ATLAS IMPORTER TOOL", Styles.headerStyle);
+            GUILayout.Space(10);
             DrawSeparator();
-            GUILayout.Label($"Source: {SOURCE_PATH}/{LANGUAGE} → Output: {PNG_PATH}", EditorStyles.miniLabel);
-            EditorGUILayout.EndVertical();
         }
 
         private void DrawToolbar()
         {
-            EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.Space(10);
 
+            // Export button with color
             GUI.enabled = !_isExporting && GetSelectedCount() > 0;
-            if (GUILayout.Button("🚀 Export Selected", EditorStyles.toolbarButton, GUILayout.Width(BUTTON_WIDTH)))
+            Color originalColor = GUI.backgroundColor;
+            GUI.backgroundColor = new Color(0.3f, 0.8f, 0.3f); // Green
+            if (GUILayout.Button("EXPORT SELECTED", Styles.exportButtonStyle, GUILayout.Width(BUTTON_WIDTH), GUILayout.Height(TOOLBAR_HEIGHT)))
             {
                 ExportSelectedAtlas();
             }
+            GUI.backgroundColor = originalColor;
 
+            GUILayout.Space(10);
+
+            // Other buttons
             GUI.enabled = !_isExporting;
-            if (GUILayout.Button("🔄 Refresh", EditorStyles.toolbarButton, GUILayout.Width(SMALL_BUTTON_WIDTH)))
+            if (GUILayout.Button("Refresh", Styles.normalButtonStyle, GUILayout.Width(SMALL_BUTTON_WIDTH), GUILayout.Height(TOOLBAR_HEIGHT)))
             {
                 RefreshAtlasFolders();
             }
 
-            if (GUILayout.Button("🗑️ Clear Logs", EditorStyles.toolbarButton, GUILayout.Width(SMALL_BUTTON_WIDTH)))
-            {
-                _logMessages.Clear();
-            }
-
             GUI.enabled = true;
             GUILayout.FlexibleSpace();
+            GUILayout.Space(10);
             EditorGUILayout.EndHorizontal();
+
+            GUILayout.Space(5);
+            DrawSeparator();
         }
 
         private void DrawLanguageSection()
         {
             EditorGUILayout.BeginVertical(Styles.boxStyle);
-            GUILayout.Label("🌐 LANGUAGE SELECTION", Styles.sectionHeaderStyle);
+            GUILayout.Label("LANGUAGE SELECTION", Styles.sectionHeaderStyle);
             GUILayout.Space(5);
 
             EditorGUILayout.BeginHorizontal();
@@ -229,14 +190,32 @@ namespace SEZSJ
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.EndVertical();
-            GUILayout.Space(10);
         }
 
         private void DrawAtlasFoldersSection()
         {
-            EditorGUILayout.BeginVertical(Styles.boxStyle);
-            GUILayout.Label("📁 ATLAS FOLDERS", Styles.sectionHeaderStyle);
-            GUILayout.Space(5);
+            // Prominent box style for Atlas Folders
+            GUIStyle prominentBox = new GUIStyle(GUI.skin.box)
+            {
+                padding = new RectOffset(15, 15, 15, 15),
+                margin = new RectOffset(5, 5, 10, 10)
+            };
+
+            EditorGUILayout.BeginVertical(prominentBox);
+
+            // Larger header
+            GUIStyle atlasHeaderStyle = new GUIStyle(EditorStyles.boldLabel)
+            {
+                fontSize = 15,
+                alignment = TextAnchor.MiddleLeft,
+                normal = { textColor = new Color(1f, 1f, 0.7f) }, // Light yellow
+                padding = new RectOffset(5, 5, 8, 8)
+            };
+            GUILayout.Label("ATLAS FOLDERS", atlasHeaderStyle);
+
+            GUILayout.Space(10);
+            DrawSeparator();
+            GUILayout.Space(10);
 
             // Selection buttons
             EditorGUILayout.BeginHorizontal();
@@ -254,11 +233,11 @@ namespace SEZSJ
             }
             EditorGUILayout.EndHorizontal();
 
-            GUILayout.Space(5);
+            GUILayout.Space(10);
 
             // Search filter
             EditorGUILayout.BeginHorizontal();
-            GUILayout.Label("🔍 Filter:", GUILayout.Width(50));
+            GUILayout.Label("Filter:", GUILayout.Width(50));
             string newFilter = EditorGUILayout.TextField(_searchFilter);
             if (newFilter != _searchFilter)
             {
@@ -266,7 +245,9 @@ namespace SEZSJ
             }
             EditorGUILayout.EndHorizontal();
 
+            GUILayout.Space(10);
             DrawSeparator();
+            GUILayout.Space(10);
 
             // Atlas folder list
             var filteredList = GetFilteredAtlasList();
@@ -288,14 +269,14 @@ namespace SEZSJ
                 string displayName = $"{folderName} ({fileCount} files)";
 
                 bool isSelected = _atlasFolderSelected[i];
-                bool newSelected = EditorGUILayout.ToggleLeft(displayName, isSelected, GUILayout.Width(250));
+                bool newSelected = EditorGUILayout.ToggleLeft(displayName, isSelected, GUILayout.Width(280));
                 if (newSelected != isSelected)
                 {
                     _atlasFolderSelected[i] = newSelected;
                 }
 
                 // Preview button
-                if (GUILayout.Button("👁️ Preview", GUILayout.Width(80)))
+                if (GUILayout.Button("Preview", GUILayout.Width(80)))
                 {
                     ShowPreview(folderName);
                 }
@@ -303,19 +284,34 @@ namespace SEZSJ
                 if (col == ITEMS_PER_ROW - 1 || displayIndex == filteredList.Count - 1)
                 {
                     EditorGUILayout.EndHorizontal();
-                    GUILayout.Space(3);
+                    GUILayout.Space(5);
                 }
 
                 displayIndex++;
             }
 
-            GUILayout.Space(5);
+            // Show message if no results
+            if (filteredList.Count == 0 && !string.IsNullOrEmpty(_searchFilter))
+            {
+                GUILayout.Space(10);
+                GUILayout.Label("No folders match the filter", EditorStyles.centeredGreyMiniLabel);
+                GUILayout.Space(10);
+            }
+
+            GUILayout.Space(10);
             DrawSeparator();
+            GUILayout.Space(5);
 
             // Statistics
             int selectedCount = GetSelectedCount();
             int totalFiles = GetTotalFilesInSelection();
-            GUILayout.Label($"Selected: {selectedCount}/{_atlasPathList.Count} folders ({totalFiles} total files)", EditorStyles.boldLabel);
+            GUIStyle statsStyle = new GUIStyle(EditorStyles.boldLabel)
+            {
+                fontSize = 12,
+                alignment = TextAnchor.MiddleCenter
+            };
+            GUILayout.Label($"Selected: {selectedCount}/{_atlasPathList.Count} folders ({totalFiles} total files)", statsStyle);
+            GUILayout.Space(5);
 
             EditorGUILayout.EndVertical();
         }
@@ -325,7 +321,7 @@ namespace SEZSJ
             if (!_isExporting) return;
 
             EditorGUILayout.BeginVertical(Styles.boxStyle);
-            GUILayout.Label("📊 EXPORT PROGRESS", EditorStyles.boldLabel);
+            GUILayout.Label("EXPORT PROGRESS", EditorStyles.boldLabel);
 
             // Progress bar
             Rect progressRect = EditorGUILayout.GetControlRect(false, 20);
@@ -337,39 +333,10 @@ namespace SEZSJ
             EditorGUILayout.EndVertical();
         }
 
-        private void DrawMessagesSection()
-        {
-            EditorGUILayout.BeginVertical(Styles.boxStyle);
-
-            // Header with foldout
-            EditorGUILayout.BeginHorizontal();
-            _showMessages = EditorGUILayout.Foldout(_showMessages, $"📝 MESSAGES ({GetMessageStats()})", true, EditorStyles.foldoutHeader);
-            EditorGUILayout.EndHorizontal();
-
-            if (_showMessages && _logMessages.Count > 0)
-            {
-                _messageScrollPosition = EditorGUILayout.BeginScrollView(_messageScrollPosition, GUILayout.Height(MESSAGE_HEIGHT - 30));
-
-                for (int i = _logMessages.Count - 1; i >= 0; i--)
-                {
-                    var log = _logMessages[i];
-                    GUIStyle style = GetLogStyle(log.Type);
-                    string icon = GetLogIcon(log.Type);
-                    GUILayout.Label($"{icon} [{log.Timestamp}] {log.Message}", style);
-                }
-
-                EditorGUILayout.EndScrollView();
-            }
-
-            EditorGUILayout.EndVertical();
-        }
-
         private void DrawSeparator()
         {
-            GUILayout.Space(5);
             Rect rect = EditorGUILayout.GetControlRect(false, 1);
-            EditorGUI.DrawRect(rect, new Color(0.5f, 0.5f, 0.5f, 0.5f));
-            GUILayout.Space(5);
+            EditorGUI.DrawRect(rect, new Color(0.5f, 0.5f, 0.5f, 0.3f));
         }
         #endregion
 
@@ -385,7 +352,7 @@ namespace SEZSJ
 
             if (dir == null || !dir.Exists)
             {
-                AddLog(LogMessage.MessageType.Error, $"Source folder not found: {sourcePath}");
+                Debug.LogError($"Source folder not found: {sourcePath}");
                 return;
             }
 
@@ -402,11 +369,11 @@ namespace SEZSJ
                 }
                 else
                 {
-                    AddLog(LogMessage.MessageType.Warning, $"Folder has no PNG files: {item.Name}");
+                    Debug.LogWarning($"Folder has no PNG files: {item.Name}");
                 }
             }
 
-            AddLog(LogMessage.MessageType.Success, $"Refreshed: Found {_atlasPathList.Count} atlas folders");
+            Debug.Log($"Refreshed: Found {_atlasPathList.Count} atlas folders");
         }
 
         private List<string> GetFilteredAtlasList()
@@ -455,55 +422,6 @@ namespace SEZSJ
             return total;
         }
 
-        private string GetMessageStats()
-        {
-            int errors = _logMessages.Count(x => x.Type == LogMessage.MessageType.Error);
-            int warnings = _logMessages.Count(x => x.Type == LogMessage.MessageType.Warning);
-            int success = _logMessages.Count(x => x.Type == LogMessage.MessageType.Success);
-
-            List<string> stats = new List<string>();
-            if (errors > 0) stats.Add($"{errors} errors");
-            if (warnings > 0) stats.Add($"{warnings} warnings");
-            if (success > 0) stats.Add($"{success} success");
-
-            return stats.Count > 0 ? string.Join(", ", stats) : "No messages";
-        }
-
-        private GUIStyle GetLogStyle(LogMessage.MessageType type)
-        {
-            switch (type)
-            {
-                case LogMessage.MessageType.Error: return Styles.errorStyle;
-                case LogMessage.MessageType.Warning: return Styles.warningStyle;
-                case LogMessage.MessageType.Success: return Styles.successStyle;
-                default: return EditorStyles.label;
-            }
-        }
-
-        private string GetLogIcon(LogMessage.MessageType type)
-        {
-            switch (type)
-            {
-                case LogMessage.MessageType.Error: return "❌";
-                case LogMessage.MessageType.Warning: return "⚠️";
-                case LogMessage.MessageType.Success: return "✅";
-                default: return "ℹ️";
-            }
-        }
-
-        private void AddLog(LogMessage.MessageType type, string message)
-        {
-            _logMessages.Add(new LogMessage(type, message));
-
-            // Keep only last 100 messages
-            if (_logMessages.Count > 100)
-            {
-                _logMessages.RemoveAt(0);
-            }
-
-            Repaint();
-        }
-
         private void ShowPreview(string folderName)
         {
             string folderPath = $"{SOURCE_PATH}/{LANGUAGE}/{folderName}";
@@ -511,7 +429,7 @@ namespace SEZSJ
         }
         #endregion
 
-        #region Export Logic (Ported from AtlasImporterToolNew)
+        #region Export Logic
         private void ExportSelectedAtlas()
         {
             if (GetSelectedCount() == 0)
@@ -545,16 +463,16 @@ namespace SEZSJ
                 _exportProgress = (float)_exportedCount / _totalExportCount;
                 Repaint();
 
-                AddLog(LogMessage.MessageType.Success, $"Exporting: {folderName}");
+                Debug.Log($"Exporting: {folderName}");
 
                 if (!ExportPng(LANGUAGE, folderPath))
                 {
                     hasError = true;
-                    AddLog(LogMessage.MessageType.Error, $"Export failed: {folderName}");
+                    Debug.LogError($"Export failed: {folderName}");
                 }
                 else
                 {
-                    AddLog(LogMessage.MessageType.Success, $"Export successful: {folderName}");
+                    Debug.Log($"Export successful: {folderName}");
                 }
 
                 _exportedCount++;
@@ -569,13 +487,12 @@ namespace SEZSJ
             {
                 AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh();
-                AddLog(LogMessage.MessageType.Success, "All atlas exported successfully!");
+                Debug.Log("All atlas exported successfully!");
                 EditorUtility.DisplayDialog("Success", "All selected atlas exported successfully!", "OK");
             }
             else
             {
-                AddLog(LogMessage.MessageType.Error, "Export completed with errors. Check console for details.");
-                EditorUtility.DisplayDialog("Error", "Export completed with errors. Check messages for details.", "OK");
+                EditorUtility.DisplayDialog("Error", "Export completed with errors. Check console for details.", "OK");
             }
 
             Repaint();
@@ -600,7 +517,7 @@ namespace SEZSJ
 
             if (!File.Exists(fullPath))
             {
-                AddLog(LogMessage.MessageType.Error, $"TexturePacker failed: {fullPath} - {error}");
+                Debug.LogError($"TexturePacker failed: {fullPath} - {error}");
                 process.Close();
                 return false;
             }
@@ -631,7 +548,7 @@ namespace SEZSJ
 
             if (xmlObject == null)
             {
-                AddLog(LogMessage.MessageType.Error, $"XML not found: {xmlPath}");
+                Debug.LogError($"XML not found: {xmlPath}");
                 return listObjects;
             }
 
@@ -640,7 +557,7 @@ namespace SEZSJ
             var pngObject = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(pngPath);
             if (pngObject == null)
             {
-                AddLog(LogMessage.MessageType.Error, $"PNG export failed: {pngPath}");
+                Debug.LogError($"PNG export failed: {pngPath}");
                 return listObjects;
             }
 
@@ -658,7 +575,7 @@ namespace SEZSJ
             }
             else
             {
-                AddLog(LogMessage.MessageType.Error, $"PNG meta generation failed: {pngMetaTmp}");
+                Debug.LogError($"PNG meta generation failed: {pngMetaTmp}");
                 return listObjects;
             }
 
@@ -710,7 +627,6 @@ namespace SEZSJ
     #region Atlas Preview Window
     /// <summary>
     /// Simple preview window for atlas folder contents
-    /// Author: Ray
     /// </summary>
     public class AtlasPreviewWindow : EditorWindow
     {
@@ -724,7 +640,7 @@ namespace SEZSJ
         public static void ShowWindow(string folderName, string folderPath, int fileCount)
         {
             var window = GetWindow<AtlasPreviewWindow>(true, $"Preview: {folderName}");
-            window.minSize = new Vector2(500, 400);
+            window.minSize = new Vector2(600, 500);
             window._folderName = folderName;
             window._folderPath = folderPath;
             window._fileCount = fileCount;
@@ -748,42 +664,62 @@ namespace SEZSJ
 
         private void OnGUI()
         {
-            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            GUILayout.Space(10);
 
             // Header
-            GUILayout.Label($"👁️ ATLAS PREVIEW: {_folderName}", EditorStyles.boldLabel);
+            GUIStyle headerStyle = new GUIStyle(EditorStyles.boldLabel)
+            {
+                fontSize = 14,
+                alignment = TextAnchor.MiddleCenter
+            };
+            GUILayout.Label($"ATLAS PREVIEW: {_folderName}", headerStyle);
+            GUILayout.Space(10);
             DrawSeparator();
+            GUILayout.Space(10);
 
             // Summary
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
             GUILayout.Label($"Folder: {_folderPath}", EditorStyles.miniLabel);
             GUILayout.Label($"Total PNG files: {_fileCount}", EditorStyles.miniLabel);
             GUILayout.Label($"Total size: {FormatBytes(_totalSize)}", EditorStyles.miniLabel);
             GUILayout.Label($"Estimated atlas size: 2048x2048", EditorStyles.miniLabel);
             GUILayout.Label($"Output: Assets/Atlas/English/{_folderName}.png", EditorStyles.miniLabel);
+            EditorGUILayout.EndVertical();
 
+            GUILayout.Space(10);
             DrawSeparator();
+            GUILayout.Space(10);
 
             // File list
-            GUILayout.Label("📄 Files List:", EditorStyles.boldLabel);
+            GUILayout.Label("FILES LIST:", EditorStyles.boldLabel);
+            GUILayout.Space(5);
 
             _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
+
+            // Table header
+            EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
+            GUILayout.Label("File Name", EditorStyles.boldLabel, GUILayout.Width(350));
+            GUILayout.Label("Dimensions", EditorStyles.boldLabel, GUILayout.Width(100));
+            GUILayout.Label("Size", EditorStyles.boldLabel, GUILayout.Width(80));
+            GUILayout.Label("", EditorStyles.boldLabel);
+            EditorGUILayout.EndHorizontal();
 
             foreach (var file in _pngFiles)
             {
                 EditorGUILayout.BeginHorizontal();
 
-                // Get image dimensions if possible
+                // Get image dimensions
                 string dimensions = GetImageDimensions(file.FullName);
                 string fileSize = FormatBytes(file.Length);
 
-                GUILayout.Label($"• {file.Name}", GUILayout.Width(300));
+                GUILayout.Label(file.Name, GUILayout.Width(350));
                 GUILayout.Label(dimensions, GUILayout.Width(100));
                 GUILayout.Label(fileSize, GUILayout.Width(80));
 
                 // Warning for large files
                 if (file.Length > 1024 * 1024) // > 1MB
                 {
-                    GUILayout.Label("⚠️ Large file", EditorStyles.miniLabel);
+                    GUILayout.Label("Large file", EditorStyles.miniLabel);
                 }
 
                 EditorGUILayout.EndHorizontal();
@@ -791,22 +727,21 @@ namespace SEZSJ
 
             EditorGUILayout.EndScrollView();
 
-            EditorGUILayout.EndVertical();
+            GUILayout.Space(10);
 
             // Close button
-            GUILayout.FlexibleSpace();
             if (GUILayout.Button("Close", GUILayout.Height(30)))
             {
                 Close();
             }
+
+            GUILayout.Space(10);
         }
 
         private void DrawSeparator()
         {
-            GUILayout.Space(5);
             Rect rect = EditorGUILayout.GetControlRect(false, 1);
-            EditorGUI.DrawRect(rect, new Color(0.5f, 0.5f, 0.5f, 0.5f));
-            GUILayout.Space(5);
+            EditorGUI.DrawRect(rect, new Color(0.5f, 0.5f, 0.5f, 0.3f));
         }
 
         private string GetImageDimensions(string path)
