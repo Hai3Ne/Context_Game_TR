@@ -1,3 +1,42 @@
+/*
+ * ============================================================================
+ * Atlas Importer Tool Enhanced
+ * ============================================================================
+ *
+ * Author: Ray
+ * Created: November 2025
+ *
+ * Description:
+ *   Enhanced Unity Editor tool for importing and managing atlas textures.
+ *   Provides a professional UI with preview functionality, real-time logging,
+ *   and automated atlas generation from source PNG files.
+ *
+ * Features:
+ *   - Batch atlas export from source folders
+ *   - Real-time preview of exported atlas textures
+ *   - Split-view preview window (source files + atlas output)
+ *   - Integrated logging system with timestamps
+ *   - Language selection support (currently English)
+ *   - Filter and search functionality
+ *   - Automatic texture packing using TexturePacker
+ *
+ * Dependencies:
+ *   - TexturePacker (external tool required)
+ *   - Path: TexturePacker/bin/TexturePacker.exe
+ *
+ * IMPORTANT NOTE:
+ *   If this is your first time running this tool on a new machine,
+ *   you MUST activate TexturePacker before use:
+ *   1. Navigate to: TexturePacker/bin/TexturePacker.exe
+ *   2. Run the executable and complete activation
+ *   3. After activation, this tool will work properly
+ *
+ * Usage:
+ *   Unity Editor → Tools → Tamron Tool → Atlas Importer Enhanced
+ *
+ * ============================================================================
+ */
+
 using System;
 using System.Collections.Generic;
 using System.IO;
