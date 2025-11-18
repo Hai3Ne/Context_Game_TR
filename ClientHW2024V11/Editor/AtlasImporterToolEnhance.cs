@@ -163,20 +163,18 @@ namespace SEZSJ
             DrawToolbar();
 
             // Main scroll area
-            Rect scrollRect = new Rect(0, TOOLBAR_HEIGHT + 40, position.width, position.height - TOOLBAR_HEIGHT - 40 - PROGRESS_HEIGHT - MESSAGE_HEIGHT);
-            _scrollPosition = GUI.BeginScrollView(scrollRect, _scrollPosition, new Rect(0, 0, position.width - 20, GetContentHeight()));
+            float scrollHeight = position.height - TOOLBAR_HEIGHT - 80 - PROGRESS_HEIGHT - MESSAGE_HEIGHT;
+            _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition, GUILayout.Height(scrollHeight));
 
             DrawLanguageSection();
             DrawSeparator();
             DrawAtlasFoldersSection();
 
-            GUI.EndScrollView();
+            EditorGUILayout.EndScrollView();
 
-            // Bottom area (fixed)
-            GUILayout.BeginArea(new Rect(0, position.height - PROGRESS_HEIGHT - MESSAGE_HEIGHT, position.width, PROGRESS_HEIGHT + MESSAGE_HEIGHT));
+            // Bottom area
             DrawExportProgress();
             DrawMessagesSection();
-            GUILayout.EndArea();
         }
         #endregion
 
@@ -272,12 +270,14 @@ namespace SEZSJ
 
             // Atlas folder list
             var filteredList = GetFilteredAtlasList();
+            int displayIndex = 0;
+
             for (int i = 0; i < _atlasPathList.Count; i++)
             {
                 var folderName = _atlasPathList[i];
                 if (!filteredList.Contains(folderName)) continue;
 
-                int col = i % ITEMS_PER_ROW;
+                int col = displayIndex % ITEMS_PER_ROW;
                 if (col == 0)
                 {
                     EditorGUILayout.BeginHorizontal();
@@ -300,11 +300,13 @@ namespace SEZSJ
                     ShowPreview(folderName);
                 }
 
-                if (col == ITEMS_PER_ROW - 1 || i == _atlasPathList.Count - 1)
+                if (col == ITEMS_PER_ROW - 1 || displayIndex == filteredList.Count - 1)
                 {
                     EditorGUILayout.EndHorizontal();
                     GUILayout.Space(3);
                 }
+
+                displayIndex++;
             }
 
             GUILayout.Space(5);
@@ -451,11 +453,6 @@ namespace SEZSJ
                 }
             }
             return total;
-        }
-
-        private float GetContentHeight()
-        {
-            return 300 + (_atlasPathList.Count * 30);
         }
 
         private string GetMessageStats()
