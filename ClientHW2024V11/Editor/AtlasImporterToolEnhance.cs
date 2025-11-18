@@ -681,14 +681,24 @@ namespace SEZSJ
     /// </summary>
     public class AtlasPreviewWindow : EditorWindow
     {
+        private enum PreviewMode { Before, After }
+
         private string _folderName;
         private string _folderPath;
         private int _fileCount;
         private List<FileInfo> _pngFiles = new List<FileInfo>();
         private Vector2 _scrollPosition;
         private long _totalSize = 0;
-        private Texture2D _atlasPreview = null;
+
+        private Texture2D _atlasPreviewBefore = null;
+        private Texture2D _atlasPreviewAfter = null;
         private string _atlasOutputPath = "";
+        private PreviewMode _currentMode = PreviewMode.Before;
+        private bool _isGeneratingPreview = false;
+        private string _tempPreviewPath = "";
+
+        private const string TP_CMD = @"TexturePacker/bin/TexturePacker.exe";
+        private const string TP_ARG = @"""{0}"" --format cocos2d --disable-rotation --no-trim --algorithm MaxRects --max-size 2048 --size-constraints POT --data  ""{1}.xml"" --sheet ""{1}.png""";
 
         public static void ShowWindow(string folderName, string folderPath, int fileCount)
         {
@@ -700,6 +710,11 @@ namespace SEZSJ
             window.LoadFileList();
             window.LoadAtlasPreview();
             window.Show();
+        }
+
+        private void OnDestroy()
+        {
+            CleanupTempPreview();
         }
 
         private void LoadFileList()
@@ -718,9 +733,106 @@ namespace SEZSJ
 
         private void LoadAtlasPreview()
         {
-            // Try to load existing atlas
+            // Load existing atlas (Before)
             _atlasOutputPath = $"Assets/Atlas/English/{_folderName}.png";
-            _atlasPreview = AssetDatabase.LoadAssetAtPath<Texture2D>(_atlasOutputPath);
+            _atlasPreviewBefore = AssetDatabase.LoadAssetAtPath<Texture2D>(_atlasOutputPath);
+        }
+
+        private void GeneratePreviewAtlas()
+        {
+            if (_isGeneratingPreview) return;
+
+            _isGeneratingPreview = true;
+            CleanupTempPreview();
+
+            // Create temp directory
+            string tempDir = Path.Combine(Application.temporaryCachePath, "AtlasPreview");
+            if (!Directory.Exists(tempDir))
+            {
+                Directory.CreateDirectory(tempDir);
+            }
+
+            _tempPreviewPath = Path.Combine(tempDir, _folderName);
+
+            // Run TexturePacker to temp location
+            var args = string.Format(TP_ARG, _folderPath, _tempPreviewPath);
+            Debug.Log($"Generating preview: {TP_CMD} {args}");
+
+            try
+            {
+                var process = ProcessCommand(TP_CMD, args);
+                var error = process.StandardError.ReadToEnd();
+                process.Close();
+
+                // Load the generated preview
+                string previewPngPath = _tempPreviewPath + ".png";
+                if (File.Exists(previewPngPath))
+                {
+                    byte[] fileData = File.ReadAllBytes(previewPngPath);
+                    _atlasPreviewAfter = new Texture2D(2, 2);
+                    _atlasPreviewAfter.LoadImage(fileData);
+                    Debug.Log("Preview atlas generated successfully");
+                }
+                else
+                {
+                    Debug.LogError($"Failed to generate preview: {previewPngPath}");
+                }
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"Error generating preview: {e.Message}");
+            }
+
+            _isGeneratingPreview = false;
+            Repaint();
+        }
+
+        private void CleanupTempPreview()
+        {
+            if (!string.IsNullOrEmpty(_tempPreviewPath))
+            {
+                try
+                {
+                    // Delete temp files
+                    string pngPath = _tempPreviewPath + ".png";
+                    string xmlPath = _tempPreviewPath + ".xml";
+
+                    if (File.Exists(pngPath)) File.Delete(pngPath);
+                    if (File.Exists(xmlPath)) File.Delete(xmlPath);
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogWarning($"Cleanup temp preview: {e.Message}");
+                }
+            }
+
+            if (_atlasPreviewAfter != null)
+            {
+                DestroyImmediate(_atlasPreviewAfter);
+                _atlasPreviewAfter = null;
+            }
+        }
+
+        private static System.Diagnostics.Process ProcessCommand(string command, string argument)
+        {
+            System.Diagnostics.ProcessStartInfo start = new System.Diagnostics.ProcessStartInfo(
+                Application.dataPath.Replace("Assets", command));
+
+            start.Arguments = argument;
+            start.CreateNoWindow = true;
+            start.ErrorDialog = true;
+            start.UseShellExecute = false;
+            start.RedirectStandardOutput = true;
+            start.RedirectStandardError = true;
+            start.RedirectStandardInput = true;
+            start.StandardOutputEncoding = System.Text.UTF8Encoding.UTF8;
+            start.StandardErrorEncoding = System.Text.UTF8Encoding.UTF8;
+
+            System.Diagnostics.Process process = System.Diagnostics.Process.Start(start);
+            process.StandardInput.WriteLine("agree");
+            process.WaitForExit();
+
+            return process;
         }
 
         private void OnGUI()
@@ -799,24 +911,51 @@ namespace SEZSJ
             GUILayout.Label("ATLAS OUTPUT PREVIEW:", EditorStyles.boldLabel);
             GUILayout.Space(5);
 
-            if (_atlasPreview != null)
+            // Before/After toggle buttons
+            EditorGUILayout.BeginHorizontal();
+
+            Color originalBgColor = GUI.backgroundColor;
+
+            // Before button
+            GUI.backgroundColor = (_currentMode == PreviewMode.Before) ? new Color(0.4f, 0.7f, 1f) : Color.white;
+            if (GUILayout.Button("BEFORE (Current)", GUILayout.Height(30)))
+            {
+                _currentMode = PreviewMode.Before;
+            }
+
+            // After button
+            GUI.backgroundColor = (_currentMode == PreviewMode.After) ? new Color(0.4f, 0.7f, 1f) : Color.white;
+            if (GUILayout.Button("AFTER (Preview)", GUILayout.Height(30)))
+            {
+                _currentMode = PreviewMode.After;
+            }
+
+            GUI.backgroundColor = originalBgColor;
+            EditorGUILayout.EndHorizontal();
+            GUILayout.Space(10);
+
+            // Get the appropriate preview texture based on mode
+            Texture2D currentPreview = (_currentMode == PreviewMode.Before) ? _atlasPreviewBefore : _atlasPreviewAfter;
+
+            if (currentPreview != null)
             {
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
                 // Show atlas info
-                GUILayout.Label($"Atlas: {_atlasOutputPath}", EditorStyles.miniLabel);
-                GUILayout.Label($"Size: {_atlasPreview.width}x{_atlasPreview.height}", EditorStyles.miniLabel);
+                string modeLabel = (_currentMode == PreviewMode.Before) ? "Current Atlas" : "Preview Atlas";
+                GUILayout.Label($"{modeLabel}: {_atlasOutputPath}", EditorStyles.miniLabel);
+                GUILayout.Label($"Size: {currentPreview.width}x{currentPreview.height}", EditorStyles.miniLabel);
                 GUILayout.Space(5);
 
                 // Calculate preview size (max 400x400 for right panel)
                 float maxPreviewSize = 400f;
-                float scale = Mathf.Min(maxPreviewSize / _atlasPreview.width, maxPreviewSize / _atlasPreview.height);
-                float previewWidth = _atlasPreview.width * scale;
-                float previewHeight = _atlasPreview.height * scale;
+                float scale = Mathf.Min(maxPreviewSize / currentPreview.width, maxPreviewSize / currentPreview.height);
+                float previewWidth = currentPreview.width * scale;
+                float previewHeight = currentPreview.height * scale;
 
                 // Draw preview
                 Rect previewRect = GUILayoutUtility.GetRect(previewWidth, previewHeight);
-                GUI.DrawTexture(previewRect, _atlasPreview, ScaleMode.ScaleToFit);
+                GUI.DrawTexture(previewRect, currentPreview, ScaleMode.ScaleToFit);
 
                 EditorGUILayout.EndVertical();
             }
@@ -824,8 +963,34 @@ namespace SEZSJ
             {
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox);
                 GUILayout.Space(20);
-                GUILayout.Label("Atlas not yet exported.", EditorStyles.centeredGreyMiniLabel);
-                GUILayout.Label("Export first to see preview.", EditorStyles.centeredGreyMiniLabel);
+
+                if (_currentMode == PreviewMode.Before)
+                {
+                    GUILayout.Label("Atlas not yet exported.", EditorStyles.centeredGreyMiniLabel);
+                    GUILayout.Label("Export first to see current atlas.", EditorStyles.centeredGreyMiniLabel);
+                }
+                else // After mode
+                {
+                    if (_isGeneratingPreview)
+                    {
+                        GUILayout.Label("Generating preview...", EditorStyles.centeredGreyMiniLabel);
+                        GUILayout.Label("Please wait.", EditorStyles.centeredGreyMiniLabel);
+                    }
+                    else
+                    {
+                        GUILayout.Label("Preview not generated yet.", EditorStyles.centeredGreyMiniLabel);
+                        GUILayout.Space(10);
+
+                        // Generate Preview button
+                        GUI.backgroundColor = new Color(0.3f, 0.8f, 0.3f); // Green
+                        if (GUILayout.Button("Generate Preview", GUILayout.Height(30)))
+                        {
+                            GeneratePreviewAtlas();
+                        }
+                        GUI.backgroundColor = originalBgColor;
+                    }
+                }
+
                 GUILayout.Space(20);
                 EditorGUILayout.EndVertical();
             }
