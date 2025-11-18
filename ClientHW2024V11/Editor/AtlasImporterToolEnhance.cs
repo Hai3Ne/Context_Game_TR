@@ -150,7 +150,6 @@ namespace SEZSJ
         #region Unity Lifecycle
         private void OnEnable()
         {
-            Styles.Initialize();
             RefreshAtlasFolders();
             _logMessages.Clear();
             AddLog(LogMessage.MessageType.Success, "Atlas Importer Tool initialized successfully");
@@ -158,6 +157,8 @@ namespace SEZSJ
 
         private void OnGUI()
         {
+            Styles.Initialize();
+
             DrawHeader();
             DrawToolbar();
 
