@@ -9,6 +9,7 @@ namespace HotUpdate
     {
         private List<ShopItemData> shopItemList = new List<ShopItemData>();
         private string prefabName = "ShopItem";
+        private long cachedGolds; // Cache gold value from UPDATE_GOLD message
         private bool isBuyFirstCharge 
         {
             get 
@@ -57,20 +58,33 @@ namespace HotUpdate
         {
             m_Btn_Close.onClick.AddListener(OnCloseBtn);
             Message.AddListener(MessageName.REFRESH_SHOP_PANEL, RefresShopList);
+            Message.AddListener(MessageName.UPDATE_GOLD, OnGoldUpdated);
+            // Initialize cached gold value
+            cachedGolds = MainUIModel.Instance.Golds;
         }
 
         public void UnRegisterListener()
         {
             m_Btn_Close.onClick.RemoveListener(OnCloseBtn);
             Message.RemoveListener(MessageName.REFRESH_SHOP_PANEL, RefresShopList);
-        } 
+            Message.RemoveListener(MessageName.UPDATE_GOLD, OnGoldUpdated);
+        }
+
+        private void OnGoldUpdated(params object[] args)
+        {
+            if (args != null && args.Length > 0)
+            {
+                cachedGolds = (long)args[0];
+            }
+        }
         #endregion
         public void OnCloseBtn()
         {
             CoreEntry.gAudioMgr.PlayUISound(46);
             ShopCtrl.Instance.CloseShopPanel();
-            var num = float.Parse(ToolUtil.ShowF2Num(MainUIModel.Instance.Golds), new CultureInfo("en"));
-      
+            // Use cached gold value instead of reading directly from MainUIModel
+            var num = float.Parse(ToolUtil.ShowF2Num(cachedGolds), new CultureInfo("en"));
+
             if (num < 5000 && MainUIModel.Instance.RoomData != null && MainUIModel.Instance.CurrnetAlmsCount < MainUIModel.Instance.AlmsCount)
             {
                 MainUICtrl.Instance.OpenAlmsPanel();

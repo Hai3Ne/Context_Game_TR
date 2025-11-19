@@ -9,6 +9,7 @@ namespace HotUpdate
 {
     public partial class AlmsPanel : PanelBase
     {
+        private long cachedGolds; // Cache gold value from UPDATE_GOLD message
 
         protected override void Awake()
         {
@@ -56,6 +57,9 @@ namespace HotUpdate
             m_Btn_leftReceber.onClick.AddListener(OnLeftReceberBtn);
             m_Btn_GLeftReceber.onClick.AddListener(OnGLeftReceberBtn);
             Message.AddListener(MessageName.REFRESH_ALMS_PANEL, RefreshPanel);
+            Message.AddListener(MessageName.UPDATE_GOLD, OnGoldUpdated);
+            // Initialize cached gold value
+            cachedGolds = MainUIModel.Instance.Golds;
         }
 
         public void UnRegisterListener()
@@ -67,6 +71,15 @@ namespace HotUpdate
             m_Btn_leftReceber.onClick.RemoveListener(OnLeftReceberBtn);
             m_Btn_GLeftReceber.onClick.RemoveListener(OnGLeftReceberBtn);
             Message.RemoveListener(MessageName.REFRESH_ALMS_PANEL, RefreshPanel);
+            Message.RemoveListener(MessageName.UPDATE_GOLD, OnGoldUpdated);
+        }
+
+        private void OnGoldUpdated(params object[] args)
+        {
+            if (args != null && args.Length > 0)
+            {
+                cachedGolds = (long)args[0];
+            }
         }
 
         //protected override void Update()
@@ -115,7 +128,8 @@ namespace HotUpdate
         public void OnLeftReceberBtn()
         {
             CoreEntry.gAudioMgr.PlayUISound(46);
-            var num = float.Parse(ToolUtil.ShowF2Num(MainUIModel.Instance.Golds), new CultureInfo("en"));
+            // Use cached gold value instead of reading directly from MainUIModel
+            var num = float.Parse(ToolUtil.ShowF2Num(cachedGolds), new CultureInfo("en"));
             if (num >= 2)
             {
                 ToolUtil.FloattingText("Disponível quando seu saldo for inferior a R$ 2", this.transform);

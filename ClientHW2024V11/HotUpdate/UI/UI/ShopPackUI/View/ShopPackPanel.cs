@@ -15,6 +15,7 @@ namespace HotUpdate
         List<Transform> tempList = new List<Transform>();
         ScrollRect scrollRect;
         private List<List<cfg.Game.Shop_Config>> roomList = new List<List<cfg.Game.Shop_Config>>();
+        private long cachedGolds; // Cache gold value from UPDATE_GOLD message
         protected override void Awake()
         {
             base.Awake();
@@ -105,7 +106,8 @@ namespace HotUpdate
             UnRegisterListener();
             scrollRect.enabled = true;
             scrollRect.verticalNormalizedPosition = 1;
-            var num = float.Parse(ToolUtil.ShowF2Num(MainUIModel.Instance.Golds));
+            // Use cached gold value instead of reading directly from MainUIModel
+            var num = float.Parse(ToolUtil.ShowF2Num(cachedGolds));
 
             if (num < 5000 && MainUIModel.Instance.CurrnetAlmsCount < MainUIModel.Instance.AlmsCount)
             {
@@ -118,11 +120,23 @@ namespace HotUpdate
         public void RegisterListener()
         {
             m_Btn_Close.onClick.AddListener(OnCloseBtn);
+            Message.AddListener(MessageName.UPDATE_GOLD, OnGoldUpdated);
+            // Initialize cached gold value
+            cachedGolds = MainUIModel.Instance.Golds;
         }
 
         public void UnRegisterListener()
         {
             m_Btn_Close.onClick.RemoveListener(OnCloseBtn);
+            Message.RemoveListener(MessageName.UPDATE_GOLD, OnGoldUpdated);
+        }
+
+        private void OnGoldUpdated(params object[] args)
+        {
+            if (args != null && args.Length > 0)
+            {
+                cachedGolds = (long)args[0];
+            }
         }
         #endregion
 
