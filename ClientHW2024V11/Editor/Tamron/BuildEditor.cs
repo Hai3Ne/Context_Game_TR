@@ -64,7 +64,7 @@ namespace SEZSJ
         private string _turboId = "";
         private string _turboName = "";
         private string _dyId = "";
-        private string _manifestPackageName = "";
+        private string _packageName = "";
 
         // Build info
         private string _lastBuildPath = "";
@@ -319,11 +319,20 @@ namespace SEZSJ
 
             GUILayout.Space(10);
 
-            // Manifest Package Name
+            // Package Name
             EditorGUILayout.BeginHorizontal();
-            GUILayout.Label("Manifest Package:", GUILayout.Width(150));
-            _manifestPackageName = EditorGUILayout.TextField(_manifestPackageName);
+            GUILayout.Label("Package Name:", GUILayout.Width(150));
+            _packageName = EditorGUILayout.TextField(_packageName);
+
+            // Sync to Unity button
+            if (GUILayout.Button("Sync to Unity", GUILayout.Width(100)))
+            {
+                SyncPackageNameToUnity();
+            }
             EditorGUILayout.EndHorizontal();
+
+            GUILayout.Space(2);
+            EditorGUILayout.HelpBox("This will update both AndroidManifest.xml and Unity PlayerSettings.", MessageType.Info);
 
             GUILayout.Space(5);
 
@@ -356,15 +365,15 @@ namespace SEZSJ
             GUILayout.Label("AndroidManifest.xml Preview:", EditorStyles.boldLabel);
             GUILayout.Space(5);
 
-            GUILayout.Label($"package=\"{_manifestPackageName}\"", EditorStyles.miniLabel);
+            GUILayout.Label($"package=\"{_packageName}\"", EditorStyles.miniLabel);
             GUILayout.Label($"turboid value=\"{_turboId}\"", EditorStyles.miniLabel);
             GUILayout.Label($"turboname value=\"{_turboName}\"", EditorStyles.miniLabel);
             GUILayout.Label($"dyid value=\"{_dyId}\"", EditorStyles.miniLabel);
 
             GUILayout.Space(5);
             GUILayout.Label("WXEntry Activities:", EditorStyles.miniLabel);
-            GUILayout.Label($"  {_manifestPackageName}.wxapi.WXEntryActivity", EditorStyles.miniLabel);
-            GUILayout.Label($"  {_manifestPackageName}.wxapi.WXPayEntryActivity", EditorStyles.miniLabel);
+            GUILayout.Label($"  {_packageName}.wxapi.WXEntryActivity", EditorStyles.miniLabel);
+            GUILayout.Label($"  {_packageName}.wxapi.WXPayEntryActivity", EditorStyles.miniLabel);
 
             EditorGUILayout.EndVertical();
 
@@ -593,6 +602,9 @@ namespace SEZSJ
         {
             try
             {
+                // Sync package name to Unity PlayerSettings
+                SyncPackageNameToUnity();
+
                 // Ensure Plugins/Android directory exists
                 string pluginsAndroidPath = Path.Combine(Application.dataPath, "Plugins/Android");
                 if (!Directory.Exists(pluginsAndroidPath))
@@ -623,25 +635,25 @@ namespace SEZSJ
                 manifestContent = ReplaceManifestValue(manifestContent, "dyid", _dyId);
 
                 // Replace package name
-                if (!string.IsNullOrEmpty(_manifestPackageName))
+                if (!string.IsNullOrEmpty(_packageName))
                 {
                     manifestContent = Regex.Replace(
                         manifestContent,
                         @"package=""[^""]+""",
-                        match => $"package=\"{_manifestPackageName}\""
+                        match => $"package=\"{_packageName}\""
                     );
 
                     // Replace wxapi activities
                     manifestContent = Regex.Replace(
                         manifestContent,
                         @"android:name=""[^""]*\.wxapi\.WXEntryActivity""",
-                        match => $"android:name=\"{_manifestPackageName}.wxapi.WXEntryActivity\""
+                        match => $"android:name=\"{_packageName}.wxapi.WXEntryActivity\""
                     );
 
                     manifestContent = Regex.Replace(
                         manifestContent,
                         @"android:name=""[^""]*\.wxapi\.WXPayEntryActivity""",
-                        match => $"android:name=\"{_manifestPackageName}.wxapi.WXPayEntryActivity\""
+                        match => $"android:name=\"{_packageName}.wxapi.WXPayEntryActivity\""
                     );
                 }
 
@@ -655,6 +667,15 @@ namespace SEZSJ
             {
                 Debug.LogError($"Error updating AndroidManifest.xml: {e.Message}");
                 EditorUtility.DisplayDialog("Manifest Error", $"Error updating manifest:\n{e.Message}", "OK");
+            }
+        }
+
+        private void SyncPackageNameToUnity()
+        {
+            if (!string.IsNullOrEmpty(_packageName) && _packageName != PlayerSettings.applicationIdentifier)
+            {
+                PlayerSettings.applicationIdentifier = _packageName;
+                Debug.Log($"Unity Package Name updated to: {_packageName}");
             }
         }
 
@@ -738,20 +759,20 @@ namespace SEZSJ
                     Match packageMatch = Regex.Match(manifestContent, @"package=""([^""]+)""");
                     if (packageMatch.Success)
                     {
-                        _manifestPackageName = packageMatch.Groups[1].Value;
+                        _packageName = packageMatch.Groups[1].Value;
                     }
 
                     Debug.Log("Loaded manifest defaults successfully");
                 }
                 else
                 {
-                    // Use default values
-                    _manifestPackageName = PlayerSettings.applicationIdentifier;
+                    // Use default values from Unity PlayerSettings
+                    _packageName = PlayerSettings.applicationIdentifier;
                     _turboId = "";
                     _turboName = "";
                     _dyId = "";
 
-                    Debug.LogWarning($"AndroidManifest.xml not found at {manifestPath}. Using default values.");
+                    Debug.LogWarning($"AndroidManifest.xml not found at {manifestPath}. Using Unity PlayerSettings.");
                 }
             }
             catch (Exception e)
@@ -776,7 +797,7 @@ namespace SEZSJ
             _turboId = EditorPrefs.GetString("BuildEditor_TurboId", "");
             _turboName = EditorPrefs.GetString("BuildEditor_TurboName", "");
             _dyId = EditorPrefs.GetString("BuildEditor_DyId", "");
-            _manifestPackageName = EditorPrefs.GetString("BuildEditor_ManifestPackage", PlayerSettings.applicationIdentifier);
+            _packageName = EditorPrefs.GetString("BuildEditor_PackageName", PlayerSettings.applicationIdentifier);
         }
 
         private void SavePreferences()
@@ -787,7 +808,7 @@ namespace SEZSJ
             EditorPrefs.SetString("BuildEditor_TurboId", _turboId);
             EditorPrefs.SetString("BuildEditor_TurboName", _turboName);
             EditorPrefs.SetString("BuildEditor_DyId", _dyId);
-            EditorPrefs.SetString("BuildEditor_ManifestPackage", _manifestPackageName);
+            EditorPrefs.SetString("BuildEditor_PackageName", _packageName);
         }
 
         private string FormatBytes(long bytes)
