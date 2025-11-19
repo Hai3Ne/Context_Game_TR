@@ -633,20 +633,20 @@ namespace SEZSJ
                     manifestContent = Regex.Replace(
                         manifestContent,
                         @"package=""[^""]+""",
-                        $"package=\"{_manifestPackageName}\""
+                        match => $"package=\"{_manifestPackageName}\""
                     );
 
                     // Replace wxapi activities
                     manifestContent = Regex.Replace(
                         manifestContent,
                         @"android:name=""[^""]*\.wxapi\.WXEntryActivity""",
-                        $"android:name=\"{_manifestPackageName}.wxapi.WXEntryActivity\""
+                        match => $"android:name=\"{_manifestPackageName}.wxapi.WXEntryActivity\""
                     );
 
                     manifestContent = Regex.Replace(
                         manifestContent,
                         @"android:name=""[^""]*\.wxapi\.WXPayEntryActivity""",
-                        $"android:name=\"{_manifestPackageName}.wxapi.WXPayEntryActivity\""
+                        match => $"android:name=\"{_manifestPackageName}.wxapi.WXPayEntryActivity\""
                     );
                 }
 
@@ -667,7 +667,10 @@ namespace SEZSJ
         {
             // Pattern to match: android:name="metaName" android:value="anything"
             string pattern = $@"(android:name=""{metaName}""\s+android:value="")[^""]*("")";
-            return Regex.Replace(content, pattern, $"$1{newValue}$2");
+            return Regex.Replace(content, pattern, match =>
+            {
+                return match.Groups[1].Value + newValue + match.Groups[2].Value;
+            });
         }
 
         private void ConfigureKeystore()
