@@ -31,6 +31,7 @@ using System.IO;
 using System.Xml;
 using UnityEngine;
 using UnityEditor;
+using UnityEditor.Build.Reporting;
 
 namespace SEZSJ
 {
@@ -376,7 +377,7 @@ namespace SEZSJ
 
             try
             {
-                string result = BuildPipeline.BuildPlayer(
+                BuildReport report = BuildPipeline.BuildPlayer(
                     GetBuildScenes(),
                     outputPath,
                     BuildTarget.Android,
@@ -385,7 +386,7 @@ namespace SEZSJ
 
                 EditorUtility.ClearProgressBar();
 
-                if (string.IsNullOrEmpty(result))
+                if (report.summary.result == BuildResult.Succeeded)
                 {
                     _lastBuildPath = outputPath;
 
@@ -407,7 +408,8 @@ namespace SEZSJ
                 }
                 else
                 {
-                    EditorUtility.DisplayDialog("Build Failed", $"Build failed with error:\n{result}", "OK");
+                    string errorMsg = report.summary.result.ToString();
+                    EditorUtility.DisplayDialog("Build Failed", $"Build failed with result: {errorMsg}", "OK");
                 }
             }
             catch (Exception e)
