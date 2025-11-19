@@ -14,10 +14,11 @@
  * Features:
  *   - Optional asset bundle export before build
  *   - SDK type and channel configuration
- *   - Automated AndroidManifest.xml modification
+ *   - AndroidManifest.xml modification via string replacement
  *   - Keystore configuration for APK signing
  *   - Custom APK naming convention
  *   - Build size estimation
+ *   - Package settings configuration (turboid, turboname, dyid, wxapi)
  *
  * Usage:
  *   Unity Editor → Tools → Tamron → Build Editor
@@ -28,7 +29,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Xml;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEditor;
 using UnityEditor.Build.Reporting;
@@ -45,6 +46,7 @@ namespace SEZSJ
         private const string KEYSTORE_ALIAS = "testalias";
         private const string KEYSTORE_PASSWORD = "123456";
         private const string MANIFEST_PATH = "Assets/Plugins/Android/AndroidManifest.xml";
+        private const string OUTPUT_FOLDER = "AndroidApks";
 
         private static readonly int[] NUMBER_TYPE_OPTIONS = { 1, 1000, 2000, 9999 };
         private static readonly string[] NUMBER_TYPE_LABELS = { "1", "1000", "2000", "9999" };
@@ -55,6 +57,14 @@ namespace SEZSJ
         private int _selectedNumberTypeIndex = 0;
         private string _apkVersionNumber = "";
         private Vector2 _scrollPosition = Vector2.zero;
+        private int _selectedTab = 0;
+        private readonly string[] _tabNames = { "Build Settings", "Package Settings" };
+
+        // Package Settings
+        private string _turboId = "";
+        private string _turboName = "";
+        private string _dyId = "";
+        private string _manifestPackageName = "";
 
         // Build info
         private string _lastBuildPath = "";
@@ -68,6 +78,8 @@ namespace SEZSJ
             public static GUIStyle sectionHeaderStyle;
             public static GUIStyle boxStyle;
             public static GUIStyle buildButtonStyle;
+            public static GUIStyle tabButtonStyle;
+            public static GUIStyle tabButtonActiveStyle;
 
             public static void Initialize()
             {
@@ -100,6 +112,20 @@ namespace SEZSJ
                     fontStyle = FontStyle.Bold,
                     padding = new RectOffset(10, 10, 12, 12)
                 };
+
+                tabButtonStyle = new GUIStyle(GUI.skin.button)
+                {
+                    fontSize = 12,
+                    padding = new RectOffset(10, 10, 8, 8)
+                };
+
+                tabButtonActiveStyle = new GUIStyle(GUI.skin.button)
+                {
+                    fontSize = 12,
+                    fontStyle = FontStyle.Bold,
+                    padding = new RectOffset(10, 10, 8, 8),
+                    normal = { background = Texture2D.grayTexture }
+                };
             }
         }
         #endregion
@@ -109,7 +135,7 @@ namespace SEZSJ
         static void OpenWindow()
         {
             var window = GetWindow<BuildEditor>(true, "Build Editor");
-            window.minSize = new Vector2(600, 550);
+            window.minSize = new Vector2(650, 650);
             window.Show();
         }
         #endregion
@@ -118,6 +144,7 @@ namespace SEZSJ
         private void OnEnable()
         {
             LoadPreferences();
+            LoadManifestDefaults();
         }
 
         private void OnDisable()
@@ -130,13 +157,21 @@ namespace SEZSJ
             Styles.Initialize();
 
             DrawHeader();
+            DrawTabs();
 
             _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
 
-            DrawPreBuildOptionsSection();
-            DrawBuildSettingsSection();
-            DrawKeystoreSettingsSection();
-            DrawBuildInfoSection();
+            if (_selectedTab == 0)
+            {
+                DrawPreBuildOptionsSection();
+                DrawBuildSettingsSection();
+                DrawKeystoreSettingsSection();
+                DrawBuildInfoSection();
+            }
+            else if (_selectedTab == 1)
+            {
+                DrawPackageSettingsSection();
+            }
 
             EditorGUILayout.EndScrollView();
 
@@ -151,6 +186,37 @@ namespace SEZSJ
             GUILayout.Space(10);
             GUILayout.Label("BUILD EDITOR TOOL", Styles.headerStyle);
             GUILayout.Space(10);
+            DrawSeparator();
+        }
+
+        private void DrawTabs()
+        {
+            GUILayout.Space(5);
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+
+            for (int i = 0; i < _tabNames.Length; i++)
+            {
+                GUIStyle style = (_selectedTab == i) ? Styles.tabButtonActiveStyle : Styles.tabButtonStyle;
+                Color originalBg = GUI.backgroundColor;
+
+                if (_selectedTab == i)
+                {
+                    GUI.backgroundColor = new Color(0.4f, 0.7f, 1f);
+                }
+
+                if (GUILayout.Button(_tabNames[i], style, GUILayout.Width(150), GUILayout.Height(30)))
+                {
+                    _selectedTab = i;
+                }
+
+                GUI.backgroundColor = originalBg;
+                GUILayout.Space(5);
+            }
+
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.EndHorizontal();
+            GUILayout.Space(5);
             DrawSeparator();
         }
 
@@ -227,7 +293,85 @@ namespace SEZSJ
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
             GUILayout.Label("APK Name Preview:", EditorStyles.miniLabel);
             GUILayout.Label($"  {apkName}", EditorStyles.boldLabel);
+            GUILayout.Label($"Output: {OUTPUT_FOLDER}/{apkName}", EditorStyles.miniLabel);
             EditorGUILayout.EndVertical();
+
+            GUILayout.Space(5);
+            EditorGUILayout.EndVertical();
+        }
+
+        private void DrawPackageSettingsSection()
+        {
+            EditorGUILayout.BeginVertical(Styles.boxStyle);
+
+            GUILayout.Label("PACKAGE SETTINGS", Styles.sectionHeaderStyle);
+            GUILayout.Space(5);
+            DrawSeparator();
+            GUILayout.Space(10);
+
+            EditorGUILayout.HelpBox(
+                "These settings will be applied to AndroidManifest.xml during build.",
+                MessageType.Info
+            );
+
+            GUILayout.Space(10);
+
+            // Manifest Package Name
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.Label("Manifest Package:", GUILayout.Width(150));
+            _manifestPackageName = EditorGUILayout.TextField(_manifestPackageName);
+            EditorGUILayout.EndHorizontal();
+
+            GUILayout.Space(5);
+
+            // Turbo ID (kaishou id)
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.Label("Turbo ID (kaishou id):", GUILayout.Width(150));
+            _turboId = EditorGUILayout.TextField(_turboId);
+            EditorGUILayout.EndHorizontal();
+
+            GUILayout.Space(5);
+
+            // Turbo Name (kaishou name)
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.Label("Turbo Name (kaishou name):", GUILayout.Width(150));
+            _turboName = EditorGUILayout.TextField(_turboName);
+            EditorGUILayout.EndHorizontal();
+
+            GUILayout.Space(5);
+
+            // DY ID (douyin id)
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.Label("DY ID (douyin id):", GUILayout.Width(150));
+            _dyId = EditorGUILayout.TextField(_dyId);
+            EditorGUILayout.EndHorizontal();
+
+            GUILayout.Space(15);
+
+            // Preview section
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            GUILayout.Label("AndroidManifest.xml Preview:", EditorStyles.boldLabel);
+            GUILayout.Space(5);
+
+            GUILayout.Label($"package=\"{_manifestPackageName}\"", EditorStyles.miniLabel);
+            GUILayout.Label($"turboid value=\"{_turboId}\"", EditorStyles.miniLabel);
+            GUILayout.Label($"turboname value=\"{_turboName}\"", EditorStyles.miniLabel);
+            GUILayout.Label($"dyid value=\"{_dyId}\"", EditorStyles.miniLabel);
+
+            GUILayout.Space(5);
+            GUILayout.Label("WXEntry Activities:", EditorStyles.miniLabel);
+            GUILayout.Label($"  {_manifestPackageName}.wxapi.WXEntryActivity", EditorStyles.miniLabel);
+            GUILayout.Label($"  {_manifestPackageName}.wxapi.WXPayEntryActivity", EditorStyles.miniLabel);
+
+            EditorGUILayout.EndVertical();
+
+            GUILayout.Space(10);
+
+            // Reload defaults button
+            if (GUILayout.Button("Reload Defaults from AndroidManifest.xml", GUILayout.Height(30)))
+            {
+                LoadManifestDefaults();
+            }
 
             GUILayout.Space(5);
             EditorGUILayout.EndVertical();
@@ -281,11 +425,12 @@ namespace SEZSJ
             GUILayout.Label($"Package Name: {PlayerSettings.applicationIdentifier}", EditorStyles.miniLabel);
             GUILayout.Label($"Version: {PlayerSettings.bundleVersion}", EditorStyles.miniLabel);
             GUILayout.Label($"Bundle Version Code: {PlayerSettings.Android.bundleVersionCode}", EditorStyles.miniLabel);
+            GUILayout.Label($"Output Folder: {OUTPUT_FOLDER}/", EditorStyles.miniLabel);
 
             if (_estimatedSize > 0)
             {
                 GUILayout.Space(5);
-                GUILayout.Label($"Estimated Size: {FormatBytes(_estimatedSize)}", EditorStyles.miniLabel);
+                GUILayout.Label($"Last Build Size: {FormatBytes(_estimatedSize)}", EditorStyles.miniLabel);
             }
 
             EditorGUILayout.EndVertical();
@@ -371,9 +516,22 @@ namespace SEZSJ
             // Step 4: Build APK
             EditorUtility.DisplayProgressBar("Building APK", "Building APK file...", 0.5f);
 
+            // Create output directory
+            string outputDir = Path.Combine(Application.dataPath.Replace("Assets", ""), OUTPUT_FOLDER);
+            if (!Directory.Exists(outputDir))
+            {
+                Directory.CreateDirectory(outputDir);
+            }
+
             string packageName = PlayerSettings.applicationIdentifier;
             string apkName = $"{packageName}-{_apkVersionNumber}.apk";
-            string outputPath = Path.Combine(Application.dataPath.Replace("Assets", ""), apkName);
+            string outputPath = Path.Combine(outputDir, apkName);
+
+            // Delete existing file if exists (overwrite)
+            if (File.Exists(outputPath))
+            {
+                File.Delete(outputPath);
+            }
 
             try
             {
@@ -390,7 +548,7 @@ namespace SEZSJ
                 {
                     _lastBuildPath = outputPath;
 
-                    // Estimate size
+                    // Get actual size
                     if (File.Exists(outputPath))
                     {
                         FileInfo fileInfo = new FileInfo(outputPath);
@@ -399,7 +557,7 @@ namespace SEZSJ
 
                     EditorUtility.DisplayDialog(
                         "Build Successful",
-                        $"APK built successfully!\n\nOutput: {apkName}\nSize: {FormatBytes(_estimatedSize)}",
+                        $"APK built successfully!\n\nOutput: {OUTPUT_FOLDER}/{apkName}\nSize: {FormatBytes(_estimatedSize)}",
                         "OK"
                     );
 
@@ -449,45 +607,53 @@ namespace SEZSJ
 
                 string manifestPath = Path.Combine(Application.dataPath.Replace("Assets", ""), MANIFEST_PATH);
 
+                if (!File.Exists(manifestPath))
+                {
+                    Debug.LogWarning($"AndroidManifest.xml not found at {manifestPath}. Skipping manifest update.");
+                    return;
+                }
+
                 // Get SDK configuration
                 int numberType = NUMBER_TYPE_OPTIONS[_selectedNumberTypeIndex];
                 var sdkConfig = GetSDKConfiguration(numberType);
 
-                XmlDocument doc = new XmlDocument();
+                // Read manifest as text
+                string manifestContent = File.ReadAllText(manifestPath);
 
-                // Create or load manifest
-                if (File.Exists(manifestPath))
+                // Replace values using string replacement to preserve formatting
+                manifestContent = ReplaceManifestValue(manifestContent, "sdkType", sdkConfig.sdkType.ToString());
+                manifestContent = ReplaceManifestValue(manifestContent, "sdkChannel", sdkConfig.sdkChannel.ToString());
+                manifestContent = ReplaceManifestValue(manifestContent, "turboid", _turboId);
+                manifestContent = ReplaceManifestValue(manifestContent, "turboname", _turboName);
+                manifestContent = ReplaceManifestValue(manifestContent, "dyid", _dyId);
+
+                // Replace package name
+                if (!string.IsNullOrEmpty(_manifestPackageName))
                 {
-                    doc.Load(manifestPath);
+                    manifestContent = Regex.Replace(
+                        manifestContent,
+                        @"package=""[^""]+""",
+                        $"package=\"{_manifestPackageName}\""
+                    );
+
+                    // Replace wxapi activities
+                    manifestContent = Regex.Replace(
+                        manifestContent,
+                        @"android:name=""[^""]*\.wxapi\.WXEntryActivity""",
+                        $"android:name=\"{_manifestPackageName}.wxapi.WXEntryActivity\""
+                    );
+
+                    manifestContent = Regex.Replace(
+                        manifestContent,
+                        @"android:name=""[^""]*\.wxapi\.WXPayEntryActivity""",
+                        $"android:name=\"{_manifestPackageName}.wxapi.WXPayEntryActivity\""
+                    );
                 }
-                else
-                {
-                    // Create basic manifest structure
-                    CreateBasicManifest(doc);
-                }
 
-                XmlNamespaceManager nsmgr = new XmlNamespaceManager(doc.NameTable);
-                nsmgr.AddNamespace("android", "http://schemas.android.com/apk/res/android");
+                // Write back to file
+                File.WriteAllText(manifestPath, manifestContent);
 
-                // Get or create application node
-                XmlNode applicationNode = doc.SelectSingleNode("//application");
-                if (applicationNode == null)
-                {
-                    XmlNode manifestNode = doc.SelectSingleNode("//manifest");
-                    applicationNode = doc.CreateElement("application");
-                    manifestNode.AppendChild(applicationNode);
-                }
-
-                // Update or create meta-data for sdkType
-                UpdateOrCreateMetaData(doc, applicationNode, "sdkType", sdkConfig.sdkType.ToString());
-
-                // Update or create meta-data for sdkChannel
-                UpdateOrCreateMetaData(doc, applicationNode, "sdkChannel", sdkConfig.sdkChannel.ToString());
-
-                // Save the document
-                doc.Save(manifestPath);
-
-                Debug.Log($"AndroidManifest.xml updated: sdkType={sdkConfig.sdkType}, sdkChannel={sdkConfig.sdkChannel}");
+                Debug.Log($"AndroidManifest.xml updated successfully");
                 AssetDatabase.Refresh();
             }
             catch (Exception e)
@@ -497,55 +663,11 @@ namespace SEZSJ
             }
         }
 
-        private void CreateBasicManifest(XmlDocument doc)
+        private string ReplaceManifestValue(string content, string metaName, string newValue)
         {
-            XmlDeclaration declaration = doc.CreateXmlDeclaration("1.0", "utf-8", null);
-            doc.AppendChild(declaration);
-
-            XmlElement manifest = doc.CreateElement("manifest");
-            manifest.SetAttribute("xmlns:android", "http://schemas.android.com/apk/res/android");
-            manifest.SetAttribute("package", PlayerSettings.applicationIdentifier);
-            doc.AppendChild(manifest);
-
-            XmlElement application = doc.CreateElement("application");
-            manifest.AppendChild(application);
-        }
-
-        private void UpdateOrCreateMetaData(XmlDocument doc, XmlNode applicationNode, string metaName, string metaValue)
-        {
-            // Find existing meta-data node
-            XmlNode metaDataNode = null;
-            foreach (XmlNode child in applicationNode.ChildNodes)
-            {
-                if (child.Name == "meta-data")
-                {
-                    XmlAttribute nameAttr = child.Attributes["android:name"];
-                    if (nameAttr != null && nameAttr.Value == metaName)
-                    {
-                        metaDataNode = child;
-                        break;
-                    }
-                }
-            }
-
-            if (metaDataNode == null)
-            {
-                // Create new meta-data node
-                metaDataNode = doc.CreateElement("meta-data");
-                XmlAttribute nameAttr = doc.CreateAttribute("android", "name", "http://schemas.android.com/apk/res/android");
-                nameAttr.Value = metaName;
-                metaDataNode.Attributes.Append(nameAttr);
-                applicationNode.AppendChild(metaDataNode);
-            }
-
-            // Update or create value attribute
-            XmlAttribute valueAttr = metaDataNode.Attributes["android:value"];
-            if (valueAttr == null)
-            {
-                valueAttr = doc.CreateAttribute("android", "value", "http://schemas.android.com/apk/res/android");
-                metaDataNode.Attributes.Append(valueAttr);
-            }
-            valueAttr.Value = metaValue;
+            // Pattern to match: android:name="metaName" android:value="anything"
+            string pattern = $@"(android:name=""{metaName}""\s+android:value="")[^""]*("")";
+            return Regex.Replace(content, pattern, $"$1{newValue}$2");
         }
 
         private void ConfigureKeystore()
@@ -599,11 +721,64 @@ namespace SEZSJ
         #endregion
 
         #region Helper Methods
+        private void LoadManifestDefaults()
+        {
+            try
+            {
+                string manifestPath = Path.Combine(Application.dataPath.Replace("Assets", ""), MANIFEST_PATH);
+
+                if (File.Exists(manifestPath))
+                {
+                    string manifestContent = File.ReadAllText(manifestPath);
+
+                    // Extract values using regex
+                    _turboId = ExtractManifestValue(manifestContent, "turboid");
+                    _turboName = ExtractManifestValue(manifestContent, "turboname");
+                    _dyId = ExtractManifestValue(manifestContent, "dyid");
+
+                    // Extract package name
+                    Match packageMatch = Regex.Match(manifestContent, @"package=""([^""]+)""");
+                    if (packageMatch.Success)
+                    {
+                        _manifestPackageName = packageMatch.Groups[1].Value;
+                    }
+
+                    Debug.Log("Loaded manifest defaults successfully");
+                }
+                else
+                {
+                    // Use default values
+                    _manifestPackageName = PlayerSettings.applicationIdentifier;
+                    _turboId = "";
+                    _turboName = "";
+                    _dyId = "";
+
+                    Debug.LogWarning($"AndroidManifest.xml not found at {manifestPath}. Using default values.");
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Error loading manifest defaults: {e.Message}");
+            }
+        }
+
+        private string ExtractManifestValue(string content, string metaName)
+        {
+            // Pattern to match: android:name="metaName" android:value="value"
+            string pattern = $@"android:name=""{metaName}""\s+android:value=""([^""]*)""";
+            Match match = Regex.Match(content, pattern);
+            return match.Success ? match.Groups[1].Value : "";
+        }
+
         private void LoadPreferences()
         {
             _exportAssetsBeforeBuild = EditorPrefs.GetBool("BuildEditor_ExportAssets", false);
             _selectedNumberTypeIndex = EditorPrefs.GetInt("BuildEditor_NumberTypeIndex", 0);
             _apkVersionNumber = EditorPrefs.GetString("BuildEditor_APKVersionNumber", "");
+            _turboId = EditorPrefs.GetString("BuildEditor_TurboId", "");
+            _turboName = EditorPrefs.GetString("BuildEditor_TurboName", "");
+            _dyId = EditorPrefs.GetString("BuildEditor_DyId", "");
+            _manifestPackageName = EditorPrefs.GetString("BuildEditor_ManifestPackage", PlayerSettings.applicationIdentifier);
         }
 
         private void SavePreferences()
@@ -611,6 +786,10 @@ namespace SEZSJ
             EditorPrefs.SetBool("BuildEditor_ExportAssets", _exportAssetsBeforeBuild);
             EditorPrefs.SetInt("BuildEditor_NumberTypeIndex", _selectedNumberTypeIndex);
             EditorPrefs.SetString("BuildEditor_APKVersionNumber", _apkVersionNumber);
+            EditorPrefs.SetString("BuildEditor_TurboId", _turboId);
+            EditorPrefs.SetString("BuildEditor_TurboName", _turboName);
+            EditorPrefs.SetString("BuildEditor_DyId", _dyId);
+            EditorPrefs.SetString("BuildEditor_ManifestPackage", _manifestPackageName);
         }
 
         private string FormatBytes(long bytes)
