@@ -93,27 +93,27 @@ public class ComponentAutoBindToolInspector : Editor
     {
         EditorGUILayout.BeginHorizontal();
 
-        if (GUILayout.Button("排序"))
+        if (GUILayout.Button("排序(Sort)"))
         {
             Sort();
         }
 
-        if (GUILayout.Button("全部删除"))
+        if (GUILayout.Button("全部删除(Remove All)"))
         {
             RemoveAll();
         }
 
-        if (GUILayout.Button("删除空引用"))
+        if (GUILayout.Button("删除空引用(Remove Null)"))
         {
             RemoveNull();
         }
 
-        if (GUILayout.Button("自动绑定组件"))
+        if (GUILayout.Button("自动绑定组件(Auto Bind Components)"))
         {
             AutoBindComponent();
         }
 
-        if (GUILayout.Button("生成绑定代码"))
+        if (GUILayout.Button("生成绑定代码(Generate Binding Cod)"))
         {
             GenAutoBindCode();
         }
@@ -260,16 +260,16 @@ public class ComponentAutoBindToolInspector : Editor
     private void DrawSetting()
     {
         EditorGUILayout.BeginHorizontal();
-        m_Namespace.stringValue = EditorGUILayout.TextField(new GUIContent("命名空间："), m_Namespace.stringValue);
-        if (GUILayout.Button("默认设置"))
+        m_Namespace.stringValue = EditorGUILayout.TextField(new GUIContent("命名空间(Namespace)："), m_Namespace.stringValue);
+        if (GUILayout.Button("默认设置(Default Settings)"))
         {
             m_Namespace.stringValue = m_Setting.Namespace;
         }
         EditorGUILayout.EndHorizontal();
 
         EditorGUILayout.BeginHorizontal();
-        m_ClassName.stringValue = EditorGUILayout.TextField(new GUIContent("类名："), m_ClassName.stringValue);
-        if (GUILayout.Button("物体名"))
+        m_ClassName.stringValue = EditorGUILayout.TextField(new GUIContent("类名(Class Name)："), m_ClassName.stringValue);
+        if (GUILayout.Button("物体名(Object Name)"))
         {
             m_ClassName.stringValue = m_Target.gameObject.name;
         }
@@ -278,7 +278,7 @@ public class ComponentAutoBindToolInspector : Editor
         EditorGUILayout.LabelField("代码保存路径：");
         EditorGUILayout.LabelField(m_CodePath.stringValue);
         EditorGUILayout.BeginHorizontal();
-        if (GUILayout.Button("选择路径"))
+        if (GUILayout.Button("选择路径(Select Path)"))
         {
             string temp = m_CodePath.stringValue;
             string path = EditorUtility.OpenFolderPanel("选择代码保存路径", Application.dataPath, "");

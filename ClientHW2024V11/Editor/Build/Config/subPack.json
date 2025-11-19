@@ -1,10 +1,5 @@
 {
-  "subPack": [
-    
-	
-
-
-	  
+ "subPack": [
 	  { "name":"Game700Pack", "id": 5, "paths":[
 	    "Assets/ResData/UI/GameTexture/Game700/1.png",
 		"Assets/ResData/UI/GameTexture/Game700/bbbg.png",
@@ -16,9 +11,6 @@
 		"Assets/ResData/UI/Prefabs/Game700/FirstRes",
 		"Assets/ResData/UI/Sound/Game700"
 	  ] },
-
-
-	  
 	 { "name":"Game1600Pack", "id": 21, "paths":[
 	
 		"Assets/ResData/UI/GameTexture/Game1600/ib_mw_vfx_c_normal/bw_vfx_d_screen_01.png",
@@ -74,7 +66,7 @@
 		"Assets/ResData/UI/Prefabs/Game1600/FirstRes",
 	    "Assets/ResData/UI/Sound/Game1600"
 	  ] },
-       
+      
 	  
-  ]
+ ]
 }

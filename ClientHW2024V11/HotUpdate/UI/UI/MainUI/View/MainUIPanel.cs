@@ -22,7 +22,7 @@ namespace HotUpdate
         
         protected override void Awake()
         {
-            base.Awake();
+            base.Awake();   
             GetBindComponents(gameObject);
             MainUIModel.Instance.getRoomList();
 
@@ -179,18 +179,14 @@ namespace HotUpdate
             CoreEntry.gEventMgr.AddListener(GameEvent.GE_ClosePanel, CloseOnePanel);
             m_Btn_Wealth.onClick.AddListener(ExchangeCardPanel);
             Message.AddListener(MessageName.REALName, HandleGuide);
-            Message.AddListener(MessageName.IDENTITY_CARD_CLOSED, OnIdentityCardClosed);
+            Message.AddListener(MessageName.IDENTITY_CARD, OnIdentityCard);
         }
 
         private void CloseOnePanel(GameEvent ge, EventParameter parameter)
         {
             
         }
-
-
-
-      
-
+        
         public void UnRegisterListener()
         {
 
@@ -223,7 +219,7 @@ namespace HotUpdate
             CoreEntry.gEventMgr.RemoveListener(GameEvent.GE_ClosePanel, CloseOnePanel);
             m_Btn_Wealth.onClick.RemoveListener(ExchangeCardPanel);
             Message.RemoveListener(MessageName.REALName, HandleGuide);
-            Message.RemoveListener(MessageName.IDENTITY_CARD_CLOSED, OnIdentityCardClosed);
+            Message.RemoveListener(MessageName.IDENTITY_CARD, OnIdentityCard);
         }
 
 
@@ -241,9 +237,9 @@ namespace HotUpdate
             //     MainUICtrl.Instance.OpenGuidePanel(m_Rect_TipsBgImage2, OnGame2Btn, 0);
             // }
         }
-        private void OnIdentityCardClosed()
+        private void OnIdentityCard()
         {
-            if (bShowGuideAfterIdentityCard)
+            if (bShowGuideAfterIdentityCard )
             {
                 bShowGuideAfterIdentityCard = false;
                 GuideModel.Instance.SetFinish(0);

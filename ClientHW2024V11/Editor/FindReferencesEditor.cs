@@ -10,7 +10,7 @@ using System.Collections.Generic;
 public class FindReferencesEditor
 {
 
-    [MenuItem("Assets/查找图片被预设引用", false, 10)]
+    [MenuItem("Assets/查找图片被预设引用(Find Images Usages)", false, 10)]
     static private void Find()
     {
         EditorSettings.serializationMode = SerializationMode.ForceText;
@@ -27,7 +27,7 @@ public class FindReferencesEditor
             {
                 string file = files[startIndex];
 
-                bool isCancel = EditorUtility.DisplayCancelableProgressBar("匹配资源中", file, (float)startIndex / (float)files.Length);
+                bool isCancel = EditorUtility.DisplayCancelableProgressBar("匹配资源中 (Use for)", file, (float)startIndex / (float)files.Length);
 
                 if (Regex.IsMatch(File.ReadAllText(file), guid))
                 {
@@ -40,7 +40,7 @@ public class FindReferencesEditor
                     EditorUtility.ClearProgressBar();
                     EditorApplication.update = null;
                     startIndex = 0;
-                    Debug.Log("匹配结束");
+                    UnityEngine.Debug.Log("匹配结束(Done)");
                 }
 
             };

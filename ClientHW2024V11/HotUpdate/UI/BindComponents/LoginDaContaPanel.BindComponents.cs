@@ -15,7 +15,7 @@ namespace HotUpdate
         private Image m_Img_eyeS;
         private Button m_Btn_Login;
         private Button m_Btn_Esqueceu;
-        private Toggle m_Toggle_SaveData;
+        private Toggle m_Tog_SaveData;
 
         private void GetBindComponents(GameObject go)
         {
@@ -31,7 +31,7 @@ namespace HotUpdate
             m_Img_eyeS = autoBindTool.GetBindComponent<Image>(7);
             m_Btn_Login = autoBindTool.GetBindComponent<Button>(8);
             m_Btn_Esqueceu = autoBindTool.GetBindComponent<Button>(9);
-            m_Toggle_SaveData = autoBindTool.GetBindComponent<Toggle>(10);
+            m_Tog_SaveData = autoBindTool.GetBindComponent<Toggle>(10);
         }
     }
 }

@@ -11,9 +11,9 @@ using UnityEngine;
 namespace HotUpdate
 {
     [NetHandler]
-    public class LoginCtrl : Singleton<LoginCtrl>
+    public class LoginCtrl : Singleton<LoginCtrl> 
     {
-        private string ip = "18.162.135.99"; // main"16.162.236.155";// test"43.199.166.178";//"18.163.221.99"; //"192.168.0.161"; //"18.163.221.99";//  "192.168.0.123";//    "116.62.137.36";////"54.94.240.56";//177.71.192.232"192.168.0.123";//"116.62.137.36";//"116.62.137.36";//"116.62.137.36";//
+        private string ip = "18.162.135.99"; // main"16.162.236.155";// test"43.199.166.178";//"18.163.221.99"; //"192.168.0.161"; //"18.166.194.158";//  "192.168.0.123";//    "116.62.137.36";////"54.94.240.56";//177.71.192.232"192.168.0.123";//"116.62.137.36";//"116.62.137.36";//"116.62.137.36";//
         private short port = 8200;
 
         public bool isEnterGame = false;
@@ -211,8 +211,8 @@ UICtrl.Instance.OpenView("LoginPanel");
                     ip = HotStart.ins.m_ip;
 
                 }
-                // NetLogicGame.Instance.connectGame(ip,port);
-                NetLogicGame.Instance.connectGame("192.168.0.161",8200);
+                NetLogicGame.Instance.connectGame(ip,port);
+                // NetLogicGame.Instance.connectGame("192.168.0.161",8200);
             }
         }
 
@@ -255,6 +255,7 @@ UICtrl.Instance.OpenView("LoginPanel");
                         var token = PlayerPrefs.GetString("WxLoginToken");
                         var code = ToolUtil.GetRandomCode(12);
                         var hash = ToolUtil.HMACSHA1(code, pwdKey);
+                        loginType = 2;
                         SendReqcLogin("", "", "", 101, 0, 0, code, hash, "", "3.0.1", channelId + "", "", "", "", token);
                     }
                     else if (PlayerPrefs.HasKey("GuestLoginToken"))
@@ -262,19 +263,57 @@ UICtrl.Instance.OpenView("LoginPanel");
                         var token = PlayerPrefs.GetString("GuestLoginToken");
                         var code = ToolUtil.GetRandomCode(12);
                         var hash = ToolUtil.HMACSHA1(code, pwdKey);
+                        loginType = 0;
                         SendReqcLogin("", "", "", 101, 0, 0, code, hash, "", "3.0.1", channelId + "", "", "", "", token);
+                    }
+                    else if (PlayerPrefs.HasKey("PhoneLoginToken"))
+                    {
+                        var phoneToken = PlayerPrefs.GetString("PhoneLoginToken");
+                        var parts = phoneToken.Split('|');
+                        if (parts.Length == 2)
+                        {
+                            string phone = parts[0];
+                            string pwd = parts[1];
+                            var code = ToolUtil.GetRandomCode(12);
+                            var hash = ToolUtil.HMACSHA1(code, pwdKey);
+                            SendPhoneLogin(phone, pwd, "", "", 101, 0, 0, code, hash, "", "3.0.1", channelId + "", "", "", "");
+                        }
+                        else
+                        {
+                            UICtrl.Instance.OpenView("LoginPanel");
+                        }
                     }
                     else
                     {
                         UICtrl.Instance.OpenView("LoginPanel");
                     }
 #else
+                    MainUIModel.Instance.palyerState.TryGetValue(EHumanRewardBits.E_RealNameAuth, out bool isRealNameAuth);
+                    MainUIModel.Instance.palyerState.TryGetValue(EHumanRewardBits.E_IsAdult, out bool isAdult);
                     if (PlayerPrefs.HasKey("GuestLoginToken"))
                     {
                         var token = PlayerPrefs.GetString("GuestLoginToken");
                         var code = ToolUtil.GetRandomCode(12);
                         var hash = ToolUtil.HMACSHA1(code, pwdKey);
+                        loginType = 0;
                         SendReqcLogin("", "", "", 101, 0, 0, code, hash, "", "3.0.1", channelId + "", "", "", "", token);
+                    }
+                    else if (PlayerPrefs.HasKey("PhoneLoginToken"))
+                    {
+                        var phoneToken = PlayerPrefs.GetString("PhoneLoginToken");
+                        var parts = phoneToken.Split('|');
+                        if (parts.Length == 2)
+                        {
+                            string phone = parts[0];
+                            string pwd = parts[1];
+                            var code = ToolUtil.GetRandomCode(12);
+                            var hash = ToolUtil.HMACSHA1(code, pwdKey);
+                            SendPhoneLogin(phone, pwd, "", "", 101, 0, 0, code, hash, "", "3.0.1", channelId + "", "", "", "");
+                        }
+                        else
+                        {
+                            UICtrl.Instance.OpenView("LoginPanel");
+                        }
                     }
                     else
                     {
@@ -296,6 +335,7 @@ UICtrl.Instance.OpenView("LoginPanel");
         {
             var code = ToolUtil.GetRandomCode(12);
             var hash = ToolUtil.HMACSHA1(code, pwdKey);
+            loginType = 2;
             SendReqcLogin("", "", "", 101, 0, 0, code, hash, "", "3.0.1", channelId + "", "", "", "", wxcode);
 
         }
@@ -369,7 +409,7 @@ UICtrl.Instance.OpenView("LoginPanel");
             string deviceId = wxCode;
             
 #if UNITY_EDITOR
-            deviceId = "HWCNDY34_5" + SystemInfo.deviceUniqueIdentifier;
+            deviceId = "HWCNDY34_7" + SystemInfo.deviceUniqueIdentifier;
 #endif
       
 
@@ -389,7 +429,6 @@ UICtrl.Instance.OpenView("LoginPanel");
             msgdata.ServerID = i4server_id;
             msgdata.ClientTime = i4time;
             msgdata.IsAdult = i4is_adult;
-            loginType = 0;
             NetMgr.netMgr.send(NetMsgDef.C_LOGIN, msgdata); 
         }
 
@@ -600,9 +639,33 @@ UICtrl.Instance.OpenView("LoginPanel");
             else if (data.ResultCode == 0)
             {
                 Guid = data.AccountGUID;
-                
-                string guestToken = "HWCNDY37_" + SystemInfo.deviceUniqueIdentifier;
-                PlayerPrefs.SetString("GuestLoginToken", guestToken);
+                if (loginType == 0)
+                {
+                    string guestToken = "HWCNDY37_" + SystemInfo.deviceUniqueIdentifier;
+                    PlayerPrefs.SetString("GuestLoginToken", guestToken);
+                    PlayerPrefs.SetInt("LoginType", 0);
+                    PlayerPrefs.DeleteKey("PhoneLoginToken");
+                    PlayerPrefs.DeleteKey("WxLoginToken");
+                }
+                else if (loginType == 1)
+                {
+                    if (PlayerPrefs.HasKey("SavedLoginPhone") && PlayerPrefs.HasKey("SavedLoginPassword"))
+                    {
+                        string phone = PlayerPrefs.GetString("SavedLoginPhone");
+                        string pwd = PlayerPrefs.GetString("SavedLoginPassword");
+                        string phoneToken = phone + "|" + pwd;
+                        PlayerPrefs.SetString("PhoneLoginToken", phoneToken);
+                        PlayerPrefs.SetInt("LoginType", 1);
+                        PlayerPrefs.DeleteKey("GuestLoginToken");
+                        PlayerPrefs.DeleteKey("WxLoginToken");
+                    }
+                }
+                else if (loginType == 2)
+                {
+                    PlayerPrefs.SetInt("LoginType", 2);
+                    PlayerPrefs.DeleteKey("GuestLoginToken");
+                    PlayerPrefs.DeleteKey("PhoneLoginToken");
+                }
                 PlayerPrefs.Save();
                 
                 Debug.Log($"<color=#ffff00>成功</color>");
@@ -662,6 +725,10 @@ UICtrl.Instance.OpenView("LoginPanel");
                 if (MainPanelMgr.Instance.IsShow("LoginPanel"))
                 {
                     ToolUtil.FloattingText("您的帐户或密码错误", MainPanelMgr.Instance.GetPanel("LoginPanel").transform);
+                }
+                else if (MainPanelMgr.Instance.IsShow("LoginDaContaPanel"))
+                {
+                    ToolUtil.FloattingText("您的帐户或密码错误", MainPanelMgr.Instance.GetPanel("LoginDaContaPanel").transform);
                 }
                 else
                 {

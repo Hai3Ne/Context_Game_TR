@@ -33,7 +33,7 @@ public class Packager
     static List<string> bundleFiles = new List<string>();
     static List<string> searched = new List<string>();
 
-    static bool keepManifest = true;
+    static bool keepManifest = false;
     static bool writeRefFile = false;
     static bool justSetNames = false;  //查看依赖使用
     static List<string> folderBundles = new List<string>();
@@ -1491,7 +1491,7 @@ public class Packager
         return names.ToArray();
     }
 
-    [MenuItem("删除缓存/删除手机账号密码", false, 2)]
+    [MenuItem("删除缓存(Helper)/删除手机账号密码(Delete_phone)", false, 2)]
     public static void DeletePhoneAndPWD()
     {
         PlayerPrefs.DeleteKey("LOGIN_PHONE");
@@ -1499,19 +1499,39 @@ public class Packager
         //PersistentStorage.DeleteSetting("I2 Language");
     }
 
-    [MenuItem("删除缓存/删除所有缓存", false, 3)]
+    [MenuItem("删除缓存(Helper)/删除所有缓存(DeleteAll)", false, 3)]
     public static void DeleteAllSetting()
     {
         PlayerPrefs.DeleteAll();
         PlayerPrefs.Save();
     }
 
-    [MenuItem("删除缓存/删除文件缓存", false, 3)]
+    [MenuItem("删除缓存(Helper)/删除文件缓存(Delete_File)", false, 3)]
     public static void DeleteFile()
     {
         if (Directory.Exists(Util.DataPath))
         {
             Directory.Delete(Util.DataPath, true);
         }
+    }
+    [MenuItem("BuildAppEditeTools/Generate Version JSON", false, 25)]
+    public static void GenerateVersionJson() 
+    {
+        string versionJsonPath = Application.dataPath + "/../AssetsBundle/" + AppConst.ResVersion + "/version.json";
+    
+        JSONNode versionJson = new JSONClass();
+    
+        versionJson["resVer"].AsInt = AppConst.ResVersion;
+        versionJson["resVersion"].AsInt = AppConst.ResVersion;
+        versionJson["ip"] = "18.162.135.99";
+        versionJson["port"] = "8200|8201|8202|8203|8204|8205";
+        versionJson["backstage"] = AppConst.backstage;
+        versionJson["customer"] = AppConst.customer;
+        versionJson["CdnUrl"] = AppConst.CdnUrl;
+        versionJson["isShow"].AsInt = 1;
+        versionJson["isShowks"].AsInt = 0;
+        File.WriteAllText(versionJsonPath, versionJson.ToString());
+    
+        UnityEngine.Debug.Log("Generated version.json at: " + versionJsonPath);
     }
 }

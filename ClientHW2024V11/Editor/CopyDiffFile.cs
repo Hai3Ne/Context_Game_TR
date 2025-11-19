@@ -13,14 +13,14 @@ public class CopyDiffData
 public class CopyDiffFile 
 {
    
-    static string path1 = "D:/cn/ClientHW2024V8/AssetsBundle/10001";
-    static string path2 = "D:/cn/ClientHW2024V8/AssetsBundle/1000";
-    static string path3 = "D:/cn/ClientHW2024V8/AssetsBundle/out/";
+    static string path1 = "D:/project/TR_1/TR_resource/ClientHW2024V11/AssetsBundle/tga2_release";
+    static string path2 = "D:/project/TR_1/TR_resource/ClientHW2024V11/AssetsBundle/1000";
+    static string path3 = "D:/project/TR_1/TR_resource/ClientHW2024V11/AssetsBundle/out/";
 
     static Dictionary<string, CopyDiffData> Dic1 = new Dictionary<string, CopyDiffData>();
     static Dictionary<string, CopyDiffData> Dic2 = new Dictionary<string, CopyDiffData>();
 
-    [MenuItem("文件差异拷贝/copy", false, 16)]
+    [MenuItem("文件差异拷贝(Copy Diff Files)/copy", false, 16)]
     static public void copyFile()
     {
         Dic1.Clear();

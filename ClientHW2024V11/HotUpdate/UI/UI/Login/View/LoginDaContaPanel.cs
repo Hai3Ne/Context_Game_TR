@@ -33,22 +33,15 @@ namespace HotUpdate
             UnRegisterListener();
 
         }
-
-        protected override void Update()
-        {
-            base.Update();
-        }
-
-
         #region 事件绑定
         public void RegisterListener()
         {
             m_Btn_Close.onClick.AddListener(OnCloseBtn);
             m_Btn_Esqueceu.onClick.AddListener(OnEsqueceuBtn);
-
             m_Btn_Login.onClick.AddListener(OnLoginBtn);
             m_Btn_Eye.onClick.AddListener(OnEyeBtn);
             m_Btn_Login.interactable = true;
+            m_Tog_SaveData.onValueChanged.AddListener(OnTogChangeSave);
         }
 
         public void UnRegisterListener()
@@ -58,6 +51,8 @@ namespace HotUpdate
 
             m_Btn_Login.onClick.RemoveListener(OnLoginBtn);
             m_Btn_Eye.onClick.RemoveListener(OnEyeBtn);
+            
+            m_Tog_SaveData.onValueChanged.RemoveListener(OnTogChangeSave);
 
         }
         #endregion
@@ -89,12 +84,12 @@ namespace HotUpdate
                 ToolUtil.FloattingText("您输入的电话号码不正确", this.gameObject.transform);
                 return;
             }
-            // else if (m_Input_phone.text.Length < 11 || m_Input_phone.text.Length > 11)
-            // {
-            //     //手机号位数不对
-            //     ToolUtil.FloattingText("抱歉，不支持此数字的手机号码", this.gameObject.transform);
-            //     return;
-            // }
+            else if (m_Input_phone.text.Length < 5 || m_Input_phone.text.Length > 16)
+            {
+                //手机号位数不对
+                ToolUtil.FloattingText("抱歉，不支持此数字的手机号码", this.gameObject.transform);
+                return;
+            }
             else if (m_Input_pwd.text.Equals("") || m_Input_pwd.text.Length < 8 || m_Input_pwd.text.Length > 16)
             {
                 //密码未填写或密码格式不对 
@@ -108,9 +103,7 @@ namespace HotUpdate
             }
             MainUIModel.Instance.Phone = phone;
             MainUIModel.Instance.PhonePwd = pwd;
-
-            // Lưu dữ liệu nếu toggle được chọn
-            if (m_Toggle_SaveData != null && m_Toggle_SaveData.isOn)
+            if (m_Tog_SaveData != null && m_Tog_SaveData.isOn)
             {
                 SaveLoginData(phone, pwd);
             }
@@ -139,7 +132,6 @@ namespace HotUpdate
             m_Input_pwd.ForceLabelUpdate();
         }
 
-        #region Lưu/Load dữ liệu đăng nhập
         private void SaveLoginData(string phone, string password)
         {
             PlayerPrefs.SetString(SAVE_PHONE_KEY, phone);
@@ -162,9 +154,9 @@ namespace HotUpdate
                     m_Input_pwd.text = PlayerPrefs.GetString(SAVE_PWD_KEY);
                 }
 
-                if (m_Toggle_SaveData != null)
+                if (m_Tog_SaveData != null)
                 {
-                    m_Toggle_SaveData.isOn = true;
+                    m_Tog_SaveData.isOn = true;
                 }
             }
         }
@@ -174,8 +166,14 @@ namespace HotUpdate
             PlayerPrefs.DeleteKey(SAVE_PHONE_KEY);
             PlayerPrefs.DeleteKey(SAVE_PWD_KEY);
             PlayerPrefs.DeleteKey(SAVE_DATA_KEY);
+            PlayerPrefs.DeleteKey("PhoneLoginToken");
+            PlayerPrefs.DeleteKey("LoginType");
             PlayerPrefs.Save();
         }
-        #endregion
+
+        private void OnTogChangeSave(bool isOn)
+        {
+            CoreEntry.gAudioMgr.PlayUISound(46);
+        }
     }
 }

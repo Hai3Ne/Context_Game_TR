@@ -140,7 +140,8 @@ namespace HotUpdate
         public const string REDEEBIND_RESULT = "REDEEBIND_RESULT";
 
         public const string REALName = "REALName";
-        public const string IDENTITY_CARD_CLOSED = "IDENTITY_CARD_CLOSED";
+        
+        public const string IDENTITY_CARD = "IDENTITY_CARD";
 
     }
 }
