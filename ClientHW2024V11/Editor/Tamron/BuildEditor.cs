@@ -55,7 +55,7 @@ namespace SEZSJ
         #region Fields
         private bool _exportAssetsBeforeBuild = false;
         private int _selectedNumberTypeIndex = 0;
-        private string _apkVersionNumber = "";
+        private string _apkBuildTag = "";
         private Vector2 _scrollPosition = Vector2.zero;
         private int _selectedTab = 0;
         private readonly string[] _tabNames = { "Build Settings", "Package Settings" };
@@ -276,19 +276,22 @@ namespace SEZSJ
 
             GUILayout.Space(10);
 
-            // APK Version Number
+            // APK Build Tag
             EditorGUILayout.BeginHorizontal();
-            GUILayout.Label("APK Version Number:", GUILayout.Width(120));
-            _apkVersionNumber = EditorGUILayout.TextField(_apkVersionNumber);
+            GUILayout.Label("APK Build Tag:", GUILayout.Width(120));
+            _apkBuildTag = EditorGUILayout.TextField(_apkBuildTag);
             EditorGUILayout.EndHorizontal();
+
+            GUILayout.Space(2);
+            EditorGUILayout.HelpBox("Optional: Tag to identify this build (e.g. test, release, channel name). Leave empty for default.", MessageType.Info);
 
             GUILayout.Space(5);
 
             // APK Name Preview
             string packageName = PlayerSettings.applicationIdentifier;
-            string apkName = string.IsNullOrEmpty(_apkVersionNumber)
-                ? $"{packageName}-[number].apk"
-                : $"{packageName}-{_apkVersionNumber}.apk";
+            string apkName = string.IsNullOrEmpty(_apkBuildTag)
+                ? $"{packageName}.apk"
+                : $"{packageName}-{_apkBuildTag}.apk";
 
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
             GUILayout.Label("APK Name Preview:", EditorStyles.miniLabel);
@@ -452,15 +455,11 @@ namespace SEZSJ
             Color originalBgColor = GUI.backgroundColor;
             GUI.backgroundColor = new Color(0.3f, 0.8f, 0.3f); // Green
 
-            bool canBuild = !string.IsNullOrEmpty(_apkVersionNumber);
-            GUI.enabled = canBuild;
-
             if (GUILayout.Button("BUILD APK", Styles.buildButtonStyle, GUILayout.Width(200), GUILayout.Height(50)))
             {
                 BuildAPK();
             }
 
-            GUI.enabled = true;
             GUI.backgroundColor = originalBgColor;
 
             GUILayout.FlexibleSpace();
@@ -479,12 +478,6 @@ namespace SEZSJ
         #region Build Logic
         private void BuildAPK()
         {
-            if (string.IsNullOrEmpty(_apkVersionNumber))
-            {
-                EditorUtility.DisplayDialog("Error", "Please enter an APK version number.", "OK");
-                return;
-            }
-
             // Validate keystore
             string fullKeystorePath = Path.Combine(Application.dataPath.Replace("Assets", ""), KEYSTORE_PATH);
             if (!File.Exists(fullKeystorePath))
@@ -524,7 +517,9 @@ namespace SEZSJ
             }
 
             string packageName = PlayerSettings.applicationIdentifier;
-            string apkName = $"{packageName}-{_apkVersionNumber}.apk";
+            string apkName = string.IsNullOrEmpty(_apkBuildTag)
+                ? $"{packageName}.apk"
+                : $"{packageName}-{_apkBuildTag}.apk";
             string outputPath = Path.Combine(outputDir, apkName);
 
             // Delete existing file if exists (overwrite)
@@ -777,7 +772,7 @@ namespace SEZSJ
         {
             _exportAssetsBeforeBuild = EditorPrefs.GetBool("BuildEditor_ExportAssets", false);
             _selectedNumberTypeIndex = EditorPrefs.GetInt("BuildEditor_NumberTypeIndex", 0);
-            _apkVersionNumber = EditorPrefs.GetString("BuildEditor_APKVersionNumber", "");
+            _apkBuildTag = EditorPrefs.GetString("BuildEditor_APKBuildTag", "");
             _turboId = EditorPrefs.GetString("BuildEditor_TurboId", "");
             _turboName = EditorPrefs.GetString("BuildEditor_TurboName", "");
             _dyId = EditorPrefs.GetString("BuildEditor_DyId", "");
@@ -788,7 +783,7 @@ namespace SEZSJ
         {
             EditorPrefs.SetBool("BuildEditor_ExportAssets", _exportAssetsBeforeBuild);
             EditorPrefs.SetInt("BuildEditor_NumberTypeIndex", _selectedNumberTypeIndex);
-            EditorPrefs.SetString("BuildEditor_APKVersionNumber", _apkVersionNumber);
+            EditorPrefs.SetString("BuildEditor_APKBuildTag", _apkBuildTag);
             EditorPrefs.SetString("BuildEditor_TurboId", _turboId);
             EditorPrefs.SetString("BuildEditor_TurboName", _turboName);
             EditorPrefs.SetString("BuildEditor_DyId", _dyId);
