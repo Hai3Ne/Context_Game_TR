@@ -15,6 +15,10 @@ Công cụ tự động hóa quy trình build SDK AAR cho Unity projects. Tiết
 - ✅ Save/Load configuration
 - ✅ Backup và restore source tự động
 
+## 🚀 Bắt đầu nhanh
+
+**Người mới bắt đầu?** Đọc [**INSTALLATION.md**](INSTALLATION.md) - Hướng dẫn chi tiết cài đặt môi trường từ đầu!
+
 ## Yêu cầu hệ thống
 
 ### Bắt buộc:
