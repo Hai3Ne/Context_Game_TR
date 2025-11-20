@@ -1,0 +1,23 @@
+# SDK AAR Build Tool - Python Dependencies
+
+# This tool uses only Python built-in libraries:
+# - tkinter (GUI)
+# - subprocess (Gradle execution)
+# - shutil (File operations)
+# - json (Config management)
+# - re (Regex for text replacement)
+# - os, glob, platform (System operations)
+# - threading (Background build process)
+# - datetime (Logging timestamps)
+
+# No external dependencies required!
+# Python 3.7+ with tkinter is sufficient.
+
+# To check if you have required components:
+# python3 --version  # Should be 3.7 or higher
+# python3 -m tkinter  # Should open a small test window
+
+# Note: On some Linux systems, you may need to install tkinter separately:
+# Ubuntu/Debian: sudo apt-get install python3-tk
+# Fedora/RHEL: sudo dnf install python3-tkinter
+# Arch Linux: sudo pacman -S tk
