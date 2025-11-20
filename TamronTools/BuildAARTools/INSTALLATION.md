@@ -531,6 +531,71 @@ chmod +x run_builder.sh
 
 ---
 
+### Lỗi: `IllegalAccessError` hoặc `compileReleaseJavaWithJavac FAILED`
+
+**Lỗi đầy đủ:**
+```
+java.lang.IllegalAccessError: class org.gradle.internal.compiler.java.ClassNameCollector
+cannot access class com.sun.tools.javac.code.Symbol$TypeSymbol because module jdk.compiler
+does not export com.sun.tools.javac.code to unnamed module
+```
+
+**Nguyên nhân:** Java version quá mới so với Gradle version
+
+**Compatibility Matrix:**
+```
+Java 8-11  → Gradle 5.0+
+Java 16    → Gradle 7.0+
+Java 17    → Gradle 7.3+
+Java 21    → Gradle 7.6+ (recommended 8.5+)
+```
+
+**Chẩn đoán:**
+```bash
+# Kiểm tra Java version
+java -version
+
+# Kiểm tra Gradle version
+cd ClientHW2024V11/MySdktuiguang
+./gradlew --version
+```
+
+**Giải pháp:**
+
+**Option 1: Update Gradle (Khuyên Dùng)**
+```bash
+# Edit file gradle-wrapper.properties
+# Đường dẫn: ClientHW2024V11/MySdktuiguang/gradle/wrapper/gradle-wrapper.properties
+
+# Thay đổi dòng distributionUrl từ:
+distributionUrl=https\://services.gradle.org/distributions/gradle-6.5-bin.zip
+
+# Thành (Gradle 7.6.4 - stable, tương thích Java 21):
+distributionUrl=https\://services.gradle.org/distributions/gradle-7.6.4-bin.zip
+
+# Sau đó build lại
+./gradlew clean
+./gradlew :MySdkLib:assembleRelease
+```
+
+**Option 2: Downgrade Java (Nếu không muốn đổi Gradle)**
+```bash
+# Ubuntu/Debian - Cài Java 11
+sudo apt install openjdk-11-jdk
+sudo update-alternatives --config java
+
+# macOS - Cài Java 11
+brew install openjdk@11
+echo 'export PATH="/usr/local/opt/openjdk@11/bin:$PATH"' >> ~/.zshrc
+
+# Verify
+java -version  # Phải hiển thị version 11
+```
+
+**Note:** Nếu bạn đang dùng tool, project đã được fix sẵn với Gradle 7.6.4!
+
+---
+
 ### Lỗi: `No such file or directory: gradlew`
 
 **Nguyên nhân:** SDK path không đúng
