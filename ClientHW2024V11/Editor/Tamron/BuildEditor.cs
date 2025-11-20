@@ -507,15 +507,20 @@ namespace SEZSJ
                 ExportAllAssetsAndSubPack();
             }
 
-            // Step 2: Update AndroidManifest.xml
+            // Step 2: Refresh AssetDatabase to ensure all assets are recognized
+            EditorUtility.DisplayProgressBar("Building APK", "Refreshing assets...", 0.2f);
+            AssetDatabase.Refresh();
+            AssetDatabase.SaveAssets();
+
+            // Step 3: Update AndroidManifest.xml
             EditorUtility.DisplayProgressBar("Building APK", "Updating AndroidManifest.xml...", 0.3f);
             UpdateAndroidManifest();
 
-            // Step 3: Configure keystore settings
+            // Step 4: Configure keystore settings
             EditorUtility.DisplayProgressBar("Building APK", "Configuring keystore...", 0.4f);
             ConfigureKeystore();
 
-            // Step 4: Build APK
+            // Step 5: Build APK
             EditorUtility.DisplayProgressBar("Building APK", "Building APK file...", 0.5f);
 
             // Create output directory
