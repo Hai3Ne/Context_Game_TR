@@ -105,6 +105,9 @@ namespace HotUpdate
             Message.AddListener(MessageName.GAME_RECONNET, ReloadGame);
 
             RegisterListener();
+            
+            m_Btn_TourRank.gameObject.SetActive(MainUIModel.Instance.GetOnlineCondition());
+            m_Btn_Tour.gameObject.SetActive(MainUIModel.Instance.GetOnlineCondition());
 
             SetRollBtnRorate(false);
             gameTipIndex = 0;

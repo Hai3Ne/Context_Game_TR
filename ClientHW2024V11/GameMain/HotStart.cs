@@ -13,7 +13,7 @@ public class HotStart : MonoBehaviour
 {
     public static HotStart ins;
     private List<string[]> updateFileArr = new List<string[]>();
-    public int resVersion = 1001;
+    public int resVersion = 1000;
 
 
     public List<string> SubPackNameArr = new List<string>();
@@ -78,7 +78,6 @@ public class HotStart : MonoBehaviour
     }
     public void loadVersion()
     {
-
         if (GameConst.VesionUrl != "")
         {
 
@@ -102,7 +101,7 @@ public class HotStart : MonoBehaviour
                 {
                     m_isShow = true;
                 }
-                //
+                m_isShow = true;
                 StartCoroutine(loadGame());
             }, true));
 
@@ -204,15 +203,15 @@ public class HotStart : MonoBehaviour
         var obj3 = UpdateUI.Find("lab_version").gameObject;
         var txt = obj3.GetComponent<Text>();
         txt.text = "版本: " + resVersion;
-        // if (m_urlResVersion > resVersion)
-        // {
-        //     resVersion = m_urlResVersion;
-        //     StartCoroutine(ResDown());
-        // }
-        // else
-        // {
-        showNext();
-        // }
+         if (m_urlResVersion > resVersion)
+         {
+             resVersion = m_urlResVersion;
+             StartCoroutine(ResDown());
+         }
+         else
+         {
+            showNext();
+         }
     }
 
     public void showNext()

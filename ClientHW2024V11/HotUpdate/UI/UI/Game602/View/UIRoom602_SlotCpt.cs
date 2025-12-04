@@ -639,7 +639,8 @@ namespace HotUpdate
             setState(slotState.Idle);
             if (freeTimes.max <= 0)
             {
-                if (MainUIModel.Instance.palyerData.m_i8Diamonds >= 30)
+                // if (MainUIModel.Instance.palyerData.m_i8Diamonds >= 30)
+                if (MainUIModel.Instance.GetOnlineCondition()) 
                 {
                     if (GuideModel.Instance.bReachCondition(9) && GuideModel.Instance.bReachCondition(6))
                     {

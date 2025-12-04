@@ -13,7 +13,7 @@ namespace HotUpdate
     [NetHandler]
     public class LoginCtrl : Singleton<LoginCtrl> 
     {
-        private string ip = "18.162.135.99"; // main"16.162.236.155";// test"43.199.166.178";//"18.163.221.99"; //"192.168.0.161"; //"18.166.194.158";//  "192.168.0.123";//    "116.62.137.36";////"54.94.240.56";//177.71.192.232"192.168.0.123";//"116.62.137.36";//"116.62.137.36";//"116.62.137.36";//
+        private string ip = "16.163.44.67"; // main"16.162.236.155";// test"43.199.166.178";//"18.163.221.99"; //"192.168.0.161"; //"18.166.194.158";//  "192.168.0.123";//    "116.62.137.36";////"54.94.240.56";//177.71.192.232"192.168.0.123";//"116.62.137.36";//"116.62.137.36";//"116.62.137.36";//
         private short port = 8200;
 
         public bool isEnterGame = false;
@@ -162,7 +162,7 @@ namespace HotUpdate
         public bool isUpdate = false;
         public void StartConnectServer()
         {
-            isUpdate = Application.version != "1.0.0";
+            isUpdate = Application.version != "1.0.0"; 
             if (isUpdate && VersionPanel == null)
             {
 
@@ -212,7 +212,6 @@ UICtrl.Instance.OpenView("LoginPanel");
 
                 }
                 NetLogicGame.Instance.connectGame(ip,port);
-                // NetLogicGame.Instance.connectGame("192.168.0.161",8200);
             }
         }
 
@@ -788,10 +787,17 @@ UICtrl.Instance.OpenView("LoginPanel");
                         dataReq.n64AccountGUID = Guid;
                         dataReq.n64RoleGUID = roleId;
                         NetMgr.netMgr.send(NetMsgDef.C_RELOGINGAME, dataReq);
-                        CoreEntry.gTimeMgr.AddTimer(3.0f, false, ReConnect, 632156);
+                        // CoreEntry.gTimeMgr.AddTimer(3.0f, false, ReConnect, 632156);
+                        CoreEntry.gTimeMgr.AddTimer(1.0f, false,()=>
+                        {
+                            disconnect();
+                            CoreEntry.gTimeMgr.RemoveTimer(639564);
+                            CoreEntry.gTimeMgr.AddTimer(3.0f, false, ReConnect, 632156);
+                        },639564);
                     }
                     else
                     {
+                        disconnect();
                         CoreEntry.gTimeMgr.AddTimer(10.0f, false, ReConnect, 632156);
                     }
                 }

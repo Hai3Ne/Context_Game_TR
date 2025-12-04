@@ -9,9 +9,6 @@ namespace HotUpdate
     public partial class LoginDaContaPanel : PanelBase
     {
         const string pwdKey = "pud4tIdkyRQ8zl9O";
-        const string SAVE_PHONE_KEY = "SavedLoginPhone";
-        const string SAVE_PWD_KEY = "SavedLoginPassword";
-        const string SAVE_DATA_KEY = "SaveLoginData";
         protected override void Awake()
         {
             base.Awake();
@@ -24,7 +21,6 @@ namespace HotUpdate
             m_Img_eyeH.gameObject.SetActive(m_Input_pwd.inputType == InputField.InputType.Standard);
             m_Img_eyeS.gameObject.SetActive(m_Input_pwd.inputType == InputField.InputType.Password);
             RegisterListener();
-            LoadSavedData();
         }
 
         protected override void OnDisable()
@@ -33,15 +29,22 @@ namespace HotUpdate
             UnRegisterListener();
 
         }
+
+        protected override void Update()
+        {
+            base.Update();
+        }
+
+
         #region 事件绑定
         public void RegisterListener()
         {
             m_Btn_Close.onClick.AddListener(OnCloseBtn);
             m_Btn_Esqueceu.onClick.AddListener(OnEsqueceuBtn);
+
             m_Btn_Login.onClick.AddListener(OnLoginBtn);
             m_Btn_Eye.onClick.AddListener(OnEyeBtn);
             m_Btn_Login.interactable = true;
-            m_Tog_SaveData.onValueChanged.AddListener(OnTogChangeSave);
         }
 
         public void UnRegisterListener()
@@ -51,8 +54,6 @@ namespace HotUpdate
 
             m_Btn_Login.onClick.RemoveListener(OnLoginBtn);
             m_Btn_Eye.onClick.RemoveListener(OnEyeBtn);
-            
-            m_Tog_SaveData.onValueChanged.RemoveListener(OnTogChangeSave);
 
         }
         #endregion
@@ -84,7 +85,7 @@ namespace HotUpdate
                 ToolUtil.FloattingText("您输入的电话号码不正确", this.gameObject.transform);
                 return;
             }
-            else if (m_Input_phone.text.Length < 5 || m_Input_phone.text.Length > 16)
+            else if (m_Input_phone.text.Length < 11 || m_Input_phone.text.Length > 11)
             {
                 //手机号位数不对
                 ToolUtil.FloattingText("抱歉，不支持此数字的手机号码", this.gameObject.transform);
@@ -103,15 +104,6 @@ namespace HotUpdate
             }
             MainUIModel.Instance.Phone = phone;
             MainUIModel.Instance.PhonePwd = pwd;
-            if (m_Tog_SaveData != null && m_Tog_SaveData.isOn)
-            {
-                SaveLoginData(phone, pwd);
-            }
-            else
-            {
-                ClearSavedData();
-            }
-
             LoginCtrl.Instance.SendPhoneLogin(phone, pwd,"", "", 101, 0, 0, code, hash, "", "3.0.1", "", "", "", "");
         }
 
@@ -130,50 +122,6 @@ namespace HotUpdate
             m_Img_eyeH.gameObject.SetActive(m_Input_pwd.inputType == InputField.InputType.Standard);
             m_Img_eyeS.gameObject.SetActive(m_Input_pwd.inputType == InputField.InputType.Password);
             m_Input_pwd.ForceLabelUpdate();
-        }
-
-        private void SaveLoginData(string phone, string password)
-        {
-            PlayerPrefs.SetString(SAVE_PHONE_KEY, phone);
-            PlayerPrefs.SetString(SAVE_PWD_KEY, password);
-            PlayerPrefs.SetInt(SAVE_DATA_KEY, 1);
-            PlayerPrefs.Save();
-        }
-
-        private void LoadSavedData()
-        {
-            if (PlayerPrefs.HasKey(SAVE_DATA_KEY) && PlayerPrefs.GetInt(SAVE_DATA_KEY) == 1)
-            {
-                if (PlayerPrefs.HasKey(SAVE_PHONE_KEY))
-                {
-                    m_Input_phone.text = PlayerPrefs.GetString(SAVE_PHONE_KEY);
-                }
-
-                if (PlayerPrefs.HasKey(SAVE_PWD_KEY))
-                {
-                    m_Input_pwd.text = PlayerPrefs.GetString(SAVE_PWD_KEY);
-                }
-
-                if (m_Tog_SaveData != null)
-                {
-                    m_Tog_SaveData.isOn = true;
-                }
-            }
-        }
-
-        private void ClearSavedData()
-        {
-            PlayerPrefs.DeleteKey(SAVE_PHONE_KEY);
-            PlayerPrefs.DeleteKey(SAVE_PWD_KEY);
-            PlayerPrefs.DeleteKey(SAVE_DATA_KEY);
-            PlayerPrefs.DeleteKey("PhoneLoginToken");
-            PlayerPrefs.DeleteKey("LoginType");
-            PlayerPrefs.Save();
-        }
-
-        private void OnTogChangeSave(bool isOn)
-        {
-            CoreEntry.gAudioMgr.PlayUISound(46);
         }
     }
 }

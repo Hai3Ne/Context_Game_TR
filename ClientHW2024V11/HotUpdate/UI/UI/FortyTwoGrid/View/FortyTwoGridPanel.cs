@@ -25,8 +25,13 @@ namespace HotUpdate
         private bool isDanji = false;
         private long danjiGold = 0;
         private bool isZidong = false;
-        private int itemHeight = 321;
-        private int lineHeight = 107;
+        private int itemHeight = 312;
+        private int lineHeight = 104;
+        
+        // animation for text_gold
+        private bool isGoldAnimating = false;
+        private long lastAnimatedGold = 0;
+        private long previousGoldValue = 0;
         protected override void Awake()
         {
             base.Awake();
@@ -98,7 +103,7 @@ namespace HotUpdate
                   
                     img.SetParent(m_Rect_bgPanel);
                     img.localScale = new Vector3(1, 1, 1);
-                    img.anchoredPosition = new Vector2((-307 + i % 2 * 115) + 115 * j * 2, 256 - i * 115); //new Vector3(-307f, 13.192f,0f); 
+                    img.anchoredPosition = new Vector2((-310 + i % 2 * 126) + 126 * j * 2, 256 - i * 126); //new Vector3(-307f, 13.192f,0f); 
 
                 }
             }
@@ -123,6 +128,7 @@ namespace HotUpdate
             m_Btn_Reload.interactable = !isZidong;
             m_Btn_Auto.interactable = !isZidong;
             m_Txt_Reward.text = "0";
+            m_Btn_Tour.gameObject.SetActive(MainUIModel.Instance.GetOnlineCondition());
             if (roomType == 0)
             {
                 isDanji = true;
@@ -1049,6 +1055,7 @@ namespace HotUpdate
             m_Txt_Gold.text = ToolUtil.AbbreviateNumber(FortyTwoGridModel.Instance.Gold);
             FortyTwoGridModel.Instance.gameData.Clear();
             StartCoroutine(WaitEndAni());
+            AnimationTextGold(FortyTwoGridModel.Instance.Gold);
 
         }
         private IEnumerator WaitEndAni()
@@ -1065,9 +1072,11 @@ namespace HotUpdate
             setBtnState(true);
             SetRollBtnRorate(false);
             m_gameState = 0;
-            if (MainUIModel.Instance.palyerData.m_i8Diamonds >= 30)
+            
+            // if (MainUIModel.Instance.palyerData.m_i8Diamonds >= 30)
+            if (MainUIModel.Instance.GetOnlineCondition())
             {
-                if (GuideModel.Instance.bReachCondition(9) && GuideModel.Instance.bReachCondition(6))
+                if (GuideModel.Instance.bReachCondition(9) && GuideModel.Instance.bReachCondition(6) && !GuideModel.Instance.bReachCondition(0))
                 {
                     if (MainPanelMgr.Instance.IsShow("TaskPanel"))
                     {
@@ -1127,7 +1136,29 @@ namespace HotUpdate
             }
             return obj;
         }
-
+        private void AnimationTextGold(long gold)
+        {
+            previousGoldValue = gold;
+            if (m_Txt_Reward.text != "0" && !isGoldAnimating && gold != lastAnimatedGold)
+            {
+                isGoldAnimating = true;
+                lastAnimatedGold = gold;
+                m_Txt_Gold.transform.DOKill();
+                Color originalColor = m_Txt_Gold.color;
+                Vector3 originalScale = m_Txt_Gold.transform.localScale;
+                Sequence goldSequence = DOTween.Sequence();
+                goldSequence.Append(m_Txt_Gold.transform.DOScale(1.3f, 0.3f).SetEase(Ease.OutBack))
+                    .Append(m_Txt_Gold.transform.DOScale(originalScale, 0.3f).SetEase(Ease.InBack));
+                goldSequence.Insert(0f, m_Txt_Gold.DOColor(Color.yellow, 0.15f).SetEase(Ease.OutQuart))
+                    .Insert(0.25f, m_Txt_Gold.DOColor(originalColor, 0.35f).SetEase(Ease.InQuart));
+                goldSequence.Insert(0f, m_Txt_Gold.transform.DORotate(new Vector3(0, 0, 5f), 0.3f).SetEase(Ease.OutQuart))
+                    .Insert(0.3f, m_Txt_Gold.transform.DORotate(Vector3.zero, 0.3f).SetEase(Ease.InQuart));
+                goldSequence.OnComplete(() => {
+                    isGoldAnimating = false;
+                });
+                goldSequence.Play();
+            }
+        }
         /// <summary>
         /// 回收对象池
         /// </summary>

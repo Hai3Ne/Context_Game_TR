@@ -202,6 +202,26 @@ public class SdkCtrl : SingletonMonoBehaviour<SdkCtrl>
         }
         return channle;
     }
+//     public int getServerChannel()
+//     {
+//         var channle = 1;
+//         try
+//         {
+// #if UNITY_ANDROID && !UNITY_EDITOR
+//         AndroidJavaClass js = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+//         AndroidJavaObject jc = js.GetStatic<AndroidJavaObject>("currentActivity");
+//         channle = jc.Call<int>("getChannle");
+// #elif UNITY_IOS
+//         isShow = IOSSdkCtrl.ins.isWifiProxy();
+// #endif
+//         }
+//         catch 
+//         {
+//
+//             
+//         }
+//         return channle;
+//     }
     public void SendUserData(string RoleId)
     {
 #if UNITY_EDITOR

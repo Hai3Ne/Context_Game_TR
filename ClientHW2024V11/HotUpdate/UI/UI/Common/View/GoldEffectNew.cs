@@ -184,10 +184,11 @@ namespace HotUpdate
          //   var kk = DragonWin.transform.Find("a1");
             // var TxtEffect = kk.GetChild(0).GetComponent<Text>();
             m_Txt_Effect.text = "0";
-            m_Txt_Effect.transform.SetParent(DragonWin);
+            // m_Txt_Effect.transform.SetParent(DragonWin);
             m_Txt_Effect.gameObject.SetActive(true);
             m_Txt_Effect.transform.localScale = new Vector3(1, 1,1);
-            m_Txt_Effect.transform.localPosition = type != 4 ?new Vector3(0f, -193.75f, 0f) : new Vector3(0f, -110.75f, 0f);
+            // m_Txt_Effect.transform.localPosition = new Vector3(-277f, -213f, 0f);
+            m_Txt_Effect.transform.localPosition = type == 4 ? new Vector3(0f, 40f, 0f) : new Vector3(0f, -213f, 0f);
             long startValue = newScore > ToolUtil.GetGoldRadio() ? 0 : newScore;
             mySequence = ToolUtil.RollText(startValue, newScore, m_Txt_Effect, aniTimes, () =>
             {

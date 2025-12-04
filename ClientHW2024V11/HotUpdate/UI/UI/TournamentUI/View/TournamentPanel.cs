@@ -249,20 +249,20 @@ namespace HotUpdate
 
         private void setTog1Color() 
         {
-            m_Txt_PageTxt1.color = !m_Tog_Options1.isOn ? new Color32(255, 255, 255, 255): new Color32(195, 101, 9, 255);
-            m_Txt_PageRewardTxt1.color = !m_Tog_Options1.isOn ? new Color32(255, 255, 255, 255): new Color32(195, 101, 9, 255);
-            m_Txt_PageTxt2.color = !m_Tog_Options2.isOn ? new Color32(255, 255, 255, 255): new Color32(195, 101, 9, 255);
-            m_Txt_PageRewardTxt2.color = !m_Tog_Options2.isOn ? new Color32(255, 255, 255, 255): new Color32(195, 101, 9, 255);
-            m_Txt_PageTxt3.color = !m_Tog_Options3.isOn ? new Color32(255, 255, 255, 255): new Color32(195, 101, 9, 255);
-            m_Txt_PageRewardTxt3.color = !m_Tog_Options3.isOn ? new Color32(255, 255, 255, 255): new Color32(195, 101, 9, 255);
-            m_Txt_PageTxt4.color = !m_Tog_Options4.isOn ? new Color32(255, 255, 255, 255): new Color32(195, 101, 9, 255);
-            m_Txt_PageRewardTxt4.color = !m_Tog_Options4.isOn ? new Color32(255, 255, 255, 255): new Color32(195, 101, 9, 255);
-            m_Txt_PageTxt5.color = !m_Tog_Options5.isOn ? new Color32(255, 255, 255, 255): new Color32(195, 101, 9, 255);
-            m_Txt_PageRewardTxt5.color = !m_Tog_Options5.isOn ? new Color32(255, 255, 255, 255): new Color32(195, 101, 9, 255);
-            m_Txt_PageTxt6.color = !m_Tog_Options6.isOn ? new Color32(255, 255, 255, 255): new Color32(195, 101, 9, 255);
-            m_Txt_PageRewardTxt6.color = !m_Tog_Options6.isOn ? new Color32(255, 255, 255, 255): new Color32(195, 101, 9, 255);
-            m_Txt_PageTxt7.color = !m_Tog_Options7.isOn ? new Color32(255, 255, 255, 255): new Color32(195, 101, 9, 255);
-            m_Txt_PageRewardTxt7.color = !m_Tog_Options7.isOn ? new Color32(255, 255, 255, 255): new Color32(195, 101, 9, 255);
+            m_Txt_PageTxt1.color = !m_Tog_Options1.isOn ? new Color32(147, 73, 221, 255) : new Color32(167, 67, 11, 255);
+            m_Txt_PageRewardTxt1.color = !m_Tog_Options1.isOn ? new Color32(147, 73, 221, 255) : new Color32(167, 67, 11, 255);
+            m_Txt_PageTxt2.color = !m_Tog_Options2.isOn ? new Color32(147, 73, 221, 255) : new Color32(167, 67, 11, 255);
+            m_Txt_PageRewardTxt2.color = !m_Tog_Options2.isOn ? new Color32(147, 73, 221, 255) : new Color32(167, 67, 11, 255);
+            m_Txt_PageTxt3.color = !m_Tog_Options3.isOn ? new Color32(147, 73, 221, 255) : new Color32(167, 67, 11, 255);
+            m_Txt_PageRewardTxt3.color = !m_Tog_Options3.isOn ? new Color32(147, 73, 221, 255) : new Color32(167, 67, 11, 255);
+            m_Txt_PageTxt4.color = !m_Tog_Options4.isOn ? new Color32(147, 73, 221, 255) : new Color32(167, 67, 11, 255);
+            m_Txt_PageRewardTxt4.color = !m_Tog_Options4.isOn ? new Color32(147, 73, 221, 255) : new Color32(167, 67, 11, 255);
+            m_Txt_PageTxt5.color = !m_Tog_Options5.isOn ? new Color32(147, 73, 221, 255) : new Color32(167, 67, 11, 255);
+            m_Txt_PageRewardTxt5.color = !m_Tog_Options5.isOn ? new Color32(147, 73, 221, 255) : new Color32(167, 67, 11, 255);
+            m_Txt_PageTxt6.color = !m_Tog_Options6.isOn ? new Color32(147, 73, 221, 255) : new Color32(167, 67, 11, 255);
+            m_Txt_PageRewardTxt6.color = !m_Tog_Options6.isOn ? new Color32(147, 73, 221, 255) : new Color32(167, 67, 11, 255);
+            m_Txt_PageTxt7.color = !m_Tog_Options7.isOn ? new Color32(147, 73, 221, 255) : new Color32(167, 67, 11, 255);
+            m_Txt_PageRewardTxt7.color = !m_Tog_Options7.isOn ? new Color32(147, 73, 221, 255) : new Color32(167, 67, 11, 255);
         }
 
         public void Toggle1Changed(bool isOn) 
@@ -478,7 +478,7 @@ namespace HotUpdate
                 var item = m_VGridScroll_TournamentList.GetShownItemByItemIndex(i);
                 if (item != null)
                 {
-                    if (i <30)
+                    if (i < 36)
                     {
 
                         tempList.Add(item.transform);

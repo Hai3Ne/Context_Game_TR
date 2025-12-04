@@ -20,6 +20,7 @@ namespace HotUpdate
         [SerializeField] public Text btnTxt;
         [SerializeField] private Text canNotBuyTxt;
         [SerializeField] private Button canNotBuyBtn;
+        [SerializeField] private CanvasGroup canvasGroupItem;
         public cfg.Game.ItemExchange ItemData;
         private Transform m_Trans_Dramond;
         private Text m_TextM_DramondNum;
@@ -44,9 +45,16 @@ namespace HotUpdate
             //transform.localScale = Vector3.zero;
         }
 
+        // ReSharper disable Unity.PerformanceAnalysis
         public void SetUpItem(cfg.Game.ItemExchange data)
         {
             ItemData = data;
+            if (data.Type != 9)
+            {
+                canvasGroupItem.alpha = MainUIModel.Instance.GetOnlineCondition() ? 1 : 0;
+                button.interactable = MainUIModel.Instance.GetOnlineCondition();
+            }
+            
             title.text = string.Format("每日兑换{0}次",data.Day);
             if (data.Day == 0)
                 title.text = "可兑换";
@@ -80,7 +88,7 @@ namespace HotUpdate
         {
             CoreEntry.gAudioMgr.PlayUISound(46);
             MainUIModel.Instance.palyerState.TryGetValue(EHumanRewardBits.E_IsCashBlind, out bool IsCashBlind);
-        
+            
             if (ItemData.Type == 9)
             {
                 if (MainUIModel.Instance.palyerData.m_i8Diamonds >= ItemData.Original)
@@ -91,13 +99,13 @@ namespace HotUpdate
                 }
                 else
                 {
-                    ToolUtil.FloattingText("宝石不足", MainPanelMgr.Instance.GetDialog("ExchangePanel").transform);
+                    ToolUtil.FloattingText("紫心宝石不足", MainPanelMgr.Instance.GetDialog("ExchangePanel").transform);
                 }
          
             }
             else
             {
-                if (MainUIModel.Instance.pixData != null && MainUIModel.Instance.pixData.AccountNum != "" && IsCashBlind)
+                if (MainUIModel.Instance.pixData != null && MainUIModel.Instance.pixData.AccountNum != "" && IsCashBlind && MainUIModel.Instance.GetOnlineCondition())
                 {
                     if (MainUIModel.Instance.palyerData.m_i8Diamonds >= ItemData.Original)
                     {
@@ -115,7 +123,7 @@ namespace HotUpdate
                     }
                     else
                     {
-                        ToolUtil.FloattingText("宝石不足", MainPanelMgr.Instance.GetDialog("ExchangePanel").transform);
+                        ToolUtil.FloattingText("紫心宝石不足", MainPanelMgr.Instance.GetDialog("ExchangePanel").transform);
                     }
 
                 }

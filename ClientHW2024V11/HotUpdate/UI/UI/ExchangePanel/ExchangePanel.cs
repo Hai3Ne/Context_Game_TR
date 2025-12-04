@@ -30,6 +30,10 @@ namespace HotUpdate
 
 
             ItemsType9 = MainUIModel.Instance.getExChangeConfigByType(1);
+            if (!MainUIModel.Instance.GetOnlineCondition())
+            {
+                ItemsType9.RemoveAll(item => item.Type == 15);
+            }
             ItemsType15 = MainUIModel.Instance.getExChangeConfigByType(2);
             type = 9;
             Items = ItemsType9;
@@ -70,9 +74,10 @@ namespace HotUpdate
         public void reloadUI()
         {
             MainUIModel.Instance.palyerState.TryGetValue(EHumanRewardBits.E_IsCashBlind, out bool IsCashBlind);
+            var checkTime = MainUIModel.Instance.GetOnlineCondition();
             if (MainUIModel.Instance.pixData != null && MainUIModel.Instance.pixData.AccountNum != "" && IsCashBlind && HotStart.ins.m_isShow)
             {
-                m_Tog_Card.gameObject.SetActive(true);
+                m_Tog_Card.gameObject.SetActive(checkTime);
                 m_Tog_Gift.gameObject.SetActive(true);
             }
             else
@@ -134,7 +139,7 @@ namespace HotUpdate
                 m_Img_gold.sprite = AtlasSpriteManager.Instance.GetSprite($"Common:ddfl_icon_{item.Itemid}");
                 m_Txt_lab1.text = ToolUtil.AbbreviateNumberf0(item.Target);
                 m_Txt_ExchangeNum.text = ToolUtil.AbbreviateNumberf0(item.Target);
-                m_Txt_Tips.text = "宝石兑换金币没有库存限制\n当前兑换金币数量：" + ToolUtil.AbbreviateNumberf0(item.Target)+ "";
+                m_Txt_Tips.text = "宝石兑换金币没有库存限制\n当前兑换金币数量：<color=#E58207>" + ToolUtil.AbbreviateNumberf0(item.Target)+ "</color>";
             }
             else
             {
@@ -144,7 +149,7 @@ namespace HotUpdate
                 m_Img_gold.sprite = AtlasSpriteManager.Instance.GetSprite($"Common:zfb");
                 m_Txt_lab1.text = (double)item.Target/100f + "";
                 m_Txt_ExchangeNum.text = (double)item.Target / 100f + "";
-                m_Txt_Tips.text = "宝石兑换权益卡没有库存限制\n当前兑换权益卡数量：" + (double)item.Target / 100f + ""+ ""; ;
+                m_Txt_Tips.text = "宝石兑换权益卡没有库存限制\n当前兑换权益卡数量：<color=#E58207>" + (double)item.Target / 100f + ""+ "</color>"; ;
             }
             // m_Img_Icon.SetNativeSize();
             // m_Img_gold.SetNativeSize();
@@ -176,6 +181,10 @@ namespace HotUpdate
         public void Refresh()
         {
             ItemsType9 = MainUIModel.Instance.getExChangeConfigByType(1);
+            if (!MainUIModel.Instance.GetOnlineCondition())
+            {
+                ItemsType9.RemoveAll(item => item.Type == 15);
+            }
             ItemsType15 = MainUIModel.Instance.getExChangeConfigByType(2);
             Items = type == 9 ? ItemsType9 : ItemsType15;
 

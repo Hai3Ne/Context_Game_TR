@@ -64,8 +64,8 @@ namespace HotUpdate
         public int nVariableValueCount ;
         public List<long> n64VariableValue = new List<long>();
         public List<_ClientDiamondExchange> exchangeInfo = new List<_ClientDiamondExchange>();
-
         public long boomTaskValue = 0;
+        public bool isInBlackList = false;
 
         public void SetMailListData(WC_GetMailResult data) 
         {
@@ -372,7 +372,10 @@ namespace HotUpdate
 
         public bool GetOnlineCondition()
         {
+            if (HotStart.ins.getChannle() == 1000)
+                return true;
             long throughTimes = ToolUtil.getServerTime() - n64VariableValue[0] ;
+           // Debug.Log("经过时长===="+ throughTimes+"=====在线时长"+ n64VariableValue[1]+"----"+ n64VariableValue[2]+"==="+ n64VariableValue[3]+"==="+ n64VariableValue[4]+"==="+ n64VariableValue[5]);
             long onLineTimes = n64VariableValue[1] + throughTimes;
             if (palyerData.m_i4VipExp >= n64VariableValue[2] &&  onLineTimes >= n64VariableValue[3])
                 return true;
@@ -496,6 +499,21 @@ namespace HotUpdate
                     info.data[j].ucTotalDay = 0;
                 }
             }
+        }
+
+        public bool CheckTimeUnlockDiamondPayment()
+        {
+            long throughTimes = 0;
+            long onLineTimes = 0;
+            if (MainUIModel.Instance.n64VariableValue.Count >= 2)
+            {
+                throughTimes = ToolUtil.getServerTime() -n64VariableValue[0];
+                onLineTimes = n64VariableValue[1] + throughTimes;
+            }
+            bool isVip1OrHigher = palyerData.m_i4Viplev >= 1;
+            bool hasPlayedEnough = onLineTimes >= 2400;
+            
+            return isVip1OrHigher || hasPlayedEnough;
         }
     }
 }

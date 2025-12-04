@@ -84,7 +84,8 @@ namespace HotUpdate
 
         public void Refresh()
         {
-            MainUIModel.Instance.mailItemDatas = MainUIModel.Instance.mailItemDatas.OrderByDescending(x => x.Item == 1).ToList();
+            var sortedData = MainUIModel.Instance.mailItemDatas.OrderByDescending(x => x.Item == 1).ToList();
+            MainUIModel.Instance.mailItemDatas = sortedData;
             m_VGridScroll_HeadList.SetListItemCount(MainUIModel.Instance.mailItemDatas.Count);
             m_VGridScroll_HeadList.RefreshAllShownItem();
 

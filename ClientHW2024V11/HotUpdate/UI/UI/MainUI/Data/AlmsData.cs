@@ -17,6 +17,7 @@ public class AlmsData
 
     public void SetAlmsData(SC_SCENE_SHOW_ME_INFO_EXTEND data) 
     {
+     
         JJJClaimTime = data.n64JJJTime;
         SzPassword = Encoding.Default.GetString(data.szPassword);
         if (ToolUtil.getServerTime() >= JJJClaimTime + 86400)
@@ -26,7 +27,7 @@ public class AlmsData
         else {
             MainUIModel.Instance.CurrnetAlmsCount = data.nJJJDay;
         }
-        
+     
     }
 
     public void SetJJJDay(long index) 
@@ -37,6 +38,7 @@ public class AlmsData
     {
         JJJClaimTime = time;
     }
+
 
 }
 

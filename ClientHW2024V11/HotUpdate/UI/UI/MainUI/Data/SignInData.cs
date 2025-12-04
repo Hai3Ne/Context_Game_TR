@@ -36,10 +36,10 @@ public class SignInData
         IsSignToday = data.m_iSignDay;
         SignTime = data.m_i8SignInTime;
         Message.Broadcast(MessageName.REFRESH_ROLLBANNER_PANEL);
-        foreach(var item in signInDayDatas)
-        {
-            UnityEngine.Debug.Log($"[SignInData] Day {item.Key}: signed={item.Value}");
-        }
+        // foreach(var item in signInDayDatas)
+        // {
+        //     UnityEngine.Debug.Log($"[SignInData] Day {item.Key}: signed={item.Value}");
+        // }
     }
     
     /// <summary>

@@ -25,11 +25,16 @@ public class TileToGridConverter : EditorWindow
     private Vector2 scrollPos;
     private TilePattern tilePattern = TilePattern.Alternating;
 
+    // Spacing Settings
+    private float spacingX = 0f;        // Horizontal spacing between tiles
+    private float spacingY = 0f;        // Vertical spacing between tiles
+    private bool showSpacingSettings = true;
+
     [MenuItem("Tools/Tile To Grid Converter", false, 100)]
     public static void OpenWindow()
     {
         TileToGridConverter window = GetWindow<TileToGridConverter>("Tile To Grid Converter");
-        window.minSize = new Vector2(400, 500);
+        window.minSize = new Vector2(400, 550);
         window.Show();
     }
 
@@ -59,6 +64,27 @@ public class TileToGridConverter : EditorWindow
 
         GUILayout.Space(5);
         tilePattern = (TilePattern)EditorGUILayout.EnumPopup("Tile Pattern", tilePattern);
+
+        GUILayout.Space(10);
+
+        // Spacing Settings Section
+        DrawSeparator("Spacing Settings");
+        
+        showSpacingSettings = EditorGUILayout.Foldout(showSpacingSettings, "Spacing Options");
+        if (showSpacingSettings)
+        {
+            EditorGUI.indentLevel++;
+            
+            spacingX = EditorGUILayout.Slider("Horizontal Spacing", spacingX, -20f, 50f);
+            EditorGUILayout.HelpBox("Horizontal space between tiles (in pixels) - negative values create overlap", MessageType.Info);
+            
+            GUILayout.Space(5);
+            
+            spacingY = EditorGUILayout.Slider("Vertical Spacing", spacingY, -20f, 50f);
+            EditorGUILayout.HelpBox("Vertical space between tiles (in pixels) - negative values create overlap", MessageType.Info);
+            
+            EditorGUI.indentLevel--;
+        }
 
         GUILayout.Space(10);
 
@@ -109,8 +135,11 @@ public class TileToGridConverter : EditorWindow
             Texture2D sampleTile = tile1 != null ? tile1 : tile2;
             int tileWidth = sampleTile.width;
             int tileHeight = sampleTile.height;
-            int gridWidth = tileWidth * totalCols;
-            int gridHeight = tileHeight * totalRows;
+            
+            // Calculate grid dimensions with spacing
+            var dimensions = CalculateGridDimensions(tileWidth, tileHeight);
+            int gridWidth = dimensions.totalWidth;
+            int gridHeight = dimensions.totalHeight;
             
             float scale = Mathf.Min((float)previewMaxSize / gridWidth, (float)previewMaxSize / gridHeight);
             int previewWidth = Mathf.RoundToInt(gridWidth * scale);
@@ -120,56 +149,86 @@ public class TileToGridConverter : EditorWindow
             EditorGUILayout.LabelField("Total Sprites: " + (totalCols * totalRows));
             EditorGUILayout.LabelField("Tile Size: " + tileWidth + " x " + tileHeight);
 
+            if (spacingX != 0f || spacingY != 0f)
+            {
+                EditorGUILayout.LabelField($"Spacing: {spacingX:F1}px (H) x {spacingY:F1}px (V)", EditorStyles.miniLabel);
+            }
+
             // Draw preview grid
             Rect previewRect = GUILayoutUtility.GetRect(previewWidth, previewHeight);
             GUI.Box(previewRect, "");
 
-            // Draw grid lines
-            Handles.BeginGUI();
-            Handles.color = Color.gray;
+            // Draw grid with spacing
+            float scaledTileWidth = (tileWidth * scale);
+            float scaledTileHeight = (tileHeight * scale);
+            float scaledSpacingX = (spacingX * scale);
+            float scaledSpacingY = (spacingY * scale);
             
-            float cellWidth = previewWidth / (float)totalCols;
-            float cellHeight = previewHeight / (float)totalRows;
-            
-            // Vertical lines
-            for (int i = 0; i <= totalCols; i++)
-            {
-                float x = previewRect.x + i * cellWidth;
-                Handles.DrawLine(new Vector3(x, previewRect.y), new Vector3(x, previewRect.yMax));
-            }
-            
-            // Horizontal lines
-            for (int i = 0; i <= totalRows; i++)
-            {
-                float y = previewRect.y + i * cellHeight;
-                Handles.DrawLine(new Vector3(previewRect.x, y), new Vector3(previewRect.xMax, y));
-            }
-
-            // Draw tile previews with pattern
+            // Draw tile grid
             for (int row = 0; row < totalRows; row++)
             {
                 for (int col = 0; col < totalCols; col++)
                 {
+                    float x = previewRect.x + col * (scaledTileWidth + scaledSpacingX);
+                    float y = previewRect.y + row * (scaledTileHeight + scaledSpacingY);
+                    
+                    Rect tileRect = new Rect(x, y, scaledTileWidth, scaledTileHeight);
+                    
+                    // Draw tile background with different color for overlap indication
+                    Color bgColor = (spacingX < 0f || spacingY < 0f) ? 
+                        new Color(1f, 0.8f, 0.8f, 0.3f) : // Light red for overlap
+                        new Color(0.8f, 0.8f, 0.8f, 0.3f);  // Light gray for normal
+                    EditorGUI.DrawRect(tileRect, bgColor);
+                    
+                    // Draw tile content
                     Texture2D tileToShow = GetTileForPosition(col, row);
                     if (tileToShow != null)
                     {
-                        Rect tileRect = new Rect(
-                            previewRect.x + col * cellWidth, 
-                            previewRect.y + row * cellHeight, 
-                            cellWidth, 
-                            cellHeight
-                        );
                         GUI.DrawTexture(tileRect, tileToShow, ScaleMode.ScaleToFit);
                         
                         // Show tile number
                         string tileNum = tileToShow == tile1 ? "1" : "2";
-                        GUI.Label(tileRect, tileNum, EditorStyles.whiteLabel);
+                        var labelStyle = new GUIStyle(EditorStyles.whiteLabel);
+                        labelStyle.fontSize = Mathf.Max(8, Mathf.RoundToInt(10 * scale));
+                        labelStyle.alignment = TextAnchor.UpperLeft;
+                        GUI.Label(tileRect, tileNum, labelStyle);
                     }
+                    
+                    // Draw tile border (different color for overlap)
+                    Color tileBorderColor = (spacingX < 0f || spacingY < 0f) ? 
+                        new Color(1f, 0.3f, 0.3f, 0.8f) : // Red border for overlap
+                        new Color(0.5f, 0.5f, 0.5f, 0.8f);  // Gray border for normal
+                    EditorGUI.DrawRect(new Rect(tileRect.x, tileRect.y, tileRect.width, 1), tileBorderColor);
+                    EditorGUI.DrawRect(new Rect(tileRect.x, tileRect.yMax-1, tileRect.width, 1), tileBorderColor);
+                    EditorGUI.DrawRect(new Rect(tileRect.x, tileRect.y, 1, tileRect.height), tileBorderColor);
+                    EditorGUI.DrawRect(new Rect(tileRect.xMax-1, tileRect.y, 1, tileRect.height), tileBorderColor);
                 }
             }
-
-            Handles.EndGUI();
         }
+    }
+
+    // Helper struct for grid dimensions
+    public struct GridDimensions
+    {
+        public int totalWidth;
+        public int totalHeight;
+    }
+
+    GridDimensions CalculateGridDimensions(int tileWidth, int tileHeight)
+    {
+        // Calculate total dimensions with spacing (can be negative for overlap)
+        float totalWidthF = (tileWidth * gridCols) + (spacingX * (gridCols - 1));
+        float totalHeightF = (tileHeight * gridRows) + (spacingY * (gridRows - 1));
+        
+        // Ensure minimum size of at least one tile
+        int totalWidth = Mathf.Max(tileWidth, Mathf.RoundToInt(totalWidthF));
+        int totalHeight = Mathf.Max(tileHeight, Mathf.RoundToInt(totalHeightF));
+        
+        return new GridDimensions
+        {
+            totalWidth = totalWidth,
+            totalHeight = totalHeight
+        };
     }
 
     Texture2D GetTileForPosition(int col, int row)
@@ -213,6 +272,52 @@ public class TileToGridConverter : EditorWindow
         {
             ResetValues();
         }
+
+        // Quick spacing presets
+        GUILayout.Space(5);
+        EditorGUILayout.LabelField("Quick Presets:", EditorStyles.miniLabel);
+        GUILayout.BeginHorizontal();
+        
+        if (GUILayout.Button("No Spacing"))
+        {
+            spacingX = 0f;
+            spacingY = 0f;
+        }
+        
+        if (GUILayout.Button("1px Spacing"))
+        {
+            spacingX = 1f;
+            spacingY = 1f;
+        }
+        
+        if (GUILayout.Button("2px Spacing"))
+        {
+            spacingX = 2f;
+            spacingY = 2f;
+        }
+        
+        GUILayout.EndHorizontal();
+        GUILayout.BeginHorizontal();
+        
+        if (GUILayout.Button("H-Only (2px)"))
+        {
+            spacingX = 2f;
+            spacingY = 0f;
+        }
+
+        if (GUILayout.Button("V-Only (2px)"))
+        {
+            spacingX = 0f;
+            spacingY = 2f;
+        }
+        
+        if (GUILayout.Button("Overlap (-2px)"))
+        {
+            spacingX = -2f;
+            spacingY = -2f;
+        }
+        
+        GUILayout.EndHorizontal();
 
         // Validation messages
         DrawValidationMessages();
@@ -281,6 +386,20 @@ public class TileToGridConverter : EditorWindow
                 EditorGUILayout.HelpBox("Pattern: Only Tile 2 will be used", MessageType.Info);
                 break;
         }
+
+        // Show spacing info
+        if (spacingX != 0f || spacingY != 0f)
+        {
+            if (tile1 != null || tile2 != null)
+            {
+                Texture2D sampleTile = tile1 != null ? tile1 : tile2;
+                var dims = CalculateGridDimensions(sampleTile.width, sampleTile.height);
+                string spacingInfo = spacingX < 0f || spacingY < 0f ? " (with overlap)" : "";
+                EditorGUILayout.HelpBox(
+                    $"Final grid size: {dims.totalWidth}x{dims.totalHeight}{spacingInfo}", 
+                    MessageType.Info);
+            }
+        }
     }
 
     void GenerateGrid()
@@ -302,12 +421,11 @@ public class TileToGridConverter : EditorWindow
             int tileWidth = sampleTile.width;
             int tileHeight = sampleTile.height;
 
-            // Create grid texture
-            int gridWidth = tileWidth * gridCols;
-            int gridHeight = tileHeight * gridRows;
+            // Calculate grid dimensions with spacing
+            var dimensions = CalculateGridDimensions(tileWidth, tileHeight);
             
-            Texture2D newGrid = new Texture2D(gridWidth, gridHeight, TextureFormat.RGBA32, false);
-            Color[] pixels = new Color[gridWidth * gridHeight];
+            Texture2D newGrid = new Texture2D(dimensions.totalWidth, dimensions.totalHeight, TextureFormat.RGBA32, false);
+            Color[] pixels = new Color[dimensions.totalWidth * dimensions.totalHeight];
 
             // Fill with transparent background
             for (int i = 0; i < pixels.Length; i++)
@@ -325,7 +443,8 @@ public class TileToGridConverter : EditorWindow
                     Texture2D tileToUse = GetTileForPosition(col, row);
                     if (tileToUse != null)
                     {
-                        CopyTileToGrid(tileToUse, pixels, col, row, tileWidth, tileHeight, gridWidth);
+                        CopyTileToGridWithSpacing(tileToUse, pixels, col, row, 
+                            tileWidth, tileHeight, dimensions.totalWidth);
                     }
                 }
             }
@@ -353,7 +472,7 @@ public class TileToGridConverter : EditorWindow
 
             // Show success message
             EditorUtility.DisplayDialog("Success", 
-                "Grid texture created successfully!\n\nPath: " + fullPath + "\nSprites: " + (gridCols * gridRows), 
+                $"Grid texture created successfully!\n\nPath: {fullPath}\nSprites: {gridCols * gridRows}\nSize: {dimensions.totalWidth}x{dimensions.totalHeight}", 
                 "OK");
 
             // Ping the created asset
@@ -368,8 +487,8 @@ public class TileToGridConverter : EditorWindow
         }
     }
 
-    void CopyTileToGrid(Texture2D tile, Color[] gridPixels, int gridX, int gridY, 
-                       int tileWidth, int tileHeight, int gridWidth)
+    void CopyTileToGridWithSpacing(Texture2D tile, Color[] gridPixels, int gridX, int gridY, 
+                                  int tileWidth, int tileHeight, int gridWidth)
     {
         // Make texture readable
         string tilePath = AssetDatabase.GetAssetPath(tile);
@@ -384,16 +503,27 @@ public class TileToGridConverter : EditorWindow
 
         Color[] tilePixels = tile.GetPixels();
 
+        // Calculate tile position with spacing (can be negative for overlap)
+        int startX = Mathf.RoundToInt(gridX * (tileWidth + spacingX));
+        int startY = Mathf.RoundToInt(gridY * (tileHeight + spacingY));
+
         for (int y = 0; y < tileHeight; y++)
         {
             for (int x = 0; x < tileWidth; x++)
             {
-                int gridIndex = ((gridY * tileHeight + y) * gridWidth) + (gridX * tileWidth + x);
-                int tileIndex = (y * tileWidth) + x;
-
-                if (gridIndex >= 0 && gridIndex < gridPixels.Length)
+                int pixelX = startX + x;
+                int pixelY = startY + y;
+                
+                // Bounds check
+                if (pixelX >= 0 && pixelX < gridWidth && pixelY >= 0)
                 {
-                    gridPixels[gridIndex] = tilePixels[tileIndex];
+                    int gridIndex = (pixelY * gridWidth) + pixelX;
+                    int tileIndex = (y * tileWidth) + x;
+
+                    if (gridIndex >= 0 && gridIndex < gridPixels.Length)
+                    {
+                        gridPixels[gridIndex] = tilePixels[tileIndex];
+                    }
                 }
             }
         }
@@ -418,7 +548,7 @@ public class TileToGridConverter : EditorWindow
         importer.filterMode = FilterMode.Point;
         importer.mipmapEnabled = false;
 
-        // Create sprite metadata
+        // Create sprite metadata with spacing consideration
         List<SpriteMetaData> spritesheet = new List<SpriteMetaData>();
 
         for (int row = 0; row < rows; row++)
@@ -427,12 +557,12 @@ public class TileToGridConverter : EditorWindow
             {
                 SpriteMetaData smd = new SpriteMetaData();
                 smd.name = outputFileName + "_" + (row * cols + col);
-                smd.rect = new Rect(
-                    col * tileWidth,
-                    (rows - row - 1) * tileHeight, // Unity uses bottom-left origin
-                    tileWidth,
-                    tileHeight
-                );
+                
+                // Calculate sprite rect position accounting for spacing (can be negative)
+                int spriteX = Mathf.RoundToInt(col * (tileWidth + spacingX));
+                int spriteY = Mathf.RoundToInt((rows - row - 1) * (tileHeight + spacingY)); // Unity uses bottom-left origin
+                
+                smd.rect = new Rect(spriteX, spriteY, tileWidth, tileHeight);
                 smd.pivot = new Vector2(0.5f, 0.5f);
                 smd.alignment = (int)SpriteAlignment.Center;
                 spritesheet.Add(smd);
@@ -442,7 +572,7 @@ public class TileToGridConverter : EditorWindow
         importer.spritesheet = spritesheet.ToArray();
         AssetDatabase.ImportAsset(texturePath, ImportAssetOptions.ForceUpdate);
 
-        Debug.Log("✅ Created grid with " + spritesheet.Count + " sprites!");
+        Debug.Log("✅ Created grid with " + spritesheet.Count + " sprites with spacing!");
     }
 
     bool ValidateInputs()
@@ -486,9 +616,12 @@ public class TileToGridConverter : EditorWindow
         tile2 = null;
         gridCols = 6;
         gridRows = 7;
-        outputFileName = "combined_grid";
-        outputPath = "Assets/Atlas/";
+        outputFileName = "Grid_402";
+        outputPath = "Assets/ResData/UI/Texture/English/FortyTwoGrid";
         autoSetupSprite = true;
         tilePattern = TilePattern.Alternating;
+        spacingX = 0f;
+        spacingY = 0f;
+        showSpacingSettings = true;
     }
 }

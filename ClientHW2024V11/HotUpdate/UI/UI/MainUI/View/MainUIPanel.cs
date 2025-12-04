@@ -19,10 +19,9 @@ namespace HotUpdate
         bool bGuide = false;
         bool bShowGuideAfterIdentityCard = false;
         
-        
         protected override void Awake()
         {
-            base.Awake();   
+            base.Awake();
             GetBindComponents(gameObject);
             MainUIModel.Instance.getRoomList();
 
@@ -48,6 +47,7 @@ namespace HotUpdate
         {
             base.OnEnable();
             RegisterListener();
+
             if (!CoreEntry.gAudioMgr.IsPlaying())
             {
                 CoreEntry.gAudioMgr.PlayUIMusic(47);
@@ -88,8 +88,6 @@ namespace HotUpdate
                 MainUIModel.Instance.bIdentityCardShown = true;
                 IdentityCardCtrl.Instance.OpenIdentityCardPanel();
             }
-            
-            
             //InvokeRepeating("GetOnline",30,30);
             CoreEntry.gTimeMgr.AddTimer(30f,true, GetOnline,89765);
             CoreEntry.gTimeMgr.AddTimer(1, false, RefreshRedDot, 76592);
@@ -98,24 +96,18 @@ namespace HotUpdate
             Screen.orientation = ScreenOrientation.Portrait;
      
             await System.Threading.Tasks.Task.Delay(TimeSpan.FromSeconds(0.03f));
+            // if (MainUIModel.Instance.palyerData.m_i8Diamonds >=30 && GuideModel.Instance.bReachCondition(6))
+            // {
+            //     bGuide = true;
+            //     GuideModel.Instance.SetFinish(6);
+            //     MainUICtrl.Instance.OpenGuidePanel(m_Btn_Wealth.transform, ExchangeCardPanel, 6);
+            // }
 
-            long throughTimes = 0;
-            long onLineTimes = 0;
-            if (MainUIModel.Instance.n64VariableValue.Count >= 2)
-            {
-                throughTimes = ToolUtil.getServerTime() - MainUIModel.Instance.n64VariableValue[0];
-                onLineTimes = MainUIModel.Instance.n64VariableValue[1] + throughTimes;
-            }
-
-            bool isVip1OrHigher = MainUIModel.Instance.palyerData.m_i4Viplev >= 1;
-            bool hasPlayedEnough = onLineTimes >= 2400;
-
-            if ((isVip1OrHigher || hasPlayedEnough) && GuideModel.Instance.bReachCondition(6))
+            if (MainUIModel.Instance.GetOnlineCondition() && GuideModel.Instance.bReachCondition(6) && !GuideModel.Instance.bReachCondition(0))
             {
                 bGuide = true;
                 GuideModel.Instance.SetFinish(6);
                 MainUICtrl.Instance.OpenGuidePanel(m_Btn_Wealth.transform, ExchangeCardPanel, 6);
-
             }
         }
         public void upDateGold()
@@ -186,7 +178,11 @@ namespace HotUpdate
         {
             
         }
-        
+
+
+
+      
+
         public void UnRegisterListener()
         {
 
@@ -221,8 +217,6 @@ namespace HotUpdate
             Message.RemoveListener(MessageName.REALName, HandleGuide);
             Message.RemoveListener(MessageName.IDENTITY_CARD, OnIdentityCard);
         }
-
-
 
         private void HandleGuide()
         {
@@ -600,7 +594,17 @@ namespace HotUpdate
             StartCoroutine(ToolUtil.GetHeadImage(Encoding.UTF8.GetString(MainUIModel.Instance.palyerData.m_szHeadUrl).Replace("\0", null), m_Img_Icon));
 
             m_Btn_NoviceTask.gameObject.SetActive(MainUIModel.Instance.signInData.signInDay < 8);
-
+            
+            // check time condition first to show 
+            m_Btn_Tournament.gameObject.SetActive(MainUIModel.Instance.GetOnlineCondition());
+            m_Btn_TourRank.gameObject.SetActive(MainUIModel.Instance.GetOnlineCondition());
+            // if (MainUIModel.Instance.GetOnlineCondition() && GuideModel.Instance.bReachCondition(6))
+            // {
+            //     bGuide = true;
+            //     GuideModel.Instance.SetFinish(6);
+            //     MainUICtrl.Instance.OpenGuidePanel(m_Btn_Wealth.transform, ExchangeCardPanel, 6);
+            //
+            // }
             m_Txt_GoldNum.text = ToolUtil.AbbreviateNumber(MainUIModel.Instance.Golds);
             m_Txt_CoinNum.text = (double)MainUIModel.Instance.palyerData.m_i8Diamonds/100f + "";
             var uid = MainUIModel.Instance.palyerData.m_i8roleID.ToString();

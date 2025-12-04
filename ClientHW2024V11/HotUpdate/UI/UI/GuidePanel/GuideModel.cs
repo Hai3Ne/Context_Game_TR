@@ -29,5 +29,11 @@ namespace HotUpdate
         {
             PlayerPrefs.SetString(MainUIModel.Instance.palyerData.m_i8roleID + "===>-=-" + guideIndex, guideIndex.ToString());
         }
+        
+        public bool IsCompleted(int guideIndex)
+        {
+            return PlayerPrefs.HasKey(MainUIModel.Instance.palyerData.m_i8roleID + "===>-=-" + guideIndex);
+
+        }
     }
 }

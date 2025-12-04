@@ -87,7 +87,7 @@ namespace HotUpdate
             CoreEntry.gAudioMgr.PlayUISound(46);
             if (!taskPanel)
             {
-                var panel = MainPanelMgr.Instance.GetPanel("GuildPanel");
+                var panel = MainPanelMgr.Instance.GetPanel("GuidePanel");
                 panel?.Close();
             }
             else

@@ -2,6 +2,7 @@ using SEZSJ;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -64,8 +65,9 @@ namespace HotUpdate
          
             TxtM_Title.text = str;
             DateTime time = TimeZone.CurrentTimeZone.ToLocalTime(new DateTime(1970,1,1));
-            TxtM_Time.text = $"{time.AddSeconds(itemData.SendTime)}";
-
+            // TxtM_Time.text = $"{time.AddSeconds(itemData.SendTime)}";
+            TxtM_Time.text = $"{time.AddSeconds(itemData.SendTime).ToString("yyyy年M月d日 HH:mm:ss", CultureInfo.InvariantCulture)}";
+            
             m_Btn_Look.gameObject.SetActive(itemData.Read==0);
             Trans_HasRead.gameObject.SetActive(itemData.Read == 1);
             // m_mailIcon_Img.sprite = itemData.Read == 0 ? _imgRead : _imgUnread;

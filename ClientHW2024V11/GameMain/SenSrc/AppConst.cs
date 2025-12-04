@@ -50,6 +50,6 @@ public class AppConst
     public const string ExtName = ".unity3d";                   //扩展名
     public const string AssetDir = "StreamingAssets";           //素材目录
     public const string CdnUrl = "https://a.lywl2025.com/tga2/"; //CDN地址
-    public const string customer = "ta1.lywl2025.com"; //版本地址
-    public const string backstage = "https://rechargeva1.lywl2025.com";
+    public const string customer = "ta2.lywl2025.com"; //版本地址
+    public const string backstage = "https://rechargeva2.lywl2025.com";
 }

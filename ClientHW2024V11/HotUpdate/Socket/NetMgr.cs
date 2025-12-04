@@ -135,7 +135,7 @@ namespace SEZSJ
             AddHearBeatDelay((int)(delay / 10000));
             m_HearBeatTimeOutCount = 0;
             offTime = ConvertDateTimep(DateTime.Now) - info.Time;
-            // LogMgr.Log("接收：：：心跳包 时间：" + Time.realtimeSinceStartup);
+            //LogMgr.Log("接收：：：心跳包 时间：" + Time.realtimeSinceStartup);
         }
 
         public void setActorId(int id)
@@ -277,7 +277,7 @@ namespace SEZSJ
                             }
 
                             //LogMgr.Log("发送：：：心跳包 时间：" + m_HearBeatSendTimeStamp);
-                            CacheSendHeartBeat.Time = m_HearBeatLastTime; 
+                            CacheSendHeartBeat.Time = m_HearBeatLastTime;
                            // LogMgr.Log("发送：：：心跳包");
                             NetMgr.netMgr.send(NetMsgDef.C_HEART_BEAT, CacheSendHeartBeat);
                         }

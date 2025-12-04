@@ -454,8 +454,7 @@ namespace HotUpdate
             MainUIModel.Instance.GetAlsmCondition();
             Debug.LogError($"phone:{Encoding.Default.GetString(data.m_szPhone)}");
             MainUIModel.Instance.IsBindPhone(data.m_szPhone);
-            // MainUIModel.Instance.bIdentityCardShown = false;
-            
+
             for (int i = 0; i < (int)EHumanRewardBits.E_Reward_Max; i++)
             {
                 MainUIModel.Instance.palyerState.Add((EHumanRewardBits)i, ToolUtil.ValueByBit(data.m_i4FlagBits, i));
@@ -531,6 +530,8 @@ namespace HotUpdate
                 {
                     Message.Broadcast(MessageName.REFRESH_MAILDETAILS);
                     Message.Broadcast(MessageName.REFRESH_MAINUI_PANEL);
+                    Message.Broadcast(MessageName.REFRESH_MAIL_PANEL);
+                    MainUICtrl.Instance.SendGetMailList();
                 }, MainUIModel.Instance.AddGoldsId);
             }
             else
@@ -800,7 +801,7 @@ namespace HotUpdate
             else if (data.m_i1Ret == 2)
             {
                 Debug.Log($"<color=#ffff00>当天已领取</color>");
-                ToolUtil.FloattingText("Quando seu saldo for inferior a R$ 2, Você pode receber R$1,Receba uma vez por dia", MainPanelMgr.Instance.GetPanel("BenefitPanel").transform);
+                //ToolUtil.FloattingText("Quando seu saldo for inferior a R$ 2, Você pode receber R$1,Receba uma vez por dia", MainPanelMgr.Instance.GetPanel("BenefitPanel").transform);
             }
             else if (data.m_i1Ret == 3)
             {
@@ -809,7 +810,7 @@ namespace HotUpdate
             else if (data.m_i1Ret == 4)
             {
                 Debug.Log($"<color=#ffff00>身上金币大于等于领取线</color>");
-                ToolUtil.FloattingText("Quando seu saldo for inferior a R$ 2, Você pode receber R$1,Receba uma vez por dia", MainPanelMgr.Instance.GetPanel("AlmsPanel").transform);
+                //ToolUtil.FloattingText("Quando seu saldo for inferior a R$ 2, Você pode receber R$1,Receba uma vez por dia", MainPanelMgr.Instance.GetPanel("AlmsPanel").transform);
             }
         }
         /// <summary>
@@ -836,7 +837,7 @@ namespace HotUpdate
             else if (data.m_i1Ret == 2)
             {
                 Debug.Log($"<color=#ffff00>当天已领取</color>");
-                ToolUtil.FloattingText("Quando seu saldo for inferior a R$ 2, Você pode receber R$1,Receba uma vez por dia", MainPanelMgr.Instance.GetPanel("AlmsPanel").transform);
+                //ToolUtil.FloattingText("Quando seu saldo for inferior a R$ 2, Você pode receber R$1,Receba uma vez por dia", MainPanelMgr.Instance.GetPanel("AlmsPanel").transform);
             }
             else if (data.m_i1Ret == 3)
             {
@@ -1102,6 +1103,7 @@ namespace HotUpdate
             {
                 Debug.LogError("认证成功！");
                 ToolUtil.FloattingText("认证成功", MainPanelMgr.Instance.GetPanel("MainUIPanel").gameObject.transform);
+         
             }
             else if (data.m_i1Ret == 2)
             {
@@ -1260,8 +1262,18 @@ namespace HotUpdate
                                 {
                                     SdkCtrl.Instance.SendEvent(ApplyType.Pay, money);
                                 }*/
-                float num2 = (float)num1 * 0.1f;
-                int num3 = (int)Mathf.Ceil(num2);
+                float num2 = 0f;
+                int num3 = 0;
+                if (HotStart.ins.getChannle() == 1000 ) 
+                {
+                    num2 = (float)num1 * 1f;
+                    num3 = (int)Mathf.Ceil(num2);
+                }
+                else
+                {
+                    num2 = (float)num1 * 0.2f;
+                    num3 = (int)Mathf.Ceil(num2);
+                }
                 SdkCtrl.Instance.SendEvent(ApplyType.Pay, num3);
             }
             SendRechargeNotice(orderid);
@@ -1283,6 +1295,7 @@ namespace HotUpdate
             {
                 Message.Broadcast(MessageName.REFRESH_MAILDETAILS);
                 Message.Broadcast(MessageName.REFRESH_MAINUI_PANEL);
+                SendGetMailList();
             });
         }
 
@@ -1465,6 +1478,9 @@ namespace HotUpdate
         {
             MainPanelMgr.Instance.Close("AuthenticationPanel");
         }
+
+
+
 
         #endregion
 

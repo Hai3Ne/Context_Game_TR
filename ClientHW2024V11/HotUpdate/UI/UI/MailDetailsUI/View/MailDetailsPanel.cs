@@ -112,6 +112,7 @@ namespace HotUpdate
         }
         public void OnClseBtn() 
         {
+            
             CoreEntry.gAudioMgr.PlayUISound(46);
             MainPanelMgr.Instance.Close("MailDetailsPanel");
             Message.Broadcast(MessageName.REFRESH_MAIL_PANEL);
@@ -131,21 +132,21 @@ namespace HotUpdate
                 
                 m_Txt_account.text = $"{ToolUtil.AbbreviateNumberf0(data.mailItemVo[0].m_i8itemcount)}金币";
                 m_Img_Icon.sprite = AtlasSpriteManager.Instance.GetSprite("Common:" + "ziyuan_icon_1");
-                m_Img_Icon.transform.localScale = Vector3.one;
+                m_Img_Icon.transform.localScale = new Vector3(1.35f, 1.35f, 1.35f);
             }
             else if ((int)EPlayerAttrType.eDiamond == data.mailItemVo[0].m_i4itemid)
             {
                 m_Txt_account.text = $"{((double)data.mailItemVo[0].m_i8itemcount)/100f}宝石";
                 m_Img_Icon.sprite = AtlasSpriteManager.Instance.GetSprite("Common:" + "ziyuan_icon_2");
-                m_Img_Icon.transform.localScale = Vector3.one;
+                m_Img_Icon.transform.localScale = new Vector3(1.35f, 1.35f, 1.35f);
             }
             else if ((int)EPlayerAttrType.eMoneyCard == data.mailItemVo[0].m_i4itemid)
             {
                 m_Txt_account.text = $"{(double)data.mailItemVo[0].m_i8itemcount/100f}元权益卡";
                 m_Img_Icon.sprite = AtlasSpriteManager.Instance.GetSprite("Common:" + "zfb");
-                // m_Img_Icon.transform.localScale = new Vector3(0.55f, 0.55f, 0.55f);
+                m_Img_Icon.transform.localScale = Vector3.one;
             }
-
+            m_Img_Icon.SetNativeSize();
             if (data.txtId == 3)
             {
                 data.contantParam[1] = (long.Parse(data.contantParam[1]) * 10000).ToString();

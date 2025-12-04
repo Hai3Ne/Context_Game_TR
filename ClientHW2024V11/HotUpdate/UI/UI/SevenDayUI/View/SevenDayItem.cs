@@ -46,7 +46,7 @@ public class SevenDayItem : MonoBehaviour
             _objDayOn.SetActive(!isSign);
             _objDayOff.SetActive(isSign);
             bgImage.sprite = !isSign ? _spriteDayOn : _spriteDayOff;
-            colorText.color = isSign ? new Color32(104, 104, 104, 255): new Color32(80, 13, 220, 255);
+            //colorText.color = isSign ? new Color32(104, 104, 104, 255): new Color32(80, 13, 220, 255);
             //check.SetActive(isSign);
             dayLablOn.text = _dayTxt;
             dayLablOff.text = _dayTxt;
@@ -71,7 +71,7 @@ public class SevenDayItem : MonoBehaviour
             _objDayOn.SetActive(!isSign);
             _objDayOff.SetActive(isSign);
             bgImage.sprite = !isSign ? _spriteDayOn : _spriteDayOff;
-            colorText.color = isSign ? new Color32(82, 82, 82, 255): new Color32(195, 101, 9, 255);
+            //colorText.color = isSign ? new Color32(82, 82, 82, 255): new Color32(195, 101, 9, 255);
             
             
             //dayLable.GetComponent<Text>().text = _dayTxt;

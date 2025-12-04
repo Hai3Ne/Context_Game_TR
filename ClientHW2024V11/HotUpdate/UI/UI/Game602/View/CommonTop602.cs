@@ -25,6 +25,11 @@ namespace HotUpdate
 
         protected float timeBeginSpin = 0;
 
+        // animation for text_gold
+        private bool isGoldAnimating = false;
+        private long lastAnimatedGold = 0;
+        private long previousGoldValue = 0;
+        
         public CallbackCondition OnPointDown;
         public Callback OnRank;//点击排行
         public Callback OnHelp;//点击帮助
@@ -61,9 +66,10 @@ namespace HotUpdate
             RefreshVip();
             SetRollBtnRorate(false);
             SetPlayIcon();
+            m_Btn_biwu.gameObject.SetActive(MainUIModel.Instance.GetOnlineCondition());
             m_Rect_tips.gameObject.SetActive(false);//!PlayerPrefs.HasKey($"BindPhoneGuide{MainUIModel.Instance.palyerData.m_i8roleID}"));
             m_Rect_Mask.gameObject.SetActive(false);//!PlayerPrefs.HasKey($"BindPhoneGuide{MainUIModel.Instance.palyerData.m_i8roleID}"));
-                                                    // m_Img_Coin2.gameObject.SetActive(!MainUIModel.Instance.bNormalGame);
+                                                    // m_Img_Coin2.gameObject.SetActive(!MainUIModel.Instance.bNormalGame); 
             m_Img_BroadCoin2.gameObject.SetActive(!MainUIModel.Instance.bNormalGame);
             RefreshRedDot();
      
@@ -227,8 +233,32 @@ namespace HotUpdate
 
         public void UpdateGold(long gold)
         {
+            // m_Txt_golds.text = ToolUtil.AbbreviateNumber(gold);
+            // MainUIModel.Instance.Golds = gold;
+            long oldGold = previousGoldValue;
+    
             m_Txt_golds.text = ToolUtil.AbbreviateNumber(gold);
             MainUIModel.Instance.Golds = gold;
+            previousGoldValue = gold;
+            if (gold > oldGold && !isGoldAnimating && gold != lastAnimatedGold)
+            {
+                isGoldAnimating = true;
+                lastAnimatedGold = gold;
+                m_Txt_golds.transform.DOKill();
+                Color originalColor = m_Txt_golds.color;
+                Vector3 originalScale = m_Txt_golds.transform.localScale;
+                Sequence goldSequence = DOTween.Sequence();
+                goldSequence.Append(m_Txt_golds.transform.DOScale(1.3f, 0.3f).SetEase(Ease.OutBack))
+                    .Append(m_Txt_golds.transform.DOScale(originalScale, 0.3f).SetEase(Ease.InBack));
+                goldSequence.Insert(0f, m_Txt_golds.DOColor(Color.yellow, 0.15f).SetEase(Ease.OutQuart))
+                    .Insert(0.25f, m_Txt_golds.DOColor(originalColor, 0.35f).SetEase(Ease.InQuart));
+                goldSequence.Insert(0f, m_Txt_golds.transform.DORotate(new Vector3(0, 0, 5f), 0.3f).SetEase(Ease.OutQuart))
+                    .Insert(0.3f, m_Txt_golds.transform.DORotate(Vector3.zero, 0.3f).SetEase(Ease.InQuart));
+                goldSequence.OnComplete(() => {
+                    isGoldAnimating = false;
+                });
+                goldSequence.Play();
+            }
         }
 
         public void UpDateScore(long score)

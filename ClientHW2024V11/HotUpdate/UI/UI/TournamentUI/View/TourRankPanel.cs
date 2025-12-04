@@ -245,20 +245,21 @@ namespace HotUpdate
 
         private void setTog1Color()
         {
-            m_Txt_PageTxt1.color = !m_Tog_Options1.isOn ? new Color32(255, 255, 255, 255): new Color32(195, 101, 9, 255);
-            m_Txt_PageRewardTxt1.color = !m_Tog_Options1.isOn ? new Color32(255, 255, 255, 255): new Color32(195, 101, 9, 255);
-            m_Txt_PageTxt2.color = !m_Tog_Options2.isOn ? new Color32(255, 255, 255, 255): new Color32(195, 101, 9, 255);
-            m_Txt_PageRewardTxt2.color = !m_Tog_Options2.isOn ? new Color32(255, 255, 255, 255): new Color32(195, 101, 9, 255);
-            m_Txt_PageTxt3.color = !m_Tog_Options3.isOn ? new Color32(255, 255, 255, 255): new Color32(195, 101, 9, 255);
-            m_Txt_PageRewardTxt3.color = !m_Tog_Options3.isOn ? new Color32(255, 255, 255, 255): new Color32(195, 101, 9, 255);
-            m_Txt_PageTxt4.color = !m_Tog_Options4.isOn ? new Color32(255, 255, 255, 255): new Color32(195, 101, 9, 255);
-            m_Txt_PageRewardTxt4.color = !m_Tog_Options4.isOn ? new Color32(255, 255, 255, 255): new Color32(195, 101, 9, 255);
-            m_Txt_PageTxt5.color = !m_Tog_Options5.isOn ? new Color32(255, 255, 255, 255): new Color32(195, 101, 9, 255);
-            m_Txt_PageRewardTxt5.color = !m_Tog_Options5.isOn ? new Color32(255, 255, 255, 255): new Color32(195, 101, 9, 255);
-            m_Txt_PageTxt6.color = !m_Tog_Options6.isOn ? new Color32(255, 255, 255, 255): new Color32(195, 101, 9, 255);
-            m_Txt_PageRewardTxt6.color = !m_Tog_Options6.isOn ? new Color32(255, 255, 255, 255): new Color32(195, 101, 9, 255);
-            m_Txt_PageTxt7.color = !m_Tog_Options7.isOn ? new Color32(255, 255, 255, 255): new Color32(195, 101, 9, 255);
-            m_Txt_PageRewardTxt7.color = !m_Tog_Options7.isOn ? new Color32(255, 255, 255, 255): new Color32(195, 101, 9, 255);
+            m_Txt_PageTxt1.color = !m_Tog_Options1.isOn ? new Color32(147, 73, 221, 255) : new Color32(167, 67, 11, 255);
+            m_Txt_PageRewardTxt1.color = !m_Tog_Options1.isOn ? new Color32(147, 73, 221, 255) : new Color32(167, 67, 11, 255);
+            m_Txt_PageTxt2.color = !m_Tog_Options2.isOn ? new Color32(147, 73, 221, 255) : new Color32(167, 67, 11, 255);
+            m_Txt_PageRewardTxt2.color = !m_Tog_Options2.isOn ? new Color32(147, 73, 221, 255) : new Color32(167, 67, 11, 255);
+            m_Txt_PageTxt3.color = !m_Tog_Options3.isOn ? new Color32(147, 73, 221, 255) : new Color32(167, 67, 11, 255);
+            m_Txt_PageRewardTxt3.color = !m_Tog_Options3.isOn ? new Color32(147, 73, 221, 255) : new Color32(167, 67, 11, 255);
+            m_Txt_PageTxt4.color = !m_Tog_Options4.isOn ? new Color32(147, 73, 221, 255) : new Color32(167, 67, 11, 255);
+            m_Txt_PageRewardTxt4.color = !m_Tog_Options4.isOn ? new Color32(147, 73, 221, 255) : new Color32(167, 67, 11, 255);
+            m_Txt_PageTxt5.color = !m_Tog_Options5.isOn ? new Color32(147, 73, 221, 255) : new Color32(167, 67, 11, 255);
+            m_Txt_PageRewardTxt5.color = !m_Tog_Options5.isOn ? new Color32(147, 73, 221, 255) : new Color32(167, 67, 11, 255);
+            m_Txt_PageTxt6.color = !m_Tog_Options6.isOn ? new Color32(147, 73, 221, 255) : new Color32(167, 67, 11, 255);
+            m_Txt_PageRewardTxt6.color = !m_Tog_Options6.isOn ? new Color32(147, 73, 221, 255) : new Color32(167, 67, 11, 255);
+            m_Txt_PageTxt7.color = !m_Tog_Options7.isOn ? new Color32(147, 73, 221, 255) : new Color32(167, 67, 11, 255);
+            m_Txt_PageRewardTxt7.color = !m_Tog_Options7.isOn ? new Color32(147, 73, 221, 255) : new Color32(167, 67, 11, 255);
+            
         }
 
         public void Toggle1Changed(bool isOn)
@@ -473,7 +474,7 @@ namespace HotUpdate
                 var item = m_VGridScroll_TournamentList.GetShownItemByItemIndex(i);
                 if (item != null)
                 {
-                    if (i < 30)
+                    if (i < 36)
                     {
 
                         tempList.Add(item.transform);
@@ -542,7 +543,7 @@ namespace HotUpdate
         
             CoreEntry.gAudioMgr.PlayUISound(46);
             CommonPanel panel = MainPanelMgr.Instance.ShowDialog("CommonPanel") as CommonPanel;
-            panel.SetContent("规则说明", "1.所有游戏房间的伤害值均参与排行统计\n2.活动期间，每周进行奖励结算\n3.每个档位上榜都有名额限制，先到先得\n4.根据达成的伤害目标的时间进行排名\n5.奖励层层叠加，越早完成，奖励越高\n6.奖励通过邮件发送");
+            panel.SetContent("规则说明", "1.所有游戏房间的伤害值均参与排行统计\n2.活动期间，每半周进行奖励结算\n3.每个档位上榜都有名额限制，先到先得\n4.根据达成的伤害目标的时间进行排名\n5.奖励层层叠加，越早完成，奖励越高\n6.奖励通过邮件发送");
 
         }
 

@@ -21,7 +21,7 @@ namespace SEZSJ
 
         protected virtual bool bLocalize { get { return false; } }
 
-        [MenuItem("图集工具/图集本地化-新", false)]
+        [MenuItem("图集工具(Export Atlas)/图集本地化-新(NewVer)", false)]
         static void OpenWnd()
         {
             GetWindow(typeof(AtlasImporterToolNew), true).Show();

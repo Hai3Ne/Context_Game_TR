@@ -864,7 +864,7 @@ namespace HotUpdate
                         int random3 = UnityEngine.Random.Range(0, 2);
                         if (random3 == 1)
                             aniName = "left_starfruit";
-                        ToolUtil.PlayAnimation(ske.transform, aniName, false,()=> 
+                        ToolUtil.PlayAnimation(ske.transform, aniName, false ,()=> 
                         {
                             ske.DOAnchorPos(new Vector2(-561, 170), 2).SetEase(Ease.Linear);
                             ToolUtil.PlayAnimation(ske.transform, "left_walk", true, null);

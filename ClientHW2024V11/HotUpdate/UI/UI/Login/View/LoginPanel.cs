@@ -59,7 +59,6 @@ namespace HotUpdate
             if (value <= 0) return;
             var code = ToolUtil.GetRandomCode(12);
             var hash = ToolUtil.HMACSHA1(code, LoginCtrl.pwdKey);
-            LoginCtrl.Instance.loginType = 0; // Guest login
             LoginCtrl.Instance.SendReqcLogin("", "", "", 101, 0, 0, code, hash, "", "3.0.1", 1 + "", "", "", "", "HWCNDY2_" + SystemInfo.deviceUniqueIdentifier + value);
         }
 
@@ -75,9 +74,14 @@ namespace HotUpdate
             m_Btn_Comece.onClick.RemoveListener(OnComeceBtn);
             m_Btn_Comece1.onClick.RemoveListener(OnComece1Btn);
             m_Btn_Comece2.onClick.RemoveListener(OnComece2Btn);
-            
+
             m_Tog_Btn.onValueChanged.RemoveListener(onValueChange);
             Message.RemoveListener<string>(MessageName.WX_LOGIN_CALLBACK, OnWxCallBack);
+        }
+
+        protected override void Update()
+        {
+            base.Update();
         }
 
 
@@ -91,6 +95,7 @@ namespace HotUpdate
             m_Btn_Comece.onClick.AddListener(OnComeceBtn);
             m_Btn_Comece1.onClick.AddListener(OnComece1Btn);
             m_Btn_Comece2.onClick.AddListener(OnComece2Btn);
+            
             m_Tog_Btn.onValueChanged.AddListener(onValueChange);
             Message.AddListener<string>(MessageName.WX_LOGIN_CALLBACK, OnWxCallBack);
         }
@@ -169,6 +174,11 @@ namespace HotUpdate
                 ToolUtil.FloattingText("请选择同意用户服务协议及隐私政策!", transform);
                 return;
             }
+            if (MainUIModel.Instance.isInBlackList == true)
+            {
+                // 在黑名单中
+                return;
+            }
             if (!SdkCtrl.Instance.isCanLogin())
             {
                 return;
@@ -188,7 +198,6 @@ namespace HotUpdate
             else {
                 var code = ToolUtil.GetRandomCode(12);
                 var hash = ToolUtil.HMACSHA1(code, LoginCtrl.pwdKey);
-                LoginCtrl.Instance.loginType = 0; // Guest login
                 LoginCtrl.Instance.SendReqcLogin("", "", "", 101, 0, 0, code, hash, "", "3.0.1", LoginCtrl.Instance.channelId + "", "", "", "", "HWCNDY37_" + SystemInfo.deviceUniqueIdentifier);
                 // LoginCtrl.Instance.SendReqcLogin("", "", "", 101, 0, 0, code, hash, "", "3.0.1", LoginCtrl.Instance.channelId + "", "", "", "", "HWCNDY34_4490105bca9a7f4f8696a6a6d17dc26a1e9997f6f");
 
@@ -200,13 +209,17 @@ namespace HotUpdate
         {
             OnLoginBtn();
         }
-
         public void OnComeceBtn()
         {
             CoreEntry.gAudioMgr.PlayUISound(46);
             if (!m_Tog_Btn.isOn)
             {
                 ToolUtil.FloattingText("请选择同意用户服务协议及隐私政策!",transform);
+                return;
+            }
+            if (MainUIModel.Instance.isInBlackList == true)
+            {
+                // 在黑名单中
                 return;
             }
             if (!SdkCtrl.Instance.isCanLogin())

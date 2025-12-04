@@ -125,6 +125,8 @@ namespace HotUpdate
             Btn_Rank.onClick.AddListener(OnRankBtn);
             Btn_Tour.onClick.AddListener(OnTourBtn);
             m_Btn_TourRank.onClick.AddListener(OnTourRankBtn);
+            m_Btn_TourRank.gameObject.SetActive(MainUIModel.Instance.GetOnlineCondition());
+            Btn_Tour.gameObject.SetActive(MainUIModel.Instance.GetOnlineCondition());
             HideAllLines(false,null);
         }
 
