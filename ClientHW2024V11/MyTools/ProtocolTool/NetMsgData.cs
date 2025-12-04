@@ -793,7 +793,7 @@ namespace SEZSJ
 	{
 		public int nJJJDay;	// 上一次领取救济金当天总额度
 		public long n64JJJTime;	// 上一次领取救济金时间0点
-		public byte[] szPassword = new byte[33];	// 登录密码
+		public byte[] szPassword = new byte[8];	// 登录密码
 
 		[NetUnPackResponse(8004)]
 		public override void unpack(NetReadBuffer buffer)

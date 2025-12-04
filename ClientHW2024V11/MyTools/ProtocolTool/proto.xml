@@ -325,7 +325,7 @@
     <struct name="SC_SCENE_SHOW_ME_INFO_EXTEND" desc="主角接收自己的扩展信息 " msgId="8004" dir="2">
   <entry name="nJJJDay" type="int32"  desc="上一次领取救济金当天总额度"/>
   <entry name="n64JJJTime" type="int64"  desc="上一次领取救济金时间0点"/>
-  <entry name="szPassword" type="buffer" count="33" desc="登录密码"/>
+  <entry name="szPassword" type="buffer" count="8" desc="登录密码"/>
   </struct>
   
   <struct name="SC_SCENE_VARIABLE_VALUE_INFO" desc="登录下发动态值信息 " msgId="8005" dir="2">
